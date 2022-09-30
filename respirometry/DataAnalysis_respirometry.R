@@ -2,7 +2,8 @@
 library(tidyverse) 
 library(plyr)
 library(dplyr)
-
+library(lubridate) 
+library(ggplot)
 #--- set working directory ---#
 setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation")
 
@@ -14,4 +15,84 @@ resp <- read.delim("./respirometry/SummaryData_2022_resp.txt")
 
 resp <- resp %>% select(-c("X","X.1"))
 
-#
+#--- preparing data ---# 
+resp = resp %>% 
+  mutate(FISH_ID = factor(FISH_ID), 
+          POPULATION = factor(POPULATION), 
+          REGION = factor(REGION), 
+          TEMPERATURE = factor(TEMPERATURE),
+          RESTING_DATE = factor(RESTING_DATE), 
+          RESTING_CHAMBER = factor(RESTING_CHAMBER), 
+          RESTING_SYSTEM = factor(RESTING_SYSTEM), 
+          RESTING_SUMP = factor(RESTING_SUMP), 
+          RESTING_AM_PM = factor(RESTING_AM_PM), 
+          RESTING_START_TIME = hms(RESTING_START_TIME),
+          MAX_DATE = factor(MAX_DATE), 
+          MAX_CHAMBER = factor(MAX_CHAMBER), 
+          MAX_SYSTEM = factor(MAX_SYSTEM), 
+          MAX_SUMP = factor(MAX_SUMP), 
+          MAX_AM_PM = factor(MAX_AM_PM), 
+          MAX_START_TIME = hms(MAX_START_TIME), 
+          Swim.performance = factor(Swim.performance)) %>% 
+  rename(MASS = WEIGHT)
+
+#--- exploratory data analysis: covariates ---# 
+ggplot(resp, aes(MASS, RESTING)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+# negative relationships between mass and resting metabolic rate  
+
+ggplot(resp, aes(MASS, MAX)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+# positive relationship between mass and maximum metabolic rate
+
+ggplot(resp, aes(MASS, NAS)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+# No relationship between mass and net aerobic cope
+
+ggplot(resp, aes(MASS, FAS)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+# slight positive relationship between mass and factorial aerobic scope
+
+# mass should be taken into account and used as a covariate in models
+# when looking at resting and maximum metabolic rate, and factorial aerobic scope
+
+#--- exploratory data analysis 2 ---# 
+ggplot(resp, aes(REGION, RESTING)) + 
+  geom_boxplot() +
+  theme_classic() + 
+  facet_grid(~TEMPERATURE)
+
+ggplot(resp, aes(REGION, MAX)) + 
+  geom_boxplot() +
+  theme_classic() + 
+  facet_grid(~TEMPERATURE)
+
+ggplot(resp, aes(REGION, MASS)) + 
+  geom_boxplot() +
+  theme_classic() 
+
+ggplot(resp, aes(REGION, RESTING_MgO2.hr)) + 
+  geom_boxplot() +
+  theme_classic() + 
+  facet_grid(~TEMPERATURE)
+
+ggplot(resp, aes(REGION, MAX_MgO2.hr)) + 
+  geom_boxplot() +
+  theme_classic() + 
+  facet_grid(~TEMPERATURE) 
+
+ggplot(resp, aes(REGION, NAS)) + 
+  geom_boxplot() +
+  theme_classic() + 
+  facet_grid(~TEMPERATURE) 
+
+ggplot(resp, aes(REGION, FAS)) + 
+  geom_boxplot() +
+  theme_classic() + 
+  facet_grid(~TEMPERATURE) 
+
+#--- model formula ---# 
