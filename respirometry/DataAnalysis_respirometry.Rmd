@@ -1,0 +1,19 @@
+---
+title: "DataAnalysis_respirometry"
+author: "Elliott Schmidt"
+date: "2022-09-30"
+output: html_document
+---
+### Load libraries
+```{loading libraries, warnings = FALSE}
+library(tidyverse) 
+``` 
+### Set working directory 
+*Note:* working directory will be different for you and will depend on where you have saved files on local drive. 
+```{set working directory}
+setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation")
+```
+### Import data 
+```{import data}
+resp <- read.delim("./respirometry/SummaryData_2022_resp.txt")
+```
