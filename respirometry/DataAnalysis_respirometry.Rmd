@@ -7,6 +7,8 @@ output: html_document
 ### Load libraries
 ```{loading libraries, warnings = FALSE}
 library(tidyverse) 
+library(plyr)
+library(dplyr)
 ``` 
 ### Set working directory 
 *Note:* working directory will be different for you and will depend on where you have saved files on local drive. 
@@ -16,4 +18,11 @@ setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/L
 ### Import data 
 ```{import data}
 resp <- read.delim("./respirometry/SummaryData_2022_resp.txt")
+
+# data seems to have loaded with two extract columns at the end 
+# remove extract columns by name 
+
+resp <- resp %>% select(-c("X","X.1"))
 ```
+
+### descriptive statistics 
