@@ -133,7 +133,7 @@ rest <- glmmTMB(RESTING ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_CHAM
                 family=gaussian(),
                 data = resp3,
                 REML = TRUE)
-summary(rest)
+
 
 rest.poly2 <- glmmTMB(RESTING ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + RESTING_CHAMBER + RESTING_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
                       family=gaussian(),
