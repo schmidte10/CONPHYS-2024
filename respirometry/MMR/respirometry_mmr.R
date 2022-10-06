@@ -81,7 +81,14 @@ resp4 <- resp3 %>%
            EXP_FISH_ID != "LCKM154_31.5")
 
 #--- exploratory data analysis ---# 
-hist(resp3$MAX); shapiro.test(resp3$MAX) 
+hist(resp4$MAX); shapiro.test(resp3$MAX) 
+
+resp4 %>% 
+  group_by(REGION, TEMPERATURE)  %>%    
+  dplyr::summarise(sample_size = n(), 
+                   Min. = min(MAX), 
+                   Max. = max(MAX), 
+                   Mean = mean(MAX)) 
 
 #--- model formula ---# 
 #max metablic rate

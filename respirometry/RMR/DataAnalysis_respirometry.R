@@ -17,6 +17,7 @@ library(kableExtra)
 library(broom)
 library(emmeans)
 library(ggeffects)
+library(vtable)
 #--- set working directory ---#
 setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/")
 
@@ -127,7 +128,12 @@ hist(resp3$MAX); shapiro.test(resp3$MAX)
 hist(resp3$NAS); shapiro.test(resp3$NAS) 
 hist(resp3$FAS); shapiro.test(resp3$FAS)
 
-table(resp3, RESTING, TEMPERATURE, REGION)
+resp3 %>% 
+  group_by(REGION, TEMPERATURE)  %>%    
+  dplyr::summarise(sample_size = n(), 
+                   Min. = min(RESTING), 
+                   Max. = max(RESTING), 
+                   Mean = mean(RESTING)) 
 
 #--- model formula ---# 
 #resting metablic rate
