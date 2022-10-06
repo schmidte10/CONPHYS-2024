@@ -155,11 +155,14 @@ rest.poly3 <- glmmTMB(RESTING ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED
  
 AICc(rest, rest.poly2, rest.poly3, k = 2, REML = TRUE)
 check_model(rest.poly3) 
-#saveRDS(rest.poly3, file = "glmmTMB_restpoly3.RDS")
 
-#--- investigate model ---#
+#--- save model ---#
+#saveRDS(rest.poly3, file = "glmmTMB_restpoly3.RDS") 
+
+#--- load model ---#
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
 
+#--- investigate model ---#
 rest.poly3 %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
 rest.poly3 %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
 rest.poly3 %>% plot_model(type='est')

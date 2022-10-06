@@ -107,6 +107,11 @@ mmr.p3 <- glmmTMB(MAX ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + MAX_C
                       family=gaussian(),
                       data = resp4,
                       REML = TRUE)
+#--- saving model ---#
+#saveRDS(mmr.p3, file = "glmmTMB_mmr_p3.RDS") 
+
+#--- load model ---# 
+#mmr.p3 <- readRDS("glmmTMB_mmr_p3.RDS")
 
 #--- model compairson ---#
 AICc(mmr, mmr.p2, mmr.p3, k = 2, REML = TRUE)
