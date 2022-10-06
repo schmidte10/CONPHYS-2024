@@ -127,6 +127,8 @@ hist(resp3$MAX); shapiro.test(resp3$MAX)
 hist(resp3$NAS); shapiro.test(resp3$NAS) 
 hist(resp3$FAS); shapiro.test(resp3$FAS)
 
+table(resp3, RESTING, TEMPERATURE, REGION)
+
 #--- model formula ---# 
 #resting metablic rate
 rest <- glmmTMB(RESTING ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_CHAMBER + RESTING_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
