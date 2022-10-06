@@ -22,7 +22,7 @@ setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/L
 
 #--- load data ---# 
 resp <- read.delim("./SummaryData_2022_resp.txt")
-setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/MMR/")
+setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/NAS/")
 
 #--- preparation of data ---# 
 # data seems to have loaded with two extract columns at the end 
@@ -84,59 +84,67 @@ resp4 <- resp3 %>%
            EXP_FISH_ID != "LCHA125_30")
 
 #--- exploratory data analysis ---# 
-hist(resp4$MAX); shapiro.test(resp4$MAX) 
+hist(resp4$NAS); shapiro.test(resp4$NAS) 
 
 resp4 %>% 
   group_by(REGION, TEMPERATURE)  %>%    
   dplyr::summarise(sample_size = n(), 
-                   Min. = min(MAX), 
-                   Max. = max(MAX), 
-                   Mean = mean(MAX)) 
+                   Min. = min(NAS), 
+                   Max. = max(NAS), 
+                   Mean = mean(NAS))
 
 #--- model formula ---# 
 #max metablic rate
-mmr <- glmmTMB(MAX ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + MAX_CHAMBER + MAX_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
-                family=gaussian(),
-                data = resp4,
-                REML = TRUE)
+nas <- glmmTMB(NAS ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + 
+                 RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
+                 (1|REGION:POPULATION) + (1|FISH_ID), 
+               family=gaussian(),
+               data = resp4,
+               REML = TRUE)
 
 
-mmr.p2 <- glmmTMB(MAX ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + MAX_CHAMBER + MAX_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
-                      family=gaussian(),
-                      data = resp4,
-                      REML = TRUE)
+nas.p2 <- glmmTMB(NAS ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + 
+                    RESTING_CHAMBER + RESTING_SUMP + 
+                    MAX_CHAMBER + MAX_SUMP +
+                    (1|REGION:POPULATION) + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
 
-mmr.p3 <- glmmTMB(MAX ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + MAX_CHAMBER + MAX_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
-                      family=gaussian(),
-                      data = resp4,
-                      REML = TRUE)
+nas.p3 <- glmmTMB(NAS ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + 
+                    RESTING_CHAMBER + RESTING_SUMP + 
+                    MAX_CHAMBER + MAX_SUMP +
+                    (1|REGION:POPULATION) + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
 
 #--- model compairson ---#
-AICc(mmr, mmr.p2, mmr.p3, k = 2, REML = TRUE)
+AICc(nas, nas.p2, nas.p3, k = 2, REML = TRUE) 
 
 #--- saving model ---#
-saveRDS(mmr.p3, file = "glmmTMB_mmr_p3.RDS") 
+saveRDS(nas.p3, file = "glmmTMB_nas_p3.RDS") 
 
 #--- load model ---# 
-#mmr.p3 <- readRDS("glmmTMB_mmr_p3.RDS")
+#nas.p3 <- readRDS("glmmTMB_nas_p3.RDS") 
 
 #--- investigate model ---#
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
-check_model(mmr.p3)
+check_model(nas.p3)
 
-mmr.p3 %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
-mmr.p3 %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-mmr.p3 %>% plot_model(type='est')
+nas.p3 %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
+nas.p3 %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+nas.p3 %>% plot_model(type='est')
 
-mmr.p3 %>% summary()
-mmr.p3 %>% confint()
-mmr.p3  %>% r.squaredGLMM()
-mmr.p3  %>% performance::r2_nakagawa()
+nas.p3 %>% summary()
+nas.p3 %>% confint()
+nas.p3  %>% r.squaredGLMM()
+nas.p3  %>% performance::r2_nakagawa()
 
-mmr.p3 %>% emtrends("REGION", var="TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
+nas.p3 %>% emtrends("REGION", var="TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
 
 #--- plot ---#
-newdata <- mmr.p3 %>% ggemmeans(~TEMPERATURE|REGION) %>%
+newdata <- nas.p3 %>% ggemmeans(~TEMPERATURE|REGION) %>%
   as.data.frame %>% 
   dplyr::rename(TEMPERATURE = x)
 
@@ -144,13 +152,13 @@ g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
   geom_point()+
   theme_classic(); g1
 
-predict(mmr.p3, re.form=NA) 
+predict(nas.p3, re.form=NA) 
 #data points based on month and situation - to get the group means
-residuals(mmr.p3, type='response') 
+residuals(nas.p3, type='response') 
 #data points based on month/situation/random effects - to get the data points
 obs <-  resp4 %>% 
-  mutate(Pred=predict(mmr.p3, re.form=NA),
-         Resid = residuals(mmr.p3, type='response'),
+  mutate(Pred=predict(nas.p3, re.form=NA),
+         Resid = residuals(nas.p3, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
 g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)) + 
@@ -165,11 +173,10 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)
                   size=1,
                   position=position_dodge(0.2)) + 
   scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
-  theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR)")+
+  theme_classic() + ylab("NET AEROBIC SCOPE (MMR)")+
   scale_fill_manual(values=c("#2f3544", "#4c8494"))+ 
   scale_color_manual(values=c("#2f3544", "#4c8494")); g2
 
-pdf("MMR.pdf")
+pdf("NAS.pdf")
 print(g2)
 dev.off()
-
