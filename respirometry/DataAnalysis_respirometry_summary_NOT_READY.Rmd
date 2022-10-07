@@ -2,31 +2,87 @@
 title: "DataAnalysis_respirometry"
 author: "Elliott Schmidt"
 date: "2022-09-30"
-output: html_document
+output: 
+html_document:
+    code_folding: show
+    collapse: no
+    df_print: paged
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 4
+    highlight: textmate
+    theme: spacelab
+    toc: yes
+    toc_float: yes
+    css: ../resources/style.css
+documentclass: article
+fontsize: 12pt
+mainfont: Arial
+mathfont: LiberationMono
+monofont: DejaVu Sans Mono
 ---
 # Load libraries
-```{r loading_libraries, warnings = FALSE}
+```{r loading_libraries, warnings = FALSE, message=FALSE}
+#--- load libraries ---#  
 library(tidyverse) 
 library(plyr)
 library(dplyr)
+library(lubridate) 
 library(ggplot2)
+library(lme4)
+library(nlme) 
+library(glmmTMB)
+library(sjPlot)
+library(gridExtra)
+library(performance)
+library(car)
+library(DHARMa)
+library(MuMIn)
+library(kableExtra) 
+library(broom)
+library(emmeans)
+library(ggeffects)
+library(effects)
+library(styler)
 ``` 
 # Set working directory 
 *Note:* working directory will be different for you and will depend on where you have saved files on local drive. 
 
-```{r setup}
-knitr::opts_knit$set(root.dir = "C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/")
+```{r setup directory, hide = TRUE}
+knitr::opts_knit$set(root.dir = "C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/")
 ```
+
+```{r setup chunk, include=FALSE, warnings=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE,cache.lazy = FALSE, tidy='styler')
+options(tinytex.engine = 'xelatex')
+```
+
+# Summary 
+This is a common garden experiment where individual fish **(FISH_ID)** were exposed to four different **TEMPERATURE** treatments (i.e., 27, 28.5, 30, and 31.5). Fish sampled in this experiment were collected from three different sets of **POPULATIONS** that were collected from two different **REGIONS** (i.e., six different populations in total). REGIONS was used as block effect (as well as a fixed effect) with POPULATION as the within block effect. 
+
+Fish were first sampled at 27C and then subsequently at higher temperatures. Once all fish were tested at the set treatment temperature, the treatment temperature was increase 1.5C over three days. Fish were then given an additional five days to adjust to the temperature increase.   
+
+To determine the **MAX** metabolic rate fish were placed in a swim tunnel for ten minutes. The first five minutes were used to slowly increase the water flow within the swim tunnel until fish reached the point where fish would alternate between pectoral swimming and lateral body undulations (i.e., gait change). The water flow within the swim tunnel was maintained at gait change speeds for an additional five minutes. Afterwards fish were immediately placed within a designated repirometry **CHAMBER** with air saturation rates being monitored for 3.5-4 hours on a four minute measure, three minutes flush, and five second wait cycle.  
+
+Maximum metabolic rate was determined by extracting the steepest sixty second interval slope from the first (sometimes, but rarely, second or third) measurement period. **RESTING** metabolic rate was determined by extacrting the ten shallowest slopes that were recorded over the length of the experiment. 
+
+Fish were sampled in random order. The order that fish were sampled in determined the **SUMP**/**SYSTEM** fish run on as well as the chamber they were placed in (i.e., the first fish sampled went into chamber 1 on sump/system 1, the second fish into chamber 1 on sump/system 2, the third fish into chamber 2 on sump/system 1 etc.). 
+
+
+
+
 
 # Import data 
 ```{r import data}
-resp <- read.delim("./respirometry/SummaryData_2022_resp.txt")
+resp <- read.delim("./SummaryData_2022_resp.txt")
 
 # data seems to have loaded with two extract columns at the end 
 # remove extract columns by name 
 
 resp <- resp %>% select(-c("X","X.1"))
 ```
+
+
 
 # Preparing data
 ```{r preparing data, warnings = FALSE}
@@ -48,64 +104,11 @@ resp = resp %>%
           MAX_AM_PM = factor(MAX_AM_PM), 
           MAX_START_TIME = hms(MAX_START_TIME), 
           Swim.performance = factor(Swim.performance)) %>% 
-  rename(MASS = WEIGHT)
+  dplyr::rename(MASS = WEIGHT)
 ```
 
-# Exploratory data analysis 
-```{r explatory data analysis}
-ggplot(resp, aes(MASS, RESTING)) + 
-  geom_point() + 
-  geom_smooth(method = "lm")
 
-ggplot(resp, aes(MASS, MAX)) + 
-  geom_point() + 
-  geom_smooth(method = "lm")
+## Results {.tabset}
 
-ggplot(resp, aes(MASS, NAS)) + 
-  geom_point() + 
-  geom_smooth(method = "lm")
+### Resting Metabolic
 
-
-ggplot(resp, aes(MASS, FAS)) + 
-  geom_point() + 
-  geom_smooth(method = "lm")
-```
-Negative relationships between mass and resting metabolic rate  
-positive relationship between mass and maximum metabolic rate
-No relationship between mass and net aerobic cope
-
-```{r exploratory data analysis 2}
-ggplot(resp, aes(REGION, RESTING)) + 
-  geom_boxplot() +
-  theme_classic() + 
-  facet_grid(~TEMPERATURE)
-
-ggplot(resp, aes(REGION, MAX)) + 
-  geom_boxplot() +
-  theme_classic() + 
-  facet_grid(~TEMPERATURE)
-
-ggplot(resp, aes(REGION, MASS)) + 
-  geom_boxplot() +
-  theme_classic() 
-
-ggplot(resp, aes(REGION, RESTING_MgO2.hr)) + 
-  geom_boxplot() +
-  theme_classic() + 
-  facet_grid(~TEMPERATURE)
-
-ggplot(resp, aes(REGION, MAX_MgO2.hr)) + 
-  geom_boxplot() +
-  theme_classic() + 
-  facet_grid(~TEMPERATURE) 
-
-ggplot(resp, aes(REGION, NAS)) + 
-  geom_boxplot() +
-  theme_classic() + 
-  facet_grid(~TEMPERATURE) 
-
-ggplot(resp, aes(REGION, FAS)) + 
-  geom_boxplot() +
-  theme_classic() + 
-  facet_grid(~TEMPERATURE) 
-```
