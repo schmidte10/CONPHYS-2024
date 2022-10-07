@@ -39,4 +39,7 @@ vignettes/*.pdf
 .Renviron
 
 # knitted files 
-.html
+.html 
+
+# data files 
+.txt
