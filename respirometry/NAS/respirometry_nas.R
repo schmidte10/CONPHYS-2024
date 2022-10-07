@@ -94,7 +94,7 @@ resp4 %>%
                    Mean = mean(NAS))
 
 #--- model formula ---# 
-#max metablic rate
+#net aerobic scope
 nas <- glmmTMB(NAS ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + 
                  RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
                  (1|REGION:POPULATION) + (1|FISH_ID), 

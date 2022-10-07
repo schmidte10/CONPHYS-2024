@@ -37,19 +37,19 @@ library(gridExtra)
 library(performance)
 library(car)
 library(DHARMa)
-library(MuMIn)
-library(kableExtra) 
+library(MuMIn) 
 library(broom)
 library(emmeans)
 library(ggeffects)
 library(effects)
 library(styler)
+library(ggpubr)
 ``` 
 # Set working directory 
 *Note:* working directory will be different for you and will depend on where you have saved files on local drive. 
 
 ```{r setup directory, hide = TRUE}
-knitr::opts_knit$set(root.dir = "C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/")
+knitr::opts_knit$set(root.dir = "C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation")
 ```
 
 ```{r setup chunk, include=FALSE, warnings=FALSE, message=FALSE}
@@ -74,11 +74,40 @@ Fish were sampled in random order. The order that fish were sampled in determine
 
 # Glossary of Terms 
 
-
+--------------------- ------------------------------------------------------------------
+**EXP_FISH_ID**       Combined FISH_ID with TEMPERATURE the fish was tested at
+**FISH_ID**           Unique alphamueric code provided to fish
+**POPULATION**        Population/Reef the fish was collected from 
+**REGION**            Region (i.e. core or leading) fish was collected from 
+**TEMPERATURE**       Temperature fish was tested at 
+**MASS**              Mass of the fish 
+**RESTING_DATE**      Date the resting metabolic rate was recorded for each fish     
+**RESTING_CHAMBER**   Respirometry chamber the fish was tested in for RMR
+**RESTING_SYSTEM**    Respirometry system (i.e. dell or asus) fish was tests with 
+**RESTING_SUMP**      Respirometry sump (i.e., 1 or 2) fish was tested in
+**RESTING_AM_PM**     Time of day (i.e. morning or afternoon) fish was tested 
+**RESTING_START_TIME**Time that the fish was placed inside the repirometry chamber 
+**RESTING**           Resting metabolic rate (RMR)  
+**RESTING_MgO2.hr**   Resting metabolic rate divded mass 
+**MAX_DATE**          Date that maximum metabolic rate was recored 
+**MAX_CHAMBER**       Respirometry chamber the fish was tested in for MMR
+**MAX_SYSTEM**        Respirometry system fish was test with for MMR 
+**MAX_SUMP**          Respirometry sump (i.e., 1 or 2) fish was tested in for MMR 
+**MAX_AM_PM**         Time of day (i.e. morning or afternoon) fish was tested for MMR 
+**MAX_START_TIME**    Time that the fish was placed inside the chamber for MMR 
+**MAX**               Maximum metabolic rate (MMR) 
+**MAX_MgO2.hr**       Maximum metabolic rate divided by mass 
+**FAS**               Factorial metabolic rate (MMR/RMR) 
+**NAS**               Net metabolic rate (MMR - RMR) 
+**MgO2.hr_Net**       Net metaboic rate divided by mass 
+**Swim.performance**  Fish swim performance in swim tunnel (i.e., good, okay, poor) 
+**Notes**             Additional experimental notes
+**MASS_CENTERED**     Mass of fish (centered)
+--------------------- -----------------------------------------------------------------
 
 # Import data 
 ```{r import data}
-resp <- read.delim("./respirometry/SummaryData_2022_resp.txt")
+resp <- read.delim("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/SummaryData_2022_resp.txt")
 
 # data seems to have loaded with two extract columns at the end 
 # remove extract columns by name 
@@ -89,30 +118,620 @@ resp <- resp %>% select(-c("X","X.1"))
 
 
 # Preparing data
-```{r preparing data, warnings = FALSE}
-resp = resp %>% 
+```{r preparing data, warning = FALSE}
+resp2 = resp %>% 
+  dplyr::rename(EXP_FISH_ID = FISH_ID) %>%
+  separate(EXP_FISH_ID, c("FISH_ID"), remove = FALSE) %>%
   mutate(FISH_ID = factor(FISH_ID), 
-          POPULATION = factor(POPULATION), 
-          REGION = factor(REGION), 
-          TEMPERATURE = factor(TEMPERATURE),
-          RESTING_DATE = factor(RESTING_DATE), 
-          RESTING_CHAMBER = factor(RESTING_CHAMBER), 
-          RESTING_SYSTEM = factor(RESTING_SYSTEM), 
-          RESTING_SUMP = factor(RESTING_SUMP), 
-          RESTING_AM_PM = factor(RESTING_AM_PM), 
-          RESTING_START_TIME = hms(RESTING_START_TIME),
-          MAX_DATE = factor(MAX_DATE), 
-          MAX_CHAMBER = factor(MAX_CHAMBER), 
-          MAX_SYSTEM = factor(MAX_SYSTEM), 
-          MAX_SUMP = factor(MAX_SUMP), 
-          MAX_AM_PM = factor(MAX_AM_PM), 
-          MAX_START_TIME = hms(MAX_START_TIME), 
-          Swim.performance = factor(Swim.performance)) %>% 
-  dplyr::rename(MASS = WEIGHT)
+         POPULATION = factor(POPULATION), 
+         REGION = factor(REGION), 
+         TEMPERATURE = as.numeric(TEMPERATURE),
+         RESTING_DATE = factor(RESTING_DATE), 
+         RESTING_CHAMBER = factor(RESTING_CHAMBER), 
+         RESTING_SYSTEM = factor(RESTING_SYSTEM), 
+         RESTING_SUMP = factor(RESTING_SUMP), 
+         RESTING_AM_PM = factor(RESTING_AM_PM), 
+         RESTING_START_TIME = hms(RESTING_START_TIME),
+         MAX_DATE = factor(MAX_DATE), 
+         MAX_CHAMBER = factor(MAX_CHAMBER), 
+         MAX_SYSTEM = factor(MAX_SYSTEM), 
+         MAX_SUMP = factor(MAX_SUMP), 
+         MAX_AM_PM = factor(MAX_AM_PM), 
+         MAX_START_TIME = hms(MAX_START_TIME), 
+         Swim.performance = factor(Swim.performance)) %>% 
+  dplyr::rename(MASS = WEIGHT) %>% 
+  mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE))
 ```
 
 
-## Results {.tabset}
+## Results {.tabset .tabset-pills}
 
-### Resting Metabolic
+### Resting Metabolic Rates
 
+<h3>Data quailty</h3>
+Removing fish that died during the respirometry trials 
+```{r RESTING_Data QC}
+#--- remove individuals where data is irregular ---# 
+resp3 <- resp2 %>% 
+  subset(EXP_FISH_ID !="LCHA132_27" & 
+           EXP_FISH_ID != "LKES168_27" & 
+           EXP_FISH_ID != "LCHA113_30" & 
+           EXP_FISH_ID != "CSUD088_27" & 
+           EXP_FISH_ID != "CTON062_27")
+```
+
+<h3>Exploratory data analysis</h3>
+Checking to make sure data is normally distributed 
+```{r RESTING_EDA}
+hist(resp3$RESTING); shapiro.test(resp3$RESTING)
+``` 
+
+<h3>Descriptive statistics</h3>
+```{r RESTING_EDA 3}
+resp3 %>% 
+  group_by(REGION, TEMPERATURE)  %>%    
+  dplyr::summarise(sample_size = n(), 
+                   Min. = min(RESTING), 
+                   Max. = max(RESTING), 
+                   Mean = mean(RESTING))
+``` 
+
+<h3>Models</h3>
+Linear, quardratic, and polynomial models were used to determine if a linear, quadratic, or polynomial regression fit the data the best. The co-variate **MASS** had its value centered before being included in the model to make the results more tangible. **RESTING_CHAMBER** and **RESTING_SUMP** co-variates were included within the model as well to account for any variation that may have come from different systems or chambers. Lastly, for random effects **POPULATION** was nested within **REGION**, and **FISH_ID** was also included as a random block. 
+```{r RESTING_glmmTMB models}
+#--- model formula ---# 
+rest <- glmmTMB(RESTING ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_CHAMBER + RESTING_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
+                family=gaussian(),
+                data = resp3,
+                REML = TRUE)
+
+
+rest.poly2 <- glmmTMB(RESTING ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + RESTING_CHAMBER + RESTING_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
+                      family=gaussian(),
+                      data = resp3,
+                      REML = TRUE)
+
+rest.poly3 <- glmmTMB(RESTING ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + RESTING_CHAMBER + RESTING_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
+                     family=gaussian(),
+                     data = resp3,
+                     REML = TRUE)
+```
+
+<h3>Model comparison</h3> 
+```{r RESTING_model comparison}
+AICc(rest, rest.poly2, rest.poly3, k = 2, REML = TRUE) 
+```
+The polynomial regression has the lowest AIC score and was therefore picked as the best model. 
+
+<h3>Model performance checks</h3> 
+```{r RESTING_model checks, warning = F, message = F}
+check_model(rest.poly3) 
+```
+Everything looks good 
+
+<h3>Model investigation</h3> 
+Predicted values
+```{r RESTING_model investigation}
+rest.poly3 %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+```
+
+Mass shown to be influential on RESTING METABOLIC RATES
+```{r RESTING_model investigation 2}
+rest.poly3 %>% plot_model(type='est')
+```
+
+<h3>Summary</h3>
+```{r RESTING_summary}
+rest.poly3 %>% summary()
+```
+
+<h3>Confidence intervals</h3> 
+```{r RESTING_confidence intervals}
+rest.poly3 %>% confint()
+```
+
+<h3>R-squared values</h3> 
+```{r RESTING_r-sqauared values, warning=FALSE}
+rest.poly3  %>% r.squaredGLMM()
+```
+The r-squared values based on fixed effects (0.29) accounts of half the amount of variance as the same model when random effects are included (0.588). However, from the summary we can see that **POPULATION** account for little variation. Thus showing that variation between different fish made up for a large amount of variation. 
+
+<h3>Figure</h3>
+```{r RESTING_plot, echo=FALSE}
+#--- plot ---#
+newdata <- rest.poly3 %>% ggemmeans(~TEMPERATURE|REGION) %>%
+  as.data.frame %>% 
+  dplyr::rename(TEMPERATURE = x)
+
+g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
+  geom_point()+
+  theme_classic()
+
+obs <-  resp3 %>% 
+  mutate(Pred=predict(rest.poly3, re.form=NA),
+         Resid = residuals(rest.poly3, type='response'),
+         Fit = Pred + Resid)
+rest.plot <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)) + 
+  geom_line(method="lm", stat="smooth",
+              formula=y ~ poly(x, 3, raw=FALSE), 
+            aes(color = group), 
+            size = 1, 
+            alpha = 0.5)+
+  geom_pointrange(aes(ymin=conf.low, 
+                      ymax=conf.high), 
+                      shape=21,
+                  size=1,
+                  position=position_dodge(0.2)) + 
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
+  theme_classic() + ylab("RESTING METABOLIC RATE (RMR)")+
+  scale_fill_manual(values=c("#2f3544", "#4c8494"))+ 
+  scale_color_manual(values=c("#2f3544", "#4c8494")) 
+rest.plot
+```
+
+### Maximum Metabolic Rates 
+
+<h3>Data quality</h3>
+Removing fish that died during the respirometry trials. As well as fish that performed poorly for during max. 
+```{r MAX_Data QC}
+#--- remove individuals where min.max data is unreliable ---# 
+resp3 <- resp2 %>% 
+  subset(EXP_FISH_ID !="LCHA132_27" & 
+           EXP_FISH_ID != "LKES168_27" & 
+           EXP_FISH_ID != "LCHA113_30" & 
+           EXP_FISH_ID != "CSUD088_27" & 
+           EXP_FISH_ID != "CTON062_27") 
+
+#--- remove individuals where ONLY max data is unreliable ---# 
+resp4 <- resp3 %>% 
+  subset(EXP_FISH_ID !="CSUD014_27" & 
+           EXP_FISH_ID != "CTON065_27" & 
+           EXP_FISH_ID != "CTON069_30" & 
+           EXP_FISH_ID != "CVLA054_27" & 
+           EXP_FISH_ID != "LCHA129_27"& 
+           EXP_FISH_ID != "LCHA135_27" & 
+           EXP_FISH_ID != "LCKM162_27" & 
+           EXP_FISH_ID != "LCKM165_27" & 
+           EXP_FISH_ID != "LCKM180_27"& 
+           EXP_FISH_ID != "CSUD026_30" & 
+           EXP_FISH_ID != "CTON067_28.5" & 
+           EXP_FISH_ID != "CVLA054_28.5" & 
+           EXP_FISH_ID != "LCHA114_28.5"& 
+           EXP_FISH_ID != "LCKM163_28.5" & 
+           EXP_FISH_ID != "LCKM154_31.5"& 
+           EXP_FISH_ID != "CSUD079_30" & 
+           EXP_FISH_ID != "CSUD079_31.5"& 
+           EXP_FISH_ID != "LCHA125_30")
+
+```
+<h3>Exploratory data analysis</h3>
+Checking to make sure data is normally distributed 
+```{r MAX_EDA}
+hist(resp4$MAX); shapiro.test(resp4$MAX)
+``` 
+
+<h3>Descriptive statistics</h3>
+```{r MAX_EDA 3}
+resp4 %>% 
+  group_by(REGION, TEMPERATURE)  %>%    
+  dplyr::summarise(sample_size = n(), 
+                   Min. = min(MAX), 
+                   Max. = max(MAX), 
+                   Mean = mean(MAX))
+``` 
+
+<h3>Models</h3>
+Linear, quardratic, and polynomial models were used to determine if a linear, quadratic, or polynomial regression fit the data the best. The co-variate **MASS** had its value centered before being included in the model to make the results more tangible. **MAX_CHAMBER** and **MAX_SUMP** co-variates were included within the model as well to account for any variation that may have come from different systems or chambers. Lastly, for random effects **POPULATION** was nested within **REGION**, and **FISH_ID** was also included as a random block. 
+```{r MAX_glmmTMB models}
+#max metablic rate
+mmr <- glmmTMB(MAX ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + MAX_CHAMBER + MAX_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
+                family=gaussian(),
+                data = resp4,
+                REML = TRUE)
+
+
+mmr.p2 <- glmmTMB(MAX ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + MAX_CHAMBER + MAX_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
+                      family=gaussian(),
+                      data = resp4,
+                      REML = TRUE)
+
+mmr.p3 <- glmmTMB(MAX ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + MAX_CHAMBER + MAX_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
+                      family=gaussian(),
+                      data = resp4,
+                      REML = TRUE)
+```
+
+<h3>Model comparison</h3>
+```{r MAX_model comparison}
+#--- model compairson ---#
+AICc(mmr, mmr.p2, mmr.p3, k = 2, REML = TRUE) 
+```
+The polynomial regression has the lowest AIC score and was therefore picked as the best model. 
+
+<h3>Model performance checks</h3> 
+```{r MAX_model checks, warning = F, message = F}
+check_model(mmr.p3) 
+```
+Everything looks good 
+
+<h3>Model investigation</h3> 
+Predicted values
+```{r MAX_model investigation}
+mmr.p3 %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+```
+
+
+```{r MAX_model investigation 2}
+mmr.p3 %>% plot_model(type='est')
+```
+
+<h3>Summary</h3>
+```{r MAX_summary}
+mmr.p3 %>% summary()
+```
+
+<h3>Confidence intervals</h3> 
+```{r MAX_confidence intervals}
+mmr.p3 %>% confint()
+```
+
+<h3>R-squared values</h3> 
+```{r MAX_r-sqauared values, warning=FALSE}
+mmr.p3  %>% r.squaredGLMM()
+```
+The r-squared values based on fixed effects (0.20) accounts for a third of the amount of variance as the same model when random effects are included (0.60). However, from the summary we can see that **POPULATION** account for little variation compared to **FISH_ID**. Thus showing that variation between different fish made up for a large amount of variation. 
+
+<h3>Figure</h3>
+```{r MAX_plot, echo=FALSE}
+#--- plot ---#
+newdata <- mmr.p3 %>% ggemmeans(~TEMPERATURE|REGION) %>%
+  as.data.frame %>% 
+  dplyr::rename(TEMPERATURE = x)
+g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
+  geom_point()+
+  theme_classic()
+obs <-  resp4 %>% 
+  mutate(Pred=predict(mmr.p3, re.form=NA),
+         Resid = residuals(mmr.p3, type='response'),
+         Fit = Pred + Resid) 
+max.plot <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)) + 
+  geom_line(method="lm", stat="smooth",
+            formula=y ~ poly(x, 3, raw=FALSE), 
+            aes(color = group), 
+            size = 1, 
+            alpha = 0.5)+
+  geom_pointrange(aes(ymin=conf.low, 
+                      ymax=conf.high), 
+                  shape=21,
+                  size=1,
+                  position=position_dodge(0.2)) + 
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
+  theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR)")+
+  scale_fill_manual(values=c("#2f3544", "#4c8494"))+ 
+  scale_color_manual(values=c("#2f3544", "#4c8494")) 
+max.plot
+```
+
+### Net Aerobic Scope
+
+<h3>Data quality</h3>
+Removing fish that died during the respirometry trials. As well as fish that performed poorly for during NAS. 
+```{r NAS_Data QC}
+#--- remove individuals where min.NAS data is unreliable ---# 
+resp3 <- resp2 %>% 
+  subset(EXP_FISH_ID !="LCHA132_27" & 
+           EXP_FISH_ID != "LKES168_27" & 
+           EXP_FISH_ID != "LCHA113_30" & 
+           EXP_FISH_ID != "CSUD088_27" & 
+           EXP_FISH_ID != "CTON062_27") 
+
+#--- remove individuals where ONLY NAS data is unreliable ---# 
+resp4 <- resp3 %>% 
+  subset(EXP_FISH_ID !="CSUD014_27" & 
+           EXP_FISH_ID != "CTON065_27" & 
+           EXP_FISH_ID != "CTON069_30" & 
+           EXP_FISH_ID != "CVLA054_27" & 
+           EXP_FISH_ID != "LCHA129_27"& 
+           EXP_FISH_ID != "LCHA135_27" & 
+           EXP_FISH_ID != "LCKM162_27" & 
+           EXP_FISH_ID != "LCKM165_27" & 
+           EXP_FISH_ID != "LCKM180_27"& 
+           EXP_FISH_ID != "CSUD026_30" & 
+           EXP_FISH_ID != "CTON067_28.5" & 
+           EXP_FISH_ID != "CVLA054_28.5" & 
+           EXP_FISH_ID != "LCHA114_28.5"& 
+           EXP_FISH_ID != "LCKM163_28.5" & 
+           EXP_FISH_ID != "LCKM154_31.5"& 
+           EXP_FISH_ID != "CSUD079_30" & 
+           EXP_FISH_ID != "CSUD079_31.5"& 
+           EXP_FISH_ID != "LCHA125_30")
+
+```
+<h3>Exploratory data analysis</h3>
+Checking to make sure data is normally distributed 
+```{r NAS_EDA}
+hist(resp4$NAS); shapiro.test(resp4$NAS)
+``` 
+
+<h3>Descriptive statistics</h3>
+```{r NAS_EDA 3}
+resp4 %>% 
+  group_by(REGION, TEMPERATURE)  %>%    
+  dplyr::summarise(sample_size = n(), 
+                   Min. = min(NAS), 
+                   Max. = max(NAS), 
+                   Mean = mean(NAS))
+``` 
+
+<h3>Models</h3>
+Linear, quardratic, and polynomial models were used to determine if a linear, quadratic, or polynomial regression fit the data the best. The co-variate **MASS** had its value centered before being included in the model to make the results more tangible. **SUMP** co-variates was included within the model as well to account for any variation that may have come from different systems or chambers. Net aerobic scope relies on both resting and maximum metabolic rates, therefore **RESTING_CHAMBER** and **MAX_CHAMBER** were both used, however for the vast majority of fish the chamber number should be the same. The chamber number will mostly likely be different for fish tested at 27C, where resting and maximum metabolic rates were tested on different days, as well as for a handful at fish that performed poorly on their first run for max, and had to be tested again. Lastly, for random effects **POPULATION** was nested within **REGION**, and **FISH_ID** was also included as a random block. 
+```{r NAS_glmmTMB models}
+#net aerobic scope
+nas <- glmmTMB(NAS ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + 
+                 RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
+                 (1|REGION:POPULATION) + (1|FISH_ID), 
+               family=gaussian(),
+               data = resp4,
+               REML = TRUE)
+
+
+nas.p2 <- glmmTMB(NAS ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + 
+                    RESTING_CHAMBER + RESTING_SUMP + 
+                    MAX_CHAMBER + MAX_SUMP +
+                    (1|REGION:POPULATION) + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
+
+nas.p3 <- glmmTMB(NAS ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + 
+                    RESTING_CHAMBER + RESTING_SUMP + 
+                    MAX_CHAMBER + MAX_SUMP +
+                    (1|REGION:POPULATION) + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
+
+```
+
+<h3>Model comparison</h3>
+```{r NAS_model comparison}
+#--- model compairson ---#
+AICc(nas, nas.p2, nas.p3, k = 2, REML = TRUE) 
+```
+The polynomial regression has the lowest AIC score and was therefore picked as the best model. 
+
+<h3>Model performance checks</h3> 
+```{r NAS_model checks, warning = F, message = F}
+check_model(nas.p3) 
+```
+Everything looks good 
+
+<h3>Model investigation</h3> 
+Predicted values
+```{r NAS_model investigation}
+nas.p3 %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+```
+
+
+```{r NAS_model investigation 2}
+nas.p3 %>% plot_model(type='est')
+```
+
+<h3>Summary</h3>
+```{r NAS_summary}
+nas.p3 %>% summary()
+```
+
+<h3>Confidence intervals</h3> 
+```{r NAS_confidence intervals}
+nas.p3 %>% confint()
+```
+
+<h3>R-squared values</h3> 
+```{r NAS_r-sqauared values, warning=FALSE}
+nas.p3  %>% r.squaredGLMM()
+```
+The r-squared values based on fixed effects (0.14) accounts for approx. a third of the amount of variance as the same model when random effects are included (0.54). However, from the summary we can see that **POPULATION** account for little variation compared to **FISH_ID**. Thus showing that variation between different fish made up for a large amount of variation. 
+
+<h3>Figure</h3>
+```{r NAS_plot, echo=FALSE}
+#--- plot ---#
+newdata <- nas.p3 %>% ggemmeans(~TEMPERATURE|REGION) %>%
+  as.data.frame %>% 
+  dplyr::rename(TEMPERATURE = x)
+g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
+  geom_point()+
+  theme_classic()
+obs <-  resp4 %>% 
+  mutate(Pred=predict(nas.p3, re.form=NA),
+         Resid = residuals(nas.p3, type='response'),
+         Fit = Pred + Resid) 
+nas.plot <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)) + 
+  geom_line(method="lm", stat="smooth",
+            formula=y ~ poly(x, 3, raw=FALSE), 
+            aes(color = group), 
+            size = 1, 
+            alpha = 0.5)+
+  geom_pointrange(aes(ymin=conf.low, 
+                      ymax=conf.high), 
+                  shape=21,
+                  size=1,
+                  position=position_dodge(0.2)) + 
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
+  theme_classic() + ylab("NET AEROBIC SCOPE (NAS)")+
+  scale_fill_manual(values=c("#2f3544", "#4c8494"))+ 
+  scale_color_manual(values=c("#2f3544", "#4c8494")) 
+nas.plot
+```
+
+### Factorial Aerobic Scope
+
+<h3>Data quality</h3>
+Removing fish that died during the respirometry trials. As well as fish that performed poorly for during FAS. 
+```{r FAS_Data QC}
+#--- remove individuals where min.FAS data is unreliable ---# 
+resp3 <- resp2 %>% 
+  subset(EXP_FISH_ID !="LCHA132_27" & 
+           EXP_FISH_ID != "LKES168_27" & 
+           EXP_FISH_ID != "LCHA113_30" & 
+           EXP_FISH_ID != "CSUD088_27" & 
+           EXP_FISH_ID != "CTON062_27") 
+
+#--- remove individuals where ONLY FAS data is unreliable ---# 
+resp4 <- resp3 %>% 
+  subset(EXP_FISH_ID !="CSUD014_27" & 
+           EXP_FISH_ID != "CTON065_27" & 
+           EXP_FISH_ID != "CTON069_30" & 
+           EXP_FISH_ID != "CVLA054_27" & 
+           EXP_FISH_ID != "LCHA129_27"& 
+           EXP_FISH_ID != "LCHA135_27" & 
+           EXP_FISH_ID != "LCKM162_27" & 
+           EXP_FISH_ID != "LCKM165_27" & 
+           EXP_FISH_ID != "LCKM180_27"& 
+           EXP_FISH_ID != "CSUD026_30" & 
+           EXP_FISH_ID != "CTON067_28.5" & 
+           EXP_FISH_ID != "CVLA054_28.5" & 
+           EXP_FISH_ID != "LCHA114_28.5"& 
+           EXP_FISH_ID != "LCKM163_28.5" & 
+           EXP_FISH_ID != "LCKM154_31.5"& 
+           EXP_FISH_ID != "CSUD079_30" & 
+           EXP_FISH_ID != "CSUD079_31.5"& 
+           EXP_FISH_ID != "LCHA125_30")
+
+```
+<h3>Exploratory data analysis</h3>
+Checking to make sure data is normally distributed 
+```{r FAS_EDA}
+hist(resp4$FAS); shapiro.test(resp4$FAS)
+``` 
+
+<h3>Descriptive statistics</h3>
+```{r FAS_EDA 3}
+resp4 %>% 
+  group_by(REGION, TEMPERATURE)  %>%    
+  dplyr::summarise(sample_size = n(), 
+                   Min. = min(FAS), 
+                   Max. = max(FAS), 
+                   Mean = mean(FAS))
+``` 
+Data for **factorial aerobic scope** is **NOT** normally distributed. Instead it shows a right (positive) skew. I will figure out how to best model it later. For now I will proceed with just running the code with a normal distribution. It doesn't look too far off. 
+
+
+<h3>Models</h3>
+Linear, quardratic, and polynomial models were used to determine if a linear, quadratic, or polynomial regression fit the data the best. The co-variate **MASS** had its value centered before being included in the model to make the results more tangible. **SUMP** co-variates was included within the model as well to account for any variation that may have come from different systems or chambers. Net aerobic scope relies on both resting and maximum metabolic rates, therefore **RESTING_CHAMBER** and **MAX_CHAMBER** were both used, however for the vast majority of fish the chamber number should be the same. The chamber number will mostly likely be different for fish tested at 27C, where resting and maximum metabolic rates were tested on different days, as well as for a handful at fish that performed poorly on their first run for max, and had to be tested again. Lastly, for random effects **POPULATION** was nested within **REGION**, and **FISH_ID** was also included as a random block. 
+```{r FAS_glmmTMB models}
+#factorial aerobic scope
+fas <- glmmTMB(FAS ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + 
+                 RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
+                 (1|REGION:POPULATION) + (1|FISH_ID), 
+               family=gaussian(),
+               data = resp4,
+               REML = TRUE)
+
+
+fas.p2 <- glmmTMB(FAS ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + 
+                    RESTING_CHAMBER + RESTING_SUMP + 
+                    MAX_CHAMBER + MAX_SUMP +
+                    (1|REGION:POPULATION) + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
+
+fas.p3 <- glmmTMB(FAS ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + 
+                    RESTING_CHAMBER + RESTING_SUMP + 
+                    MAX_CHAMBER + MAX_SUMP +
+                    (1|REGION:POPULATION) + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
+
+```
+
+<h3>Model comparison</h3>
+```{r FAS_model comparison}
+#--- model compairson ---#
+AICc(fas, fas.p2, fas.p3, k = 2, REML = TRUE) 
+```
+The quadratic regression has the lowest AIC score and was therefore picked as the best model. 
+
+<h3>Model performance checks</h3> 
+```{r FAS_model checks, warning = F, message = F}
+check_model(fas.p2) 
+```
+Everything looks good 
+
+<h3>Model investigation</h3> 
+Predicted values
+```{r FAS_model investigation}
+fas.p2 %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+```
+
+
+```{r FAS_model investigation 2}
+fas.p2 %>% plot_model(type='est')
+```
+
+<h3>Summary</h3>
+```{r FAS_summary}
+fas.p2 %>% summary()
+```
+
+<h3>Confidence intervals</h3> 
+```{r FAS_confidence intervals}
+fas.p2 %>% confint()
+```
+
+<h3>R-squared values</h3> 
+```{r FAS_r-sqauared values, warning=FALSE}
+fas.p2  %>% r.squaredGLMM()
+```
+The r-squared values based on fixed effects (0.18) accounts for half of the amount of variance as the same model when random effects are included (0.43). However, from the summary we can see that **POPULATION** account for little variation compared to **FISH_ID**. Thus showing that variation between different fish made up for a large amount of variation. 
+
+<h3>Figure</h3>
+```{r FAS_plot, echo=FALSE}
+#--- plot ---#
+newdata <- fas.p2 %>% ggemmeans(~TEMPERATURE|REGION) %>%
+  as.data.frame %>% 
+  dplyr::rename(TEMPERATURE = x)
+g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
+  geom_point()+
+  theme_classic()
+obs <-  resp4 %>% 
+  mutate(Pred=predict(fas.p2, re.form=NA),
+         Resid = residuals(fas.p2, type='response'),
+         Fit = Pred + Resid)
+fas.plot <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)) + 
+  geom_line(method="lm", stat="smooth",
+            formula=y ~ poly(x, 3, raw=FALSE), 
+            aes(color = group), 
+            size = 1, 
+            alpha = 0.5)+
+  geom_pointrange(aes(ymin=conf.low, 
+                      ymax=conf.high), 
+                  shape=21,
+                  size=1,
+                  position=position_dodge(0.2)) + 
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
+  theme_classic() + ylab("FACTORIAL AEROBIC SCOPE (FAS)")+
+  scale_fill_manual(values=c("#2f3544", "#4c8494"))+ 
+  scale_color_manual(values=c("#2f3544", "#4c8494")) 
+fas.plot
+```
+
+## 
+
+# General Summary 
+
+**RESTING METABOLIC RATE** and **MAXIMUM METABOLIC RATE** shows <span style="color:red">no significant difference</span> within the temperature response curve between fish collected from the core region of the Great Barrier Reef and the sampled southern section (Mackay region) of the Great Barrier Reef. 
+
+<span style="color:red">No significant difference</span> within the polynomial model appeared when looking at **AEROBIC NET SCOPE**, however, from looking at the figure if analyzing temperature as a factor instead of a continuous variable, it looks likely that there will be a significant difference between populations when looking at the NET AEROBIC SCOPE of fish between core and leading edge regions. Perhaps this should be part of some future analysis. 
+
+Similar results were found for FACTORIAL AEROBIC SCOPE although we should continue to be aware that the model was run with gaussian distribution when in fact the data was right (positive) skewed. However, looking at the predicted values, one would expect that if treating TEMPERATURE as a factor there would be significant differences in the FACTORIAL AEROBIC SCOPE of fish collected from different regions. Note that the FACTORIAL AEROBIC SCOPE model was run with quadratic function instead of a polynomial function. 
+
+Fish from the core and leading edge (mackay region) of the Great Barrier Reef showed similar thermal response curves. However, it looks like fish from the core region of the Great Barrier Reef overall performed better at high temperatures, but this will need to be confirmed with further analysis. Interestingly, fish from the core and leading edge regions appeared to optimally at temperatures that were +1.5 their normal range (i.e., core region function well at 30C, and leading edge fish function well at 28.5). Although performance appeared to drop at 31.5C, the drop in performance was not particularly sharp.  
+
+```{r final plot, echo=FALSE, fig.height=8, fig.width=12}
+ggarrange(rest.plot, max.plot, nas.plot, fas.plot, 
+          nrow=2, 
+          ncol=2)
+```
