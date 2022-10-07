@@ -38,8 +38,5 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# knitted files 
-.html 
-
 # data files 
-.txt
+*.txt
