@@ -146,4 +146,6 @@ map <- ggarrange(p1, cb,
 
 pdf("population_map.pdf")
 map
-dev.off()
+dev.off() 
+
+ggsave("population_map.jpeg", width = 10, height = 7, units = "in", dpi = 300)

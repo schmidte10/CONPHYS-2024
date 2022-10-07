@@ -49,7 +49,7 @@ library(styler)
 *Note:* working directory will be different for you and will depend on where you have saved files on local drive. 
 
 ```{r setup directory, hide = TRUE}
-knitr::opts_knit$set(root.dir = "C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/")
+knitr::opts_knit$set(root.dir = "C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/")
 ```
 
 ```{r setup chunk, include=FALSE, warnings=FALSE, message=FALSE}
@@ -66,15 +66,19 @@ To determine the **MAX** metabolic rate fish were placed in a swim tunnel for te
 
 Maximum metabolic rate was determined by extracting the steepest sixty second interval slope from the first (sometimes, but rarely, second or third) measurement period. **RESTING** metabolic rate was determined by extacrting the ten shallowest slopes that were recorded over the length of the experiment. 
 
-Fish were sampled in random order. The order that fish were sampled in determined the **SUMP**/**SYSTEM** fish run on as well as the chamber they were placed in (i.e., the first fish sampled went into chamber 1 on sump/system 1, the second fish into chamber 1 on sump/system 2, the third fish into chamber 2 on sump/system 1 etc.). 
+Fish were sampled in random order. The order that fish were sampled in determined the **SUMP**/**SYSTEM** fish run on as well as the chamber they were placed in (i.e., the first fish sampled went into chamber 1 on sump/system 1, the second fish into chamber 1 on sump/system 2, the third fish into chamber 2 on sump/system 1 etc.).  
 
 
+![Acanthochromis](C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/fish_polyacanthus_image.jpg)![map](C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/map/population_map.jpeg)
+
+
+# Glossary of Terms 
 
 
 
 # Import data 
 ```{r import data}
-resp <- read.delim("./SummaryData_2022_resp.txt")
+resp <- read.delim("./respirometry/SummaryData_2022_resp.txt")
 
 # data seems to have loaded with two extract columns at the end 
 # remove extract columns by name 
