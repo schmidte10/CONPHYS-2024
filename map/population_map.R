@@ -137,7 +137,13 @@ cb <- ggarrange(insert1, insert2,
           ncol = 1, nrow = 2, labels = c("B","C"), 
           align = "hv",
           heights = c (1,1), 
-          widths = c (1,1)); cb 
+          widths = c (1,1)) 
 
 map <- ggarrange(p1, cb, 
-                 ncol=2, nrow=1, labels = c("A","")); map
+                 ncol=2, 
+                 nrow=1, 
+                 labels = c("A","")); map
+
+pdf("population_map.pdf")
+map
+dev.off()
