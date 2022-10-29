@@ -95,7 +95,7 @@ resp4 %>%
 
 #--- model formula ---# 
 #net aerobic scope
-nas <- glmmTMB(NAS ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + 
+nas <- glmmTMB(NAS ~ 1+ REGION * TEMPERATURE + 
                  RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
                  (1|REGION:POPULATION) + (1|FISH_ID), 
                family=gaussian(),
@@ -103,7 +103,7 @@ nas <- glmmTMB(NAS ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
                REML = TRUE)
 
 
-nas.p2 <- glmmTMB(NAS ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + 
+nas.p2 <- glmmTMB(NAS ~ 1+ REGION * poly(TEMPERATURE, 2) + 
                     RESTING_CHAMBER + RESTING_SUMP + 
                     MAX_CHAMBER + MAX_SUMP +
                     (1|REGION:POPULATION) + (1|FISH_ID), 
@@ -111,7 +111,7 @@ nas.p2 <- glmmTMB(NAS ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED +
                   data = resp4,
                   REML = TRUE)
 
-nas.p3 <- glmmTMB(NAS ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + 
+nas.p3 <- glmmTMB(NAS ~ 1+ REGION * poly(TEMPERATURE, 3) + 
                     RESTING_CHAMBER + RESTING_SUMP + 
                     MAX_CHAMBER + MAX_SUMP +
                     (1|REGION:POPULATION) + (1|FISH_ID), 
@@ -180,3 +180,67 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)
 pdf("NAS.pdf")
 print(g2)
 dev.off()
+
+###########################################################################################
+resp4 %>% 
+  group_by(POPULATION, TEMPERATURE)  %>%    
+  dplyr::summarise(sample_size = n(), 
+                   Min. = min(NAS), 
+                   Max. = max(NAS), 
+                   Mean = mean(NAS)) %>% 
+  print(n = 24)
+
+#--- model formula ---# 
+#net aerobic scope looking at differences between populations
+pop.nas <- glmmTMB(NAS ~ 1+ POPULATION * TEMPERATURE + 
+                 RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
+               family=gaussian(),
+               control=glmmTMBControl(optimizer=optim,
+                                      optArgs = list(method='BFGS')),
+               data = resp4,
+               REML = TRUE)
+
+
+pop.nas.p2 <- glmmTMB(NAS ~ 1+ POPULATION * poly(TEMPERATURE, 2) + 
+                    RESTING_CHAMBER + RESTING_SUMP + 
+                    MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
+                    control=glmmTMBControl(optimizer=optim,
+                                           optArgs = list(method='BFGS')),
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
+
+pop.nas.p3 <- glmmTMB(NAS ~ 1+ POPULATION * poly(TEMPERATURE, 3) + 
+                    RESTING_CHAMBER + RESTING_SUMP + 
+                    MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
+                    control=glmmTMBControl(optimizer=optim,
+                                           optArgs = list(method='BFGS')),
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
+
+AICc(pop.nas, pop.nas.p2, pop.nas.p3, k = 2, REML = TRUE) 
+check_model(pop.nas.poly3) 
+
+#--- save model ---# 
+saveRDS(pop.nas.p3, file = "glmmTMB_nas_p3_population.RDS") 
+
+#--- load model ---#
+#pop.nas.poly3 <- readRDS("glmmTMB_nas_p3_population.RDS")
+
+
+#--- investigate model ---#
+pop.nas.p3 %>% plot_model(type='eff',  terms=c('TEMPERATURE','POPULATION'), show.data=TRUE)
+pop.nas.p3 %>% ggemmeans(~TEMPERATURE|POPULATION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+pop.nas.p3 %>% plot_model(type='est')
+
+pop.nas.p3 %>% summary()
+pop.nas.p3 %>% confint()
+pop.nas.p3  %>% r.squaredGLMM()
+
+pop.nas.p3 %>% emtrends("POPULATION", var="TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
+
+#########################################################################################
+
+
+

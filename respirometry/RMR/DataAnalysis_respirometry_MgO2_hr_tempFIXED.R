@@ -20,10 +20,13 @@ library(ggeffects)
 library(vtable)
 #--- set working directory ---#
 setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/")
-
+# uni computer
+setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry")
 #--- load data ---# 
 resp <- read.delim("./SummaryData_2022_resp.txt")
 setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/RMR/")
+# uni computer
+setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/RMR")
 
 # data seems to have loaded with two extract columns at the end 
 # remove extract columns by name 
@@ -35,22 +38,22 @@ resp2 = resp %>%
   dplyr::rename(EXP_FISH_ID = FISH_ID) %>%
   separate(EXP_FISH_ID, c("FISH_ID"), remove = FALSE) %>%
   mutate(FISH_ID = factor(FISH_ID), 
-          POPULATION = factor(POPULATION), 
-          REGION = factor(REGION), 
-          TEMPERATURE = as.numeric(TEMPERATURE),
-          RESTING_DATE = factor(RESTING_DATE), 
-          RESTING_CHAMBER = factor(RESTING_CHAMBER), 
-          RESTING_SYSTEM = factor(RESTING_SYSTEM), 
-          RESTING_SUMP = factor(RESTING_SUMP), 
-          RESTING_AM_PM = factor(RESTING_AM_PM), 
-          RESTING_START_TIME = hms(RESTING_START_TIME),
-          MAX_DATE = factor(MAX_DATE), 
-          MAX_CHAMBER = factor(MAX_CHAMBER), 
-          MAX_SYSTEM = factor(MAX_SYSTEM), 
-          MAX_SUMP = factor(MAX_SUMP), 
-          MAX_AM_PM = factor(MAX_AM_PM), 
-          MAX_START_TIME = hms(MAX_START_TIME), 
-          Swim.performance = factor(Swim.performance)) %>% 
+         POPULATION = factor(POPULATION), 
+         REGION = factor(REGION), 
+         TEMPERATURE = factor(TEMPERATURE), #run with temperature as a factor
+         RESTING_DATE = factor(RESTING_DATE), 
+         RESTING_CHAMBER = factor(RESTING_CHAMBER), 
+         RESTING_SYSTEM = factor(RESTING_SYSTEM), 
+         RESTING_SUMP = factor(RESTING_SUMP), 
+         RESTING_AM_PM = factor(RESTING_AM_PM), 
+         RESTING_START_TIME = hms(RESTING_START_TIME),
+         MAX_DATE = factor(MAX_DATE), 
+         MAX_CHAMBER = factor(MAX_CHAMBER), 
+         MAX_SYSTEM = factor(MAX_SYSTEM), 
+         MAX_SUMP = factor(MAX_SUMP), 
+         MAX_AM_PM = factor(MAX_AM_PM), 
+         MAX_START_TIME = hms(MAX_START_TIME), 
+         Swim.performance = factor(Swim.performance)) %>% 
   dplyr::rename(MASS = WEIGHT) %>% 
   mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE))
 
@@ -61,7 +64,7 @@ resp3 <- resp2 %>%
            EXP_FISH_ID != "LCHA113_30" & 
            EXP_FISH_ID != "CSUD088_27" & 
            EXP_FISH_ID != "CTON062_27")
-
+###--- EXPLORATORY ANALYSIS ----####
 #--- exploratory data analysis: covariates ---# 
 ggplot(resp3, aes(MASS, RESTING)) + 
   geom_point() + 
@@ -121,94 +124,84 @@ ggplot(resp3, aes(REGION, FAS)) +
   geom_boxplot() +
   theme_classic() + 
   facet_grid(~TEMPERATURE) 
-
+#################################################################################################################
 #--- exploratory data analysis ---# 
-hist(resp3$RESTING); shapiro.test(resp3$RESTING)
-hist(resp3$MAX); shapiro.test(resp3$MAX) 
-hist(resp3$NAS); shapiro.test(resp3$NAS) 
-hist(resp3$FAS); shapiro.test(resp3$FAS)
+hist(resp3$RESTING_MgO2.hr); shapiro.test(resp3$RESTING_MgO2.hr)
 
 resp3 %>% 
   group_by(REGION, TEMPERATURE)  %>%    
   dplyr::summarise(sample_size = n(), 
-                   Min. = min(RESTING), 
-                   Max. = max(RESTING), 
-                   Mean = mean(RESTING)) 
+                   Min. = min(RESTING_MgO2.hr), 
+                   Max. = max(RESTING_MgO2.hr), 
+                   Mean = mean(RESTING_MgO2.hr)) 
 
 #--- model formula ---# 
 #resting metablic rate
-rest <- glmmTMB(RESTING ~ 1+ REGION * TEMPERATURE + RESTING_CHAMBER + RESTING_SUMP + (1|FISH_ID), 
+rest_MgO2.hr_tfixed <- glmmTMB(RESTING_MgO2.hr ~ 1+ REGION * TEMPERATURE + RESTING_CHAMBER + MASS_CENTERED + RESTING_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
                 family=gaussian(),
                 data = resp3,
                 REML = TRUE)
 
-
-rest.poly2 <- glmmTMB(RESTING ~ 1+ REGION * poly(TEMPERATURE, 2) + RESTING_CHAMBER + RESTING_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
-                      family=gaussian(),
-                      data = resp3,
-                      REML = TRUE)
-
-rest.poly3 <- glmmTMB(RESTING ~ 1+ REGION * poly(TEMPERATURE, 3) + RESTING_CHAMBER + RESTING_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
-                     family=gaussian(),
-                     data = resp3,
-                     REML = TRUE)
- 
-AICc(rest, rest.poly2, rest.poly3, k = 2, REML = TRUE)
-check_model(rest.poly3) 
+check_model(rest_MgO2.hr_tfixed) 
 
 #--- save model ---#
-#saveRDS(rest.poly3, file = "glmmTMB_restpoly3.RDS") 
+saveRDS(rest_MgO2.hr_tfixed, file = "glmmTMB_rest_MgO2_hr_tfixed.RDS") 
 
 #--- load model ---#
-#rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
+#rest_MgO2.hr_tfixed <- readRDS("glmmTMB_rest_MgO2_hr_tfixed.RDS")
 
 #--- investigate model ---#
-rest.poly3 %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
-rest.poly3 %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-rest.poly3 %>% plot_model(type='est')
 
-rest.poly3 %>% summary()
-rest.poly3 %>% confint()
-rest.poly3  %>% r.squaredGLMM()
-rest.poly3  %>% performance::r2_nakagawa()
+rest_MgO2.hr_tfixed %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+rest_MgO2.hr_tfixed %>% plot_model(type='est')
 
-rest.poly3 %>% emtrends("REGION", var="TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
+rest_MgO2.hr_tfixed %>% summary()
+rest_MgO2.hr_tfixed %>% confint()
+rest_MgO2.hr_tfixed  %>% r.squaredGLMM()
+rest_MgO2.hr_tfixed  %>% performance::r2_nakagawa()
+
+rest_MgO2.hr_tfixed %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
 
 #--- plot ---#
-newdata <- rest.poly3 %>% ggemmeans(~TEMPERATURE|REGION) %>%
-  as.data.frame %>% 
+newdata <- rest_MgO2.hr_tfixed %>% 
+  ggemmeans(~TEMPERATURE|REGION) %>% 
+  as.data.frame() %>% 
   dplyr::rename(TEMPERATURE = x)
 
 g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
   geom_point()+
   theme_classic(); g1
 
-predict(rest.poly3, re.form=NA) 
+predict(rest.poly3_MgO2.hr, re.form=NA) 
 #data points based on month and situation - to get the group means
-residuals(rest.poly3, type='response') 
+residuals(rest.poly3_MgO2.hr, type='response') 
 #data points based on month/situation/random effects - to get the data points
 obs <-  resp3 %>% 
-  mutate(Pred=predict(rest.poly3, re.form=NA),
-         Resid = residuals(rest.poly3, type='response'),
+  mutate(Pred=predict(rest_MgO2.hr_tfixed, re.form=NA),
+         Resid = residuals(rest_MgO2.hr_tfixed, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
 g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)) + 
   geom_line(method="lm", stat="smooth",
-              formula=y ~ poly(x, 3, raw=FALSE), 
+            formula=y ~ poly(x, 3, raw=FALSE), 
             aes(color = group), 
             size = 1, 
             alpha = 0.5)+
   geom_pointrange(aes(ymin=conf.low, 
                       ymax=conf.high), 
-                      shape=21,
+                  shape=21,
                   size=1,
                   position=position_dodge(0.2)) + 
-  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
-  theme_classic() + ylab("RESTING METABOLIC RATE (RMR)")+
-  scale_fill_manual(values=c("#2f3544", "#4c8494"))+ 
-  scale_color_manual(values=c("#2f3544", "#4c8494")); g2
+  #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
+  theme_classic() + ylab("RESTING_MgO2.hr (RMR: MgO2/hr)")+
+  scale_fill_manual(values=c("#DA3A36", "#0D47A1"))+ 
+  scale_color_manual(values=c("#DA3A36", "#0D47A1")); g2
 
-pdf("RMR.pdf")
+pdf("RMR_MgO2_hr_tFixed.pdf")
+print(g2)
+dev.off()
+
+jpeg("RMR_MgO2_hr_tFixed.jpeg", units="in", width=7, height=5, res=300)
 print(g2)
 dev.off()
 
@@ -219,48 +212,49 @@ dev.off()
 resp3 %>% 
   group_by(POPULATION, TEMPERATURE)  %>%    
   dplyr::summarise(sample_size = n(), 
-                   Min. = min(NAS), 
-                   Max. = max(NAS), 
-                   Mean = mean(NAS)) %>% 
+                   Min. = min(RESTING_MgO2.hr), 
+                   Max. = max(RESTING_MgO2.hr), 
+                   Mean = mean(RESTING_MgO2.hr)) %>% 
   print(n = 24)
 
-#--- model formula ---# 
+#--- model formula ---#############################################################################################
+# Script below has not been run/edited - in current state - DO NOT USE
 #POPULATION - resting metablic rate
-pop.rest <- glmmTMB(RESTING ~ 1+ POPULATION * TEMPERATURE + RESTING_CHAMBER + RESTING_SUMP + (1|FISH_ID), 
+pop.rest_MgO2.hr <- glmmTMB(RESTING_MgO2.hr ~ 1+ POPULATION * TEMPERATURE + MASS_CENTERED + RESTING_CHAMBER + RESTING_SUMP + (1|FISH_ID), 
                     family=gaussian(),
                     data = resp3,
                     REML = TRUE)
 
 
-pop.rest.poly2 <- glmmTMB(RESTING ~ 1+ POPULATION * poly(TEMPERATURE, 2) + RESTING_CHAMBER + RESTING_SUMP + (1|FISH_ID), 
+pop.rest.poly2_MgO2.hr <- glmmTMB(RESTING_MgO2.hr ~ 1+ POPULATION * poly(TEMPERATURE, 2) + MASS_CENTERED + RESTING_CHAMBER + RESTING_SUMP + (1|FISH_ID), 
                           family=gaussian(),
                           data = resp3,
                           REML = TRUE)
 
-pop.rest.poly3 <- glmmTMB(RESTING ~ 1+ POPULATION * poly(TEMPERATURE, 3) + RESTING_CHAMBER + RESTING_SUMP + (1|FISH_ID), 
+pop.rest.poly3_MgO2.hr <- glmmTMB(RESTING_MgO2.hr ~ 1+ POPULATION * poly(TEMPERATURE, 3) + MASS_CENTERED + RESTING_CHAMBER + RESTING_SUMP + (1|FISH_ID), 
                           family=gaussian(),
                           data = resp3,
                           REML = TRUE)
 
-AICc(pop.rest, pop.rest.poly2, pop.rest.poly3, k = 2, REML = TRUE)
-check_model(pop.rest.poly3) 
+AICc(pop.rest_MgO2.hr, pop.rest.poly2_MgO2.hr, pop.rest.poly3_MgO2.hr, k = 2, REML = TRUE)
+check_model(pop.rest.poly3_MgO2.hr) 
 
 #--- save model ---# 
-saveRDS(pop.rest.poly3, file = "glmmTMB_rest_p3_population.RDS") 
+saveRDS(pop.rest.poly3_MgO2.hr, file = "glmmTMB_rest_p3_population_MgO2_hr.RDS") 
 
 #--- load model ---#
-#pop.rest.poly3 <- readRDS("glmmTMB_rest_p3_population.RDS")
+#pop.rest.poly3_MgO2.hr <- readRDS("glmmTMB_rest_p3_population_MgO2_hr.RDS")
 
 
 #--- investigate model ---#
-pop.rest.poly3  %>% plot_model(type='eff',  terms=c('TEMPERATURE','POPULATION'), show.data=TRUE)
-pop.rest.poly3  %>% ggemmeans(~TEMPERATURE|POPULATION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-pop.rest.poly3  %>% plot_model(type='est')
+pop.rest.poly3_MgO2.hr %>% plot_model(type='eff',  terms=c('TEMPERATURE','POPULATION'), show.data=TRUE)
+pop.rest.poly3_MgO2.hr %>% ggemmeans(~TEMPERATURE|POPULATION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+pop.rest.poly3_MgO2.hr %>% plot_model(type='est')
 
-pop.rest.poly3  %>% summary()
-pop.rest.poly3  %>% confint()
-pop.rest.poly3  %>% r.squaredGLMM()
+pop.rest.poly3_MgO2.hr %>% summary()
+pop.rest.poly3_MgO2.hr %>% confint()
+pop.rest.poly3_MgO2.hr  %>% r.squaredGLMM()
 
-pop.rest.poly3 %>% emtrends("POPULATION", var="TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
+pop.rest.poly3_MgO2.hr %>% emtrends("POPULATION", var="TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
 
 ###########################################################################################
