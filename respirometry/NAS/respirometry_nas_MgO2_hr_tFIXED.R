@@ -117,6 +117,12 @@ MgO2.hr_NET_tfixed <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMP
                data = resp4,
                REML = FALSE))
 
+MgO2.hr_NET_tfixedb <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
+                                           RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
+                                         family=gaussian(),
+                                         data = resp4,
+                                         REML = FALSE))
+
 sqrt.MgO2.hr_NET_tfixed <- (glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
                          RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
                          (1|REGION:POPULATION) + (1|FISH_ID), 
@@ -124,41 +130,68 @@ sqrt.MgO2.hr_NET_tfixed <- (glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS
                        data = resp4,
                        REML = FALSE))
 
+
 #--- model compairson ---#
-AICc(sqrt.MgO2.hr_NET_tfixed, MgO2.hr_NET_tfixed, k = 2) 
+
+AICc(MgO2.hr_NET_tfixed, MgO2.hr_NET_tfixedb, MgO2.hr_NET_tfixedc, MgO2.hr_NET_tfixed.gamma, k=2)
+
+#--- model validation part 2 ---# 
+
+MgO2.hr_NET_tfixedb <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
+                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
+                                          family=gaussian(),
+                                          data = resp4,
+                                          REML = TRUE))
+
+MgO2.hr_NET_tfixedb.1 <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
+                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID) + (1|POPULATION), 
+                                          family=gaussian(),
+                                          data = resp4,
+                                          REML = TRUE))
+
+MgO2.hr_NET_tfixedb.2 <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
+                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID) + (REGION|POPULATION), 
+                                          family=gaussian(),
+                                          data = resp4,
+                                          control=glmmTMBControl(optimizer=optim,
+                                                                 optArgs = list(method='BFGS')),
+                                          REML = TRUE))
+
+#--- model compairson ---#
+
+AICc(MgO2.hr_NET_tfixed, MgO2.hr_NET_tfixedb.1, MgO2.hr_NET_tfixedb.2, k=2)
 
 #--- final model ---#
-MgO2.hr_NET_tfixed <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                                           RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
-                                           (1|REGION:POPULATION) + (1|FISH_ID), 
+MgO2.hr_NET_tfixedb <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
+                                           RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
                                          family=gaussian(),
                                          data = resp4,
                                          REML = TRUE))
 
 #--- saving model ---#
-saveRDS(MgO2.hr_NET_tfixed, file = "glmmTMB_MgO2_hr_Net_tFIXED.RDS") 
+saveRDS(MgO2.hr_NET_tfixedb, file = "glmmTMB_MgO2_hr_Net_tFIXED.RDS") 
 
 #--- load model ---# 
 #sqrt.MgO2.hr_NET.p3 <- readRDS("glmmTMB_sqrt.MgO2.hr_NET_p3.RDS") 
 
 #--- investigate model ---#
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
-check_model(MgO2.hr_NET_tfixed)
+check_model(MgO2.hr_NET_tfixedb)
 
-MgO2.hr_NET_tfixed %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
-MgO2.hr_NET_tfixed %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-MgO2.hr_NET_tfixed %>% plot_model(type='est')
+MgO2.hr_NET_tfixedb %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
+MgO2.hr_NET_tfixedb %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+MgO2.hr_NET_tfixedb %>% plot_model(type='est')
 
-MgO2.hr_NET_tfixed %>% summary()
-MgO2.hr_NET_tfixed %>% confint()
-MgO2.hr_NET_tfixed  %>% r.squaredGLMM()
-MgO2.hr_NET_tfixed  %>% performance::r2_nakagawa()
+MgO2.hr_NET_tfixedb %>% summary()
+MgO2.hr_NET_tfixedb %>% confint()
+MgO2.hr_NET_tfixedb  %>% r.squaredGLMM()
+MgO2.hr_NET_tfixedb  %>% performance::r2_nakagawa()
 
-MgO2.hr_NET_tfixed %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
+MgO2.hr_NET_tfixedb %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
 
 
 #--- plot ---#
-newdata <- MgO2.hr_NET_tfixed %>% ggemmeans(~TEMPERATURE|REGION) %>%
+newdata <- MgO2.hr_NET_tfixedb %>% ggemmeans(~TEMPERATURE|REGION) %>%
   as.data.frame %>% 
   dplyr::rename(TEMPERATURE = x)
 
@@ -166,13 +199,13 @@ g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
   geom_point()+
   theme_classic(); g1
 
-predict(MgO2.hr_NET_tfixed, re.form=NA) 
+predict(MgO2.hr_NET_tfixedb, re.form=NA) 
 #data points based on month and situation - to get the group means
-residuals(MgO2.hr_NET_tfixed, type='response') 
+residuals(MgO2.hr_NET_tfixedb, type='response') 
 #data points based on month/situation/random effects - to get the data points
 obs <-  resp4 %>% 
-  mutate(Pred=predict(MgO2.hr_NET_tfixed, re.form=NA),
-         Resid = residuals(MgO2.hr_NET_tfixed, type='response'),
+  mutate(Pred=predict(MgO2.hr_NET_tfixedb, re.form=NA),
+         Resid = residuals(MgO2.hr_NET_tfixedb, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
 g2 <- ggplot(newdata, aes(y=predicted^2, x=TEMPERATURE, color=group)) + 
@@ -187,13 +220,13 @@ g2 <- ggplot(newdata, aes(y=predicted^2, x=TEMPERATURE, color=group)) +
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), name = "Regions")+ 
   geom_signif(
     y_position = c(7.51+0.5, 9.04+0.5,9.75+0.5,9.01+0.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
-    annotation = c("ns", "**\np =0.0279", "****\np =0.0009", "***\np =0.0031"), tip_length = 0.025, color="black"); g2
+    annotation = c("ns", "**\np =0.0274", "****\np =0.0009", "***\np =0.0030"), tip_length = 0.025, color="black"); g2
 
-pdf("MgO2.hr_NET_tFIXED2.pdf", width = 7, height = 5)
+pdf("MgO2.hr_NET_tfixedb2.pdf", width = 7, height = 5)
 print(g2)
 dev.off()
 
-jpeg("MgO2.hr_NET_tFIXED2.jpeg", units="in", width=7, height=5, res=300) 
+jpeg("MgO2.hr_NET_tfixedb2.jpeg", units="in", width=7, height=5, res=300) 
 print(g2)
 dev.off()
 
@@ -257,6 +290,37 @@ pop.sqrt.MgO2.hr_NET.p2  %>% r.squaredGLMM()
 pop.sqrt.MgO2.hr_NET.p3 %>% emtrends("POPULATION", var="TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
 
 #########################################################################################
+tran <- make.tran("power", 1/2)
+MgO2.hr_NET_tfixed <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
+                                           RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
+                                           (1|REGION:POPULATION) + (1|FISH_ID), 
+                                         family=gaussian(),
+                                         data = resp4,
+                                         REML = TRUE))
 
+MgO2.hr_NET_tfixedb <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
+                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|REGION) + (1|FISH_ID), 
+                                          family=gaussian(),
+                                          data = resp4,
+                                          REML = TRUE))
+
+MgO2.hr_NET_tfixedc <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
+                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|POPULATION) + (1|FISH_ID), 
+                                          family=gaussian(),
+                                          data = resp4,
+                                          REML = TRUE))
+
+MgO2.hr_NET_tfixedd <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
+                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
+                                          family=gaussian(),
+                                          data = resp4,
+                                          REML = TRUE)) 
+
+Mg
+
+
+
+#--- model compairson ---#
+AICc(MgO2.hr_NET_tfixed, MgO2.hr_NET_tfixedb, MgO2.hr_NET_tfixedc, MgO2.hr_NET_tfixedd, k=2)
 
 

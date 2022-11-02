@@ -117,6 +117,7 @@ mmr.p3_MgO2.hr <- glmmTMB(MAX_MgO2.hr ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_
                                          optArgs = list(method='BFGS')),
                   REML = FALSE)
 
+
 #--- model compairson ---#
 AICc(mmr_MgO2.hr, mmr.p2_MgO2.hr, mmr.p3_MgO2.hr, k = 2, REML = TRUE)
 
