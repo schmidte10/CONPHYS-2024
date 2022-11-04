@@ -243,3 +243,11 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
   #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
   theme_classic() + ylab("LDH activity slope") + 
   scale_color_manual(values=c("#DA3A36","#0D47A1"), name = "Regions"); g2
+
+pdf("LDH.pdf", width= 7, height = 5)
+print(g2)
+dev.off()
+
+jpeg("LDH.jpeg", units="in", width=7, height=5, res=300) 
+print(g2)
+dev.off()
