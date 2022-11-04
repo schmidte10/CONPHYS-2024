@@ -194,8 +194,12 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)
                   position=position_dodge(0.2)) + 
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
   theme_classic() + ylab("RESTING_MgO2.hr (RMR: MgO2/hr)")+
-  scale_fill_manual(values=c("#DA3A36", "#0D47A1"))+ 
-  scale_color_manual(values=c("#DA3A36", "#0D47A1")); g2
+  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), 
+                    labels = c("Cairns (north)","Mackay (south)"), 
+                    name = "Regions")+ 
+  scale_color_manual(values=c("#DA3A36", "#0D47A1"), 
+                     labels = c("Cairns (north)","Mackay (south)"), 
+                     name = "Regions"); g2
 
 pdf("RMR_MgO2_hr_tFixed.pdf")
 print(g2)

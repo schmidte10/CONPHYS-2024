@@ -180,7 +180,8 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
                   position = position_dodge(0.2)) + 
   scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
   theme_classic() + ylab("PHA Swelling response (mm)") + 
-  scale_color_manual(values=c("#DA3A36","#0D47A1"), name = "Regions"); g2
+  scale_color_manual(values=c("#DA3A36","#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
+                     name = "Regions"); g2
   #geom_signif( 
     #y_position = c(0.305+0.05, 0.55+0.05, 0.267+0.05, 0.125+0.05), 
     #xmin = c(0.8, 1.8, 2.8, 3.8), 

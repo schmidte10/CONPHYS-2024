@@ -19,6 +19,7 @@ setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/
 ldh <- read_delim("LDH_LocalAdapt.txt", delim = "\t", 
                   escape_double = FALSE, col_types = cols(`Creation time` = col_datetime(format = "%d/%m/%Y %H:%M")), 
                   trim_ws = TRUE)
+tissue.mass <- read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/enzymes/tissue_mass.txt")
 #--- data preparation/manipulation ---# 
 ldh2 <- ldh %>%
   clean_names() %>%
@@ -150,20 +151,36 @@ final_table <- LDH_activity %>%
   full_join(LDH_background[,c(1,4)], by = "UNIQUE_SAMPLE_ID") 
 final_table$Mean[duplicated(final_table$Mean)] <- ""
 final_table$Background[duplicated(final_table$Background)] <- ""
+final_table <- final_table %>% 
+  mutate(Mean = as.numeric(Mean), 
+         Background = as.numeric(Background), 
+         Background_perc = Background/Mean)
+
 
 ldh.data <- final_table %>% 
   select(c(UNIQUE_SAMPLE_ID, Mean, Background)) %>% 
   mutate(Mean = as.numeric(Mean), 
          Background = as.numeric(Background),
-         LDH_ACTIVITY = Mean - Background) %>% 
+         LDH_ABSORBANCE = Mean - Background) %>% 
   drop_na() %>% 
   inner_join(select(ldh3, c(UNIQUE_SAMPLE_ID, REGION, POPULATION, temperature, fish_id)), by ="UNIQUE_SAMPLE_ID") %>% 
+  inner_join(tissue.mass, by = "fish_id") %>% 
+  mutate(TISSUE_MASS_CENTERED = scale(TISSUE_MASS, center = TRUE, scale = FALSE)) %>%
   distinct(UNIQUE_SAMPLE_ID, REGION, POPULATION, .keep_all = TRUE) %>% 
-  mutate(LDH_ACTIVITY_POSITIVE = LDH_ACTIVITY * -1, 
-         temperature = factor(temperature))
-
+  mutate(temperature = factor(temperature), 
+         PATH_LENGTH = 1, 
+         EXTINCTION_COEFFICIENT = 6.22, 
+         TISSUE_CONCENTRATION = 0.2, 
+         ASSAY_VOL = 2.975, 
+         SAMPLE_VOL = 0.025, 
+         LDH_ACTIVITY = ((LDH_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))*-1)  
+  #filter(LDH_ACTIVITY >= 0)
+  
+ggplot(ldh.data, aes(x =temperature, y= LDH_ACTIVITY, fill = REGION)) + 
+  geom_boxplot()
 #--- begin data analysis ---# 
-hist(ldh.data$LDH_ACTIVITY); hist(scale(ldh.data$LDH_ACTIVITY, center=TRUE, scale=FALSE)*-1) 
+ggplot(ldh.data, aes(x = LDH_ACTIVITY, fill = temperature, color = temperature)) + 
+  geom_density(alpha =0.5, position = "identity")
 # data is not normal - perhaps more samples will end up helping 
 
 ldh.data %>% 
@@ -175,21 +192,20 @@ ldh.data %>%
 
 #--- models ---# 
 
-ldh.model.1 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + (1|fish_id), 
+ldh.model.1 <- lm(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED, 
                        family=gaussian(), 
                        data = ldh.data, 
                        REML = TRUE) 
 
+ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|POPULATION), 
+                  family=gaussian(), 
+                  data = ldh.data, 
+                  REML = TRUE) 
 
-ldh.model.2 <- glmmTMB(LDH_ACTIVITY_POSITIVE ~ 1 + REGION*temperature + (1|fish_id), 
-                       family=Gamma('inverse'), 
-                       data = ldh.data, 
-                       REML = TRUE)  
-
-ldh.model.3 <- glmmTMB(LDH_ACTIVITY_POSITIVE ~ 1 + REGION*temperature + (1|fish_id) + (1|POPULATION), 
-                       family=Gamma(), 
-                       data = ldh.data, 
-                       REML = TRUE) 
+#control=glmmTMBControl(optimizer=optim,
+#optArgs = list(method='BFGS')),
+#--- Model comparison ---# 
+AICc(ldh.model.1, ldh.model.2, k=2)
 
 ldh.model.1 %>% check_model()
 ldh.model.1 %>% simulateResiduals(plot = TRUE, integerResponse = TRUE) 
@@ -199,7 +215,7 @@ ldh.model.1 %>% testResiduals()
 ldh.model.1 %>% ggemmeans(~temperature*REGION) %>% plot()
 ldh.model.1 %>% summary()
 ldh.model.1 %>% confint()
-ldh.model.1 %>% performance::r2_nakagawa()
+ldh.model.1 %>% performance::r2()
 
 #--- results ---# 
 ldh.model.1 %>% emmeans(~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(infer = TRUE) 
@@ -213,7 +229,7 @@ g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
   geom_point() + 
   theme_classic(); g1
 
-obs <- ldh.model.1 %>% 
+obs <- ldh.data %>% 
   mutate(Pred = predict(ldh.model.1, re.form=NA), 
          Resid = residuals(ldh.model.1, type = 'response'), 
          Fit = Pred - Resid)
@@ -225,5 +241,5 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
                   size=1, 
                   position = position_dodge(0.2)) + 
   #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
-  theme_classic() + ylab("PHA Swelling response (mm)") + 
+  theme_classic() + ylab("LDH activity slope") + 
   scale_color_manual(values=c("#DA3A36","#0D47A1"), name = "Regions"); g2

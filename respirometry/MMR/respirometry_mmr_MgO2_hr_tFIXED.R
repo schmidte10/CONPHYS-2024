@@ -152,7 +152,9 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
   scale_y_continuous(limits = c(11,18), breaks = seq(11, 18, by = 2)) +
   theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR: MgO2/hr)")+
-  scale_color_manual(values=c("#DA3A36", "#0D47A1"), name = "Regions")+ geom_signif(
+  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"), 
+                     name = "Regions")+ 
+  geom_signif(
   y_position = c(13.91+0.5, 15.10+0.5,15.80+0.5,16.06+0.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
   annotation = c("ns", "ns", "**\np =0.020", "**\np =0.010"), tip_length = 0.025, color = "black"); g2
 
