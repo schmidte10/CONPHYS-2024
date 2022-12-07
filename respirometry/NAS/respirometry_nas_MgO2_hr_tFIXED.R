@@ -58,8 +58,9 @@ resp2 = resp %>%
          MAX_AM_PM = factor(MAX_AM_PM), 
          MAX_START_TIME = hms(MAX_START_TIME), 
          Swim.performance = factor(Swim.performance)) %>% 
-  dplyr::rename(MASS = WEIGHT) %>% 
-  mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE))
+  dplyr::rename(MASS = DRY_WEIGHT) %>% 
+  mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE)) %>% 
+  drop_na(MASS)
 
 #--- remove individuals where min.max data is unreliable ---# 
 resp3 <- resp2 %>% 
@@ -71,31 +72,27 @@ resp3 <- resp2 %>%
 
 #--- remove individuals where ONLY max data is unreliable ---# 
 resp4 <- resp3 %>% 
-  subset(EXP_FISH_ID !="CSUD014_27" & 
-           EXP_FISH_ID != "CTON065_27" & 
-           EXP_FISH_ID != "CTON069_30" & 
-           EXP_FISH_ID != "CVLA054_27" & 
-           EXP_FISH_ID != "LCHA129_27"& 
+  subset(EXP_FISH_ID !="CSUD014_27" &  
+           EXP_FISH_ID != "LCHA124_27"& 
            EXP_FISH_ID != "LCHA135_27" & 
-           EXP_FISH_ID != "LCKM162_27" & 
-           EXP_FISH_ID != "LCKM165_27" & 
-           EXP_FISH_ID != "LCKM180_27"& 
-           EXP_FISH_ID != "CSUD026_30" & 
+           #EXP_FISH_ID != "LCKM162_27" & 
+           EXP_FISH_ID != "CSUD026_31.5" & 
            EXP_FISH_ID != "CTON067_28.5" & 
            EXP_FISH_ID != "CVLA054_28.5" & 
            EXP_FISH_ID != "LCHA114_28.5"& 
            EXP_FISH_ID != "LCKM163_28.5" & 
-           EXP_FISH_ID != "LCKM154_31.5"& 
-           EXP_FISH_ID != "CSUD079_30" & 
-           EXP_FISH_ID != "CSUD079_31.5"& 
-           EXP_FISH_ID != "LCHA125_30" & 
-           EXP_FISH_ID != "CVLA045_27")
+           EXP_FISH_ID != "CVLA045_28.5")
 
 #--- exploratory data analysis ---# 
 hist(resp4$MgO2.hr_Net); shapiro.test(resp4$MgO2.hr_Net); skewness(resp4$MgO2.hr_Net) #postive/right skewed
-hist(sqrt(resp4$MgO2.hr_Net)); shapiro.test(sqrt(resp4$MgO2.hr_Net)); skewness(sqrt(resp4$MgO2.hr_Net)) # sqrt transforming data seems to fix skewness
+resp4 %>% ggplot(aes(x=TEMPERATURE, y=MgO2.hr_Net, fill = REGION)) + geom_boxplot() 
+resp4 %>% ggplot(aes(x=MgO2.hr_Net, fill=TEMPERATURE)) + geom_density(alpha = 0.5) + 
+  facet_wrap(~TEMPERATURE)
 
-skewness(resp4$MgO2.hr_Net)
+hist(sqrt(resp4$MgO2.hr_Net)); shapiro.test(sqrt(resp4$MgO2.hr_Net)); skewness(sqrt(resp4$MgO2.hr_Net)) # sqrt transforming data seems to fix skewness
+resp4 %>% ggplot(aes(x=TEMPERATURE, y=sqrt(MgO2.hr_Net), fill = REGION)) + geom_boxplot() 
+resp4 %>% ggplot(aes(x=sqrt(MgO2.hr_Net), fill=TEMPERATURE)) + geom_density(alpha = 0.5) + 
+  facet_wrap(~TEMPERATURE)
 #--- make sqrt transformed column ---# 
 resp4 <- resp4 %>% 
   mutate(sqrt.MgO2.hr_NET = sqrt(MgO2.hr_Net))
@@ -103,95 +100,94 @@ resp4 <- resp4 %>%
 resp4 %>% 
   group_by(REGION, TEMPERATURE)  %>%    
   dplyr::summarise(sample_size = n(), 
-                   Min. = min(sqrt.MgO2.hr_NET), 
-                   Max. = max(sqrt.MgO2.hr_NET), 
-                   Mean = mean(sqrt.MgO2.hr_NET))
+                   Min. = min(MgO2.hr_Net), 
+                   Max. = max(MgO2.hr_Net), 
+                   Mean = mean(MgO2.hr_Net))
 
 #--- model formula ---# 
-#net aerobic scope
-tran <- make.tran("power", 1/2)
-MgO2.hr_NET_tfixed <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                 RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
-                 (1|REGION:POPULATION) + (1|FISH_ID), 
-               family=gaussian(),
-               data = resp4,
-               REML = FALSE))
+#--- base model ---# 
+nas.1 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
+                              family=gaussian(),
+                              data = resp4,
+                              REML = FALSE) 
+ 
+#--- experimental equipment hypothesis ---#
+nas.2 <- glmmTMB(MgO2.hr_Net ~ 1+ MASS_CENTERED + RESTING_SUMP + RESTING_CHAMBER + 
+                                RESTING_AM_PM + RESTING_DATE + RESTING_DATE, 
+                              family=gaussian(),
+                              data = resp4,
+                              REML = FALSE) 
 
-MgO2.hr_NET_tfixedb <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                                           RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
-                                         family=gaussian(),
-                                         data = resp4,
-                                         REML = FALSE))
+#--- base model and equip ---# 
+nas.3 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + 
+                   MASS_CENTERED + RESTING_CHAMBER + 
+                   RESTING_AM_PM, 
+                 family=gaussian(),
+                 data = resp4,
+                 REML = FALSE) 
 
-sqrt.MgO2.hr_NET_tfixed <- (glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                         RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
-                         (1|REGION:POPULATION) + (1|FISH_ID), 
-                       family=gaussian(link = "sqrt"),
-                       data = resp4,
-                       REML = FALSE))
+AICc(nas.1, nas.2, nas.3, k=2)
+#followed by random effects
+nas.1 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp4,
+                 REML = TRUE) 
 
+nas.1a <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                 family=gaussian(),
+                 data = resp4,
+                 REML = TRUE) 
 
-#--- model compairson ---#
+nas.1b <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (1|POPULATION), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
 
-AICc(MgO2.hr_NET_tfixed, MgO2.hr_NET_tfixedb, MgO2.hr_NET_tfixedc, MgO2.hr_NET_tfixed.gamma, k=2)
+nas.1c <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (1|REGION/POPULATION), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
 
-#--- model validation part 2 ---# 
+nas.1d <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (REGION|POPULATION), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
 
-MgO2.hr_NET_tfixedb <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
-                                          family=gaussian(),
-                                          data = resp4,
-                                          REML = TRUE))
+AICc(nas.1, nas.1a, nas.1b, nas.1c, nas.1d, k=2)
 
-MgO2.hr_NET_tfixedb.1 <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID) + (1|POPULATION), 
-                                          family=gaussian(),
-                                          data = resp4,
-                                          REML = TRUE))
-
-MgO2.hr_NET_tfixedb.2 <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID) + (REGION|POPULATION), 
-                                          family=gaussian(),
-                                          data = resp4,
-                                          control=glmmTMBControl(optimizer=optim,
-                                                                 optArgs = list(method='BFGS')),
-                                          REML = TRUE))
-
-#--- model compairson ---#
-
-AICc(MgO2.hr_NET_tfixed, MgO2.hr_NET_tfixedb.1, MgO2.hr_NET_tfixedb.2, k=2)
-
-#--- final model ---#
-MgO2.hr_NET_tfixedb <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                                           RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
-                                         family=gaussian(),
-                                         data = resp4,
-                                         REML = TRUE))
+#--- Final model ---# 
+nas.1a <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
 
 #--- saving model ---#
-saveRDS(MgO2.hr_NET_tfixedb, file = "glmmTMB_MgO2_hr_Net_tFIXED.RDS") 
+saveRDS(nas.1a, file = "nas_1a.RDS") 
 
 #--- load model ---# 
 #sqrt.MgO2.hr_NET.p3 <- readRDS("glmmTMB_sqrt.MgO2.hr_NET_p3.RDS") 
 
 #--- investigate model ---#
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
-check_model(MgO2.hr_NET_tfixedb)
+check_model(nas.1a)
+pha.resid <-  nas.1a %>% 
+  DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+nas.1a %>% DHARMa::testResiduals()
 
-MgO2.hr_NET_tfixedb %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
-MgO2.hr_NET_tfixedb %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-MgO2.hr_NET_tfixedb %>% plot_model(type='est')
+nas.1a %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
+nas.1a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+nas.1a %>% plot_model(type='est')
 
-MgO2.hr_NET_tfixedb %>% summary()
-MgO2.hr_NET_tfixedb %>% confint()
-MgO2.hr_NET_tfixedb  %>% r.squaredGLMM()
-MgO2.hr_NET_tfixedb  %>% performance::r2_nakagawa()
+nas.1a %>% summary()
+nas.1a %>% confint()
+nas.1a  %>% r.squaredGLMM()
+nas.1a  %>% performance::r2_nakagawa()
 
-MgO2.hr_NET_tfixedb %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
-
+nas.1a %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
+nas.1a %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
 
 #--- plot ---#
-newdata <- MgO2.hr_NET_tfixedb %>% ggemmeans(~TEMPERATURE|REGION) %>%
+newdata <- nas.1a %>% ggemmeans(~TEMPERATURE|REGION) %>%
   as.data.frame %>% 
   dplyr::rename(TEMPERATURE = x)
 
@@ -199,31 +195,31 @@ g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
   geom_point()+
   theme_classic(); g1
 
-predict(MgO2.hr_NET_tfixedb, re.form=NA) 
+predict(nas.1a, re.form=NA) 
 #data points based on month and situation - to get the group means
-residuals(MgO2.hr_NET_tfixedb, type='response') 
+residuals(nas.1a, type='response') 
 #data points based on month/situation/random effects - to get the data points
 obs <-  resp4 %>% 
-  mutate(Pred=predict(MgO2.hr_NET_tfixedb, re.form=NA),
-         Resid = residuals(MgO2.hr_NET_tfixedb, type='response'),
+  mutate(Pred=predict(nas.1a, re.form=NA),
+         Resid = residuals(nas.1a, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
-g2 <- ggplot(newdata, aes(y=predicted^2, x=TEMPERATURE, color=group)) + 
-  geom_pointrange(aes(ymin=conf.low^2, 
-                      ymax=conf.high^2), 
+g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) + 
+  geom_pointrange(aes(ymin=conf.low, 
+                      ymax=conf.high), 
                   shape=19,
                   size=1,
                   position=position_dodge(0.2)) + 
-  scale_y_continuous(limits = c(4,12), breaks = seq(4, 12, by = 2)) + 
+  scale_y_continuous(limits = c(2,8), breaks = seq(2, 8, by = 2)) + 
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
   theme_classic() + ylab("NET AEROBIC SCOPE (NAS: MgO2/hr)") +
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
                      name = "Regions")+ 
   geom_signif(
-    y_position = c(7.51+0.5, 9.04+0.5,9.75+0.5,9.01+0.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
-    annotation = c("ns", "**\np =0.0274", "****\np =0.0009", "***\np =0.0030"), tip_length = 0.025, color="black"); g2
+    y_position = c(4.11+1.5, 5.18+1.5,5.15+1.5,4.66+1.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
+    annotation = c("ns", "ns", "**\np =0.046", "ns"), tip_length = 0.025, color = "black"); g2
 
-pdf("MgO2.hr_NET_tfixedb2.pdf", width = 7, height = 5)
+pdf("nas_1a.pdf", width = 7, height = 5)
 print(g2)
 dev.off()
 
@@ -248,7 +244,7 @@ pop.sqrt.MgO2.hr_NET <- glmmTMB(sqrt.MgO2.hr_NET ~ 1+ POPULATION * TEMPERATURE +
                    #control=glmmTMBControl(optimizer=optim,
                                           #optArgs = list(method='BFGS')),
                    data = resp4,
-                   REML = TRUE)
+                   REML = FALSE)
 
 
 pop.sqrt.MgO2.hr_NET.p2 <- glmmTMB(sqrt.MgO2.hr_NET ~ 1+ POPULATION * poly(TEMPERATURE, 2) + MASS_CENTERED +
@@ -258,7 +254,7 @@ pop.sqrt.MgO2.hr_NET.p2 <- glmmTMB(sqrt.MgO2.hr_NET ~ 1+ POPULATION * poly(TEMPE
                                              #optArgs = list(method='BFGS')),
                       family=gaussian(),
                       data = resp4,
-                      REML = TRUE)
+                      REML = FALSE)
 
 pop.sqrt.MgO2.hr_NET.p3 <- glmmTMB(sqrt.MgO2.hr_NET ~ 1+ POPULATION * poly(TEMPERATURE, 3) + MASS_CENTERED +
                         RESTING_CHAMBER + RESTING_SUMP + 
@@ -267,7 +263,7 @@ pop.sqrt.MgO2.hr_NET.p3 <- glmmTMB(sqrt.MgO2.hr_NET ~ 1+ POPULATION * poly(TEMPE
                                              #optArgs = list(method='BFGS')),
                       family=gaussian(),
                       data = resp4,
-                      REML = TRUE)
+                      REML = FALSE)
 
 AICc(pop.sqrt.MgO2.hr_NET, pop.sqrt.MgO2.hr_NET.p2, pop.sqrt.MgO2.hr_NET.p3, k = 2, REML = TRUE) 
 check_model(pop.sqrt.MgO2.hr_NET.p2) 

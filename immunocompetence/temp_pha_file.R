@@ -48,13 +48,13 @@ pha2 <- pha %>%
 
 #--- initial look at data ---# 
 
-plotNormalHistogram(pha2$MASS, prob = FALSE); shapiro.test(pha2$MASS) 
-plotNormalHistogram(pha2$IMMUNE_RESPONSE, prob = FALSE) # SWp = 0.002341
-plotNormalHistogram(pha2$IMMUNE_RESPONSE^(0.33), prob = FALSE); shapiro.test(pha2$IMMUNE_RESPONSE^0.33) # SWp = 0.2159
+plotNormalHistogram(pha2$IMMUNE_RESPONSE, prob = FALSE); shapiro.test(pha2$MASS) 
+#plotNormalHistogram(pha2$IMMUNE_RESPONSE, prob = FALSE) # SWp = 0.002341
+#plotNormalHistogram(pha2$IMMUNE_RESPONSE^(0.33), prob = FALSE); shapiro.test(pha2$IMMUNE_RESPONSE^0.33) # SWp = 0.2159
 
 ggplot(pha2, aes(x=TEMPERATURE, y=IMMUNE_RESPONSE)) + 
   geom_violin(alpha = 0.5) +  # four potential outliers but will keep for now 
-  geom_point(0)                # looking at histogram they don't appear to be way out of order   
+  geom_point()                # looking at histogram they don't appear to be way out of order   
 
 ggplot(pha2, aes(x=TEMPERATURE, y=IMMUNE_RESPONSE, fill = REGION, color = REGION)) + 
   geom_violin(alpha = 0.5) + 
@@ -64,8 +64,19 @@ temp_leading_hist <- pha2 %>%
   filter(REGION == "Leading")  
 temp_core_hist <- pha2 %>% 
   filter(REGION == "Core")  
-plotNormalHistogram((temp_core_hist$IMMUNE_RESPONSE)^(0.33)); shapiro.test((temp_core_hist$IMMUNE_RESPONSE)^(0.33))
-plotNormalHistogram((temp_leading_hist$IMMUNE_RESPONSE)^(0.33)); shapiro.test((temp_leading_hist$IMMUNE_RESPONSE)^(0.33))
+plotNormalHistogram(temp_core_hist$IMMUNE_RESPONSE); shapiro.test(temp_core_hist$IMMUNE_RESPONSE)
+plotNormalHistogram(temp_leading_hist$IMMUNE_RESPONSE); shapiro.test(temp_leading_hist$IMMUNE_RESPONSE)
+
+temp_leading_hist %>% ggplot(aes(x=IMMUNE_RESPONSE, fill = TEMPERATURE)) + 
+  geom_density(alpha=0.5) + 
+  facet_wrap(~TEMPERATURE)
+
+temp_core_hist %>% ggplot(aes(x=IMMUNE_RESPONSE, fill = TEMPERATURE)) + 
+  geom_density(alpha=0.5) + 
+  facet_wrap(~TEMPERATURE)
+
+#plotNormalHistogram((temp_core_hist$IMMUNE_RESPONSE)^(0.33)); shapiro.test((temp_core_hist$IMMUNE_RESPONSE)^(0.33))
+#plotNormalHistogram((temp_leading_hist$IMMUNE_RESPONSE)^(0.33)); shapiro.test((temp_leading_hist$IMMUNE_RESPONSE)^(0.33))
 
 pha2 %>% 
   group_by(REGION, TEMPERATURE)  %>% 
@@ -76,26 +87,127 @@ pha2 %>%
 
 #--- model ---# 
 #Gaussian model with transformed data
-tran <- make.tran("power", 1/3) 
-pha.model <- with(tran, glmmTMB(linkfun(IMMUNE_RESPONSE) ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
-                                family=gaussian(), 
-                                data = pha2, 
-                                REML = TRUE)) 
+#tran <- make.tran("power", 1/3) 
+#pha.model <- with(tran, glmmTMB(linkfun(IMMUNE_RESPONSE) ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                             #   family=gaussian(), 
+                               # data = pha2, 
+                               # REML = TRUE)) 
 
-pha.modelb <- with(tran, glmmTMB(linkfun(IMMUNE_RESPONSE) ~ 1 + REGION * TEMPERATURE + MASS_CENTERED +(1|REGION) + (1|POPULATION) + (1|FISH_ID), 
-                                family=gaussian(), 
-                                data = pha2, 
-                                REML = TRUE)) 
+pha.model <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                     family=gaussian(), 
+                     data = pha2, 
+                     REML = TRUE) 
 
-pha.modelc <- with(tran, glmmTMB(linkfun(IMMUNE_RESPONSE) ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|REGION*POPULATION) + (1|FISH_ID), 
-                                 family=gaussian(), 
-                                 data = pha2, 
-                                 REML = TRUE)) 
 
-pha.model2 <- with(tran, glmmTMB(linkfun(IMMUNE_RESPONSE) ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|REGION:POPULATION) + (1|FISH_ID), 
-                                family=gaussian(), 
-                                data = pha2, 
-                                REML = FALSE)) 
+#--- model validation ---#
+pha.model %>% check_model() 
+pha.resid <-  pha.model %>% 
+  DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+pha.model %>% DHARMa::testResiduals()
+
+pha3 <- pha2 %>% 
+  drop_na(IMMUNE_RESPONSE) 
+
+plot(pha3$TEMPERATURE, resid(pha.model))
+plot(pha3$REGION, resid(pha.model))
+
+#--- model validation to elminate heterogenity ---# 
+pha.modelb <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                      family=gaussian(), 
+                      data = pha2,
+                      dispformula = ~TEMPERATURE,
+                      REML = TRUE) 
+
+pha.modelc <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                      family=gaussian(), 
+                      data = pha2,
+                      dispformula = ~REGION,
+                      REML = TRUE)
+
+MuMIn::AICc(pha.modelb,pha.modelc)
+
+pha.modelb %>% check_model() 
+
+#--- model still not performing well ---# 
+pha.model.gamma <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                     family=Gamma(link="log"), 
+                     data = pha2, 
+                     REML = TRUE) 
+
+pha.model.gamma %>% check_model() 
+pha.resid <-  pha.model.gamma2 %>% 
+  DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+pha.model %>% DHARMa::testResiduals()
+
+#--- looks better but not great ---# 
+
+pha.model.gamma <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                           family=Gamma(link="inverse"), 
+                           data = pha2, 
+                           REML = TRUE) 
+
+pha.model.gamma %>% check_model() 
+pha.resid <-  pha.model.gamma %>% 
+  DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+pha.model %>% DHARMa::testResiduals()
+
+
+#--- looks better but not great ---# 
+
+pha.model.gamma <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                           family=tweedie(), 
+                           data = pha2, 
+                           REML = TRUE) 
+
+pha.model.gamma %>% check_model() 
+pha.resid <-  pha.model.gamma %>% 
+  DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+pha.model %>% DHARMa::testResiduals()
+#--- partial plots ---# 
+pha.model.gamma %>% ggemmeans(~TEMPERATURE*REGION) %>% plot()
+pha.model.gamma %>% summary()
+pha.model.gamma %>% confint()
+pha.model.gamma %>% performance::r2()
+pha.model.gamma %>% performance::r2_nakagawa()
+
+#--- looks better but not great ---# 
+
+pha.model.gamma <- glm(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED, 
+                           family=Gamma(link="identity"), 
+                           data = pha2) 
+
+pha.model.gamma %>% check_model() 
+pha.resid <-  pha.model.gamma %>% 
+  DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+pha.model %>% DHARMa::testResiduals()
+
+#--- partial plots ---# 
+pha.model.gamma %>% ggemmeans(~TEMPERATURE*REGION) %>% plot()
+pha.model.gamma %>% summary()
+pha.model.gamma %>% confint()
+pha.model.gamma %>% performance::r2()
+
+#--- Results ---#
+pha.model %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #--- model selection ---#
 MuMIn::AICc(pha.model, pha.modelb, pha.modelc, pha.model2)

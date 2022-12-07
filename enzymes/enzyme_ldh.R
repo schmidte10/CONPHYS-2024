@@ -37,7 +37,7 @@ ldh3 <- ldh2 %>%
   mutate(TIME_DIFF_SECS = period_to_seconds(hms(TIME_DIFF))) %>% 
   mutate(MINUTES = TIME_DIFF_SECS/60) %>% 
   mutate(MINUTES = round(MINUTES, digits = 2)) %>% 
-  rename(CUVETTE = sample_id_1) %>% 
+  dplyr::rename(CUVETTE = sample_id_1) %>% 
   mutate(REGION = substr(fish_id, 1, 1 ), 
          POPULATION = substr(fish_id, 2, 4), 
          SAMPLE_NO = substr(fish_id, 5, 7)) %>% 
@@ -144,7 +144,7 @@ LDH_background <- ldh3 %>%
   }) %>%
   ungroup() %>%
   filter(CUVETTE == ("5")) %>% 
-  rename(Background = Slope)
+  dplyr::rename(Background = Slope)
 
 final_table <- LDH_activity %>% 
   full_join(distinct(LDH_activity_means[,c(1,5)]), by = "UNIQUE_SAMPLE_ID") %>% 
@@ -180,7 +180,8 @@ ggplot(ldh.data, aes(x =temperature, y= LDH_ACTIVITY, fill = REGION)) +
   geom_boxplot()
 #--- begin data analysis ---# 
 ggplot(ldh.data, aes(x = LDH_ACTIVITY, fill = temperature, color = temperature)) + 
-  geom_density(alpha =0.5, position = "identity")
+  geom_density(alpha =0.5, position = "identity") 
+
 # data is not normal - perhaps more samples will end up helping 
 
 ldh.data %>% 
@@ -192,14 +193,16 @@ ldh.data %>%
 
 #--- models ---# 
 
-ldh.model.1 <- lm(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED, 
+ldh.model.1 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|fish_id), 
                        family=gaussian(), 
                        data = ldh.data, 
                        REML = TRUE) 
 
-ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|POPULATION), 
+ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|POPULATION)+ (1|fish_id), 
                   family=gaussian(), 
-                  data = ldh.data, 
+                  data = ldh.data,
+                  control=glmmTMBControl(optimizer=optim, 
+                                         optArgs = list(method='BFGS')), 
                   REML = TRUE) 
 
 #control=glmmTMBControl(optimizer=optim,
@@ -242,7 +245,8 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
                   position = position_dodge(0.2)) + 
   #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
   theme_classic() + ylab("LDH activity slope") + 
-  scale_color_manual(values=c("#DA3A36","#0D47A1"), name = "Regions"); g2
+  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
+                     name = "Regions"); g2
 
 pdf("LDH.pdf", width= 7, height = 5)
 print(g2)
