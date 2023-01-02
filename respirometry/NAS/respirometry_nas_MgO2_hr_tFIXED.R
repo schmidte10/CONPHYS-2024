@@ -82,6 +82,7 @@ resp4 <- resp3 %>%
            EXP_FISH_ID != "LCHA114_28.5"& 
            EXP_FISH_ID != "LCKM163_28.5" & 
            EXP_FISH_ID != "CVLA045_28.5")
+#LCHA113_30 should be removed from resting and maximum. Data trend for resting looks very strange. 
 
 #--- exploratory data analysis ---# 
 hist(resp4$MgO2.hr_Net); shapiro.test(resp4$MgO2.hr_Net); skewness(resp4$MgO2.hr_Net) #postive/right skewed

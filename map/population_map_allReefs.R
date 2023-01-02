@@ -11,6 +11,7 @@ library(ggpubr)
 library(ggrepel)
 #--- Loading shape data ---#
 GBR_data <- st_read("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Statistics_wrkshp/Maps/TS_AIMS_NESP_Torres_Strait_Features_V1b_with_GBR_Features")
+GBR_data <- st_read("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Statistics_wrkshp/Maps/TS_AIMS_NESP_Torres_Strait_Features_V1b_with_GBR_Features")
 class(GBR_data)
 
 #--- set working directory ---# 

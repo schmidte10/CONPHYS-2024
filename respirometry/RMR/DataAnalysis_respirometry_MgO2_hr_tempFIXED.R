@@ -65,6 +65,7 @@ resp3 <- resp2 %>%
            EXP_FISH_ID != "CSUD088_27" & 
            EXP_FISH_ID != "CTON062_27")
 ###--- EXPLORATORY ANALYSIS ----####
+table(resp3$REGION, resp3$RESTING_CHAMBER, resp3$TEMPERATURE)
 #--- exploratory data analysis: covariates ---# 
 ggplot(resp3, aes(MASS, RESTING)) + 
   geom_point() + 
