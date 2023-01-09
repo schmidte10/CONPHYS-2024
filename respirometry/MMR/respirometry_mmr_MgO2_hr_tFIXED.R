@@ -60,32 +60,30 @@ resp2 = resp %>%
 
 #--- remove individuals where min.max data is unreliable ---# 
 resp3 <- resp2 %>% 
-  subset(EXP_FISH_ID !="LCHA132_27" & 
-           EXP_FISH_ID != "LKES168_27" & 
-           EXP_FISH_ID != "LCHA113_30" & 
-           EXP_FISH_ID != "CSUD088_27" & 
-           EXP_FISH_ID != "CTON062_27") 
+  subset(  
+    EXP_FISH_ID !="LCHA127_27" & # deceased during experiment
+      EXP_FISH_ID !="LCHA132_27" & # deceased during experiment
+      EXP_FISH_ID !="LKES168_27" # poor data quality
+    
+  ) 
 
 #--- remove individuals where ONLY max data is unreliable ---# 
 resp4 <- resp3 %>% 
-  subset(EXP_FISH_ID !="CSUD014_27" & 
-           EXP_FISH_ID != "CTON065_27" & 
-           EXP_FISH_ID != "CTON069_30" & 
-           EXP_FISH_ID != "CVLA054_27" & 
-           EXP_FISH_ID != "LCHA129_27"& 
-           EXP_FISH_ID != "LCHA135_27" & 
-           EXP_FISH_ID != "LCKM162_27" & 
-           EXP_FISH_ID != "LCKM165_27" & 
-           EXP_FISH_ID != "LCKM180_27"& 
-           EXP_FISH_ID != "CSUD026_30" & 
-           EXP_FISH_ID != "CTON067_28.5" & 
-           EXP_FISH_ID != "CVLA054_28.5" & 
-           EXP_FISH_ID != "LCHA114_28.5"& 
-           EXP_FISH_ID != "LCKM163_28.5" & 
-           EXP_FISH_ID != "LCKM154_31.5"& 
-           EXP_FISH_ID != "CSUD079_30" & 
-           EXP_FISH_ID != "CSUD079_31.5"& 
-           EXP_FISH_ID != "LCHA125_30")
+  subset(
+    EXP_FISH_ID !="CSUD008_27" &  # poor swim
+      EXP_FISH_ID !="CSUD008_30" &  # poor swim 
+      EXP_FISH_ID !="CSUD008_31.5" & # poor swim
+      EXP_FISH_ID !="CSUD018_31.5" & # poor swim 
+      EXP_FISH_ID !="CSUD026_30" & # max. value low 
+      EXP_FISH_ID !="CSUD074_28.5" & # fas value low 
+      EXP_FISH_ID !="CSUD079_30" &
+      EXP_FISH_ID !="CVLA052_27" & #nas value low 
+      EXP_FISH_ID !="CVLA054_28.5" & # low max value? 
+      EXP_FISH_ID !="LCHA113_27" & # poor data quality 
+      EXP_FISH_ID !="LCHA113_30" & # poor swim 
+      EXP_FISH_ID !="LCHA127_27" # deceased during experiment
+  )   
+
 
 #--- exploratory data analysis ---# 
 hist(resp4$MAX_MgO2.hr); shapiro.test(resp4$MAX_MgO2.hr) 
@@ -98,35 +96,77 @@ resp4 %>%
                    Mean = mean(MAX_MgO2.hr)) 
 
 #--- model formula ---# 
-#max metablic rate
-mmr_MgO2.hr_tfixed <- glmmTMB(MAX_MgO2.hr ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + MAX_CHAMBER + MAX_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
-               family=gaussian(),
-               data = resp4,
-               REML = TRUE)
+#--- base model ---# 
+mmr.1 <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp4,
+                 REML = FALSE) 
 
+
+#--- experimental mmr equipment hypothesis ---#
+mmr.2 <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MAX_SUMP + MAX_CHAMBER + 
+                   MAX_AM_PM, 
+                 family=gaussian(),
+                 data = resp4,
+                 REML = FALSE) 
+
+AICc(mmr.1, mmr.2, k=2)
+#followed by random effects
+mmr.1 <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp4,
+                 REML = TRUE) 
+
+mmr.1a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE) 
+
+mmr.1b <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (1|POPULATION), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
+
+mmr.1c <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (1|REGION/POPULATION), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
+
+mmr.1d <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (REGION|POPULATION), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
+
+AICc(mmr.1, mmr.1a, mmr.1b, mmr.1c, mmr.1d, k=2)
+
+#--- Final model ---# 
+mmr.1a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
 
 #--- saving model ---#
-saveRDS(mmr_MgO2.hr_tfixed, file = "glmmTMB_mmr_MgO2_hr_tfixed.RDS") 
+saveRDS(mmr.1a, file = "mmr_1a.RDS") 
 
 #--- load model ---# 
 #mmr.p3_MgO2.hr <- readRDS("glmmTMB_mmr_p3_MgO2.hr.RDS")
 
 #--- investigate model ---#
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
-check_model(mmr_MgO2.hr_tfixed)
+check_model(mmr.1a)
 
-mmr_MgO2.hr_tfixed %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-mmr_MgO2.hr_tfixed %>% plot_model(type='est')
+mmr.1a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+mmr.1a %>% plot_model(type='est')
 
-mmr_MgO2.hr_tfixed %>% summary()
-mmr_MgO2.hr_tfixed %>% confint()
-mmr_MgO2.hr_tfixed  %>% r.squaredGLMM()
-mmr_MgO2.hr_tfixed  %>% performance::r2_nakagawa()
+mmr.1a %>% summary()
+mmr.1a %>% confint()
+mmr.1a  %>% r.squaredGLMM()
+mmr.1a  %>% performance::r2_nakagawa()
 
-mmr_MgO2.hr_tfixed %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
+mmr.1a %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
 
 #--- plot ---#
-newdata <- mmr_MgO2.hr_tfixed %>% ggemmeans(~TEMPERATURE|REGION) %>%
+newdata <- mmr.1a %>% ggemmeans(~TEMPERATURE|REGION) %>%
   as.data.frame %>% 
   dplyr::rename(TEMPERATURE = x)
 
@@ -134,13 +174,13 @@ g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
   geom_point()+
   theme_classic(); g1
 
-predict(mmr_MgO2.hr_tfixed, re.form=NA) 
+predict(mmr.1a, re.form=NA) 
 #data points based on month and situation - to get the group means
-residuals(mmr_MgO2.hr_tfixed, type='response') 
+residuals(mmr.1a, type='response') 
 #data points based on month/situation/random effects - to get the data points
 obs <-  resp4 %>% 
-  mutate(Pred=predict(mmr_MgO2.hr_tfixed, re.form=NA),
-         Resid = residuals(mmr_MgO2.hr_tfixed, type='response'),
+  mutate(Pred=predict(mmr.1a, re.form=NA),
+         Resid = residuals(mmr.1a, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
 g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
