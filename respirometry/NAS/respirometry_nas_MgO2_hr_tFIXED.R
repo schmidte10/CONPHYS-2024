@@ -114,17 +114,16 @@ nas.1 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED,
                               data = resp4,
                               REML = FALSE) 
  
-#--- experimental equipment hypothesis ---#
-nas.2 <- glmmTMB(MgO2.hr_Net ~ 1+ MASS_CENTERED + RESTING_SUMP + RESTING_CHAMBER + 
-                                RESTING_AM_PM + RESTING_DATE + RESTING_DATE, 
+#--- experimental resting equipment hypothesis ---#
+nas.2 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_SUMP + RESTING_CHAMBER + 
+                                RESTING_AM_PM, 
                               family=gaussian(),
                               data = resp4,
                               REML = FALSE) 
 
-#--- base model and equip ---# 
-nas.3 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + 
-                   MASS_CENTERED + RESTING_CHAMBER + 
-                   RESTING_AM_PM, 
+#--- experimental max equipment hypothesis ---#
+nas.3 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MAX_SUMP + MAX_CHAMBER + 
+                   MAX_AM_PM, 
                  family=gaussian(),
                  data = resp4,
                  REML = FALSE) 
@@ -232,9 +231,60 @@ dev.off()
 jpeg("MgO2.hr_NET_tfixedb2.jpeg", units="in", width=7, height=5, res=300) 
 print(g2)
 dev.off()
+##########################################################################################
 
-###########################################################################################
-resp4 %>% 
+##########################################################################################
+##########################################################################################
+####################                                                    ##################
+####################       re-running model without chauvel reef        ##################
+###################                                                     ##################
+##########################################################################################
+resp5 <- resp4 %>% 
+  subset(POPULATION != "Chauvel Reef")
+
+
+nas.1a.woc <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp5,
+                  REML = TRUE) 
+
+#rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
+check_model(nas.1a.woc)
+pha.resid <-  nas.1a.woc %>% 
+  DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+nas.1a.woc %>% DHARMa::testResiduals() 
+
+#sim <- simulateResiduals(nas.1a.woc)
+#which(residuals(sim) == 1 | residuals(sim) == 0)
+
+nas.1a.woc %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
+nas.1a.woc %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+nas.1a.woc %>% plot_model(type='est')
+
+nas.1a.woc %>% summary()
+nas.1a.woc %>% confint()
+nas.1a.woc  %>% r.squaredGLMM()
+nas.1a.woc  %>% performance::r2_nakagawa()
+
+nas.1a.woc %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
+nas.1a.woc %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
+
+# CONCLUSION: Significant differences remain unchanged, however results are slightly 'less significant'
+
+#################################################################################################
+
+##########################################################################################
+##########################################################################################
+####################                                                    ##################
+####################                 population analysis                ##################
+###################                                                     ##################
+##########################################################################################
+
+#--- preparing data ---# 
+resp6 <-  resp4 %>% 
+  mutate(TEMPERATURE = as.numeric(TEMPERATURE))
+
+resp6 %>% 
   group_by(POPULATION, TEMPERATURE)  %>%    
   dplyr::summarise(sample_size = n(), 
                    Min. = min(sqrt.MgO2.hr_NET), 
@@ -244,86 +294,63 @@ resp4 %>%
 
 #--- model formula ---# 
 #net aerobic scope looking at differences between populations
-pop.sqrt.MgO2.hr_NET <- glmmTMB(sqrt.MgO2.hr_NET ~ 1+ POPULATION * TEMPERATURE + MASS_CENTERED +
-                     RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
+pop.MgO2.hr_NET <- glmmTMB(MgO2.hr_Net ~ 1+ POPULATION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|FISH_ID), 
+                              #control=glmmTMBControl(optimizer=optim,
+                              #optArgs = list(method='BFGS')),
+                              family=gaussian(),
+                              data = resp6,
+                              REML = FALSE)
+
+pop.MgO2.hr_NET.p2 <- glmmTMB(MgO2.hr_Net ~ 1+ POPULATION * TEMPERATURE + MASS_CENTERED +
+                     RESTING_CHAMBER + RESTING_SUMP + RESTING_AM_PM + (1|FISH_ID), 
                    family=gaussian(),
                    #control=glmmTMBControl(optimizer=optim,
                                           #optArgs = list(method='BFGS')),
-                   data = resp4,
+                   data = resp6,
                    REML = FALSE)
 
-
-pop.sqrt.MgO2.hr_NET.p2 <- glmmTMB(sqrt.MgO2.hr_NET ~ 1+ POPULATION * poly(TEMPERATURE, 2) + MASS_CENTERED +
-                        RESTING_CHAMBER + RESTING_SUMP + 
-                        MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
+pop.MgO2.hr_NET.p3 <- glmmTMB(MgO2.hr_Net ~ 1+ POPULATION * poly(TEMPERATURE, 3) + MASS_CENTERED +
+                        MAX_CHAMBER + MAX_SUMP + MAX_AM_PM + (1|FISH_ID), 
                       #control=glmmTMBControl(optimizer=optim,
                                              #optArgs = list(method='BFGS')),
                       family=gaussian(),
-                      data = resp4,
+                      data = resp6,
                       REML = FALSE)
 
-pop.sqrt.MgO2.hr_NET.p3 <- glmmTMB(sqrt.MgO2.hr_NET ~ 1+ POPULATION * poly(TEMPERATURE, 3) + MASS_CENTERED +
-                        RESTING_CHAMBER + RESTING_SUMP + 
-                        MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
-                      #control=glmmTMBControl(optimizer=optim,
-                                             #optArgs = list(method='BFGS')),
-                      family=gaussian(),
-                      data = resp4,
-                      REML = FALSE)
-
-AICc(pop.sqrt.MgO2.hr_NET, pop.sqrt.MgO2.hr_NET.p2, pop.sqrt.MgO2.hr_NET.p3, k = 2, REML = TRUE) 
-check_model(pop.sqrt.MgO2.hr_NET.p2) 
+AICc(pop.MgO2.hr_NET, pop.MgO2.hr_NET.p2, pop.MgO2.hr_NET.p3, k = 2, REML = TRUE) 
+ 
 
 #--- save model ---# 
-saveRDS(pop.sqrt.MgO2.hr_NET.p2, file = "glmmTMB_sqrt.MgO2.hr_NET_p2_population.RDS") 
+saveRDS(pop.MgO2.hr_NET.p2, file = "glmmTMB_sqrt.MgO2.hr_NET_p2_population.RDS") 
 
 #--- load model ---#
 #pop.sqrt.MgO2.hr_NET.poly3 <- readRDS("glmmTMB_sqrt.MgO2.hr_NET_p3_population.RDS")
 
 
 #--- investigate model ---#
-pop.sqrt.MgO2.hr_NET.p2 %>% plot_model(type='eff',  terms=c('TEMPERATURE','POPULATION'), show.data=TRUE)
-pop.sqrt.MgO2.hr_NET.p2 %>% ggemmeans(~TEMPERATURE|POPULATION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-pop.sqrt.MgO2.hr_NET.p2 %>% plot_model(type='est')
+pop.MgO2.hr_NET %>% plot_model(type='eff',  terms=c('TEMPERATURE','POPULATION'), show.data=TRUE)
+pop.MgO2.hr_NET %>% ggemmeans(~TEMPERATURE|POPULATION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+pop.MgO2.hr_NET %>% plot_model(type='est')
 
-pop.sqrt.MgO2.hr_NET.p2 %>% summary()
-pop.sqrt.MgO2.hr_NET.p2 %>% confint()
-pop.sqrt.MgO2.hr_NET.p2  %>% r.squaredGLMM()
+pop.MgO2.hr_NET %>% summary()
+pop.MgO2.hr_NET %>% confint()
+pop.MgO2.hr_NET  %>% r.squaredGLMM()
 
-pop.sqrt.MgO2.hr_NET.p3 %>% emtrends("POPULATION", var="TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
+nas.1a.woc %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
+pop.MgO2.hr_NET.p2 %>% emtrends(~ POPULATION, var = "TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
+
+pop.MgO2.hr_NET.p2 %>% emmeans(~ POPULATION, by = "TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
 
 #########################################################################################
-tran <- make.tran("power", 1/2)
-MgO2.hr_NET_tfixed <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                                           RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
-                                           (1|REGION:POPULATION) + (1|FISH_ID), 
-                                         family=gaussian(),
-                                         data = resp4,
-                                         REML = TRUE))
-
-MgO2.hr_NET_tfixedb <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|REGION) + (1|FISH_ID), 
-                                          family=gaussian(),
-                                          data = resp4,
-                                          REML = TRUE))
-
-MgO2.hr_NET_tfixedc <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|POPULATION) + (1|FISH_ID), 
-                                          family=gaussian(),
-                                          data = resp4,
-                                          REML = TRUE))
-
-MgO2.hr_NET_tfixedd <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
-                                            RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
-                                          family=gaussian(),
-                                          data = resp4,
-                                          REML = TRUE)) 
-
-Mg
+#tran <- make.tran("power", 1/2)
+#MgO2.hr_NET_tfixed <- with(tran, glmmTMB(linkfun(MgO2.hr_Net) ~ 1+ REGION * TEMPERATURE + MASS_CENTERED +
+                                          # RESTING_CHAMBER + RESTING_SUMP + MAX_CHAMBER + MAX_SUMP +
+                                          # (1|REGION:POPULATION) + (1|FISH_ID), 
+                                        # family=gaussian(),
+                                        # data = resp4,
+                                        # REML = TRUE))
 
 
 
-#--- model compairson ---#
-AICc(MgO2.hr_NET_tfixed, MgO2.hr_NET_tfixedb, MgO2.hr_NET_tfixedc, MgO2.hr_NET_tfixedd, k=2)
 
 
