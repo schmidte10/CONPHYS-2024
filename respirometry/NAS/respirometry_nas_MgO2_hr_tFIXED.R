@@ -25,17 +25,12 @@ setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/L
 # uni computer
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry")
 #--- load data ---# 
-resp <- read.delim("./SummaryData_2022_resp.txt")
+resp <- read.delim("./SummaryData_2022_resp_updated.txt")
 # personal computer
 setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/NAS/")
 # uni computer
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/NAS")
 
-#--- preparation of data ---# 
-# data seems to have loaded with two extract columns at the end 
-# remove extract columns by name 
-
-resp <- resp %>% select(-c("X","X.1"))
 
 #--- preparing data ---# 
 resp2 = resp %>% 
@@ -57,32 +52,39 @@ resp2 = resp %>%
          MAX_SUMP = factor(MAX_SUMP), 
          MAX_AM_PM = factor(MAX_AM_PM), 
          MAX_START_TIME = hms(MAX_START_TIME), 
-         Swim.performance = factor(Swim.performance)) %>% 
+         Swim.performance = factor(Swim.performance), 
+         MgO2.hr_Net = as.numeric(MgO2.hr_Net)) %>% 
   dplyr::rename(MASS = DRY_WEIGHT) %>% 
   mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE)) %>% 
-  drop_na(MASS)
+  drop_na(MASS)%>%
+  drop_na(MgO2.hr_Net)
 
 #--- remove individuals where min.max data is unreliable ---# 
 resp3 <- resp2 %>% 
-  subset(EXP_FISH_ID !="LCHA132_27" & 
-           EXP_FISH_ID != "LKES168_27" & 
-           EXP_FISH_ID != "LCHA113_30" & 
-           EXP_FISH_ID != "CSUD088_27" & 
-           EXP_FISH_ID != "CTON062_27") 
+  subset(  
+    EXP_FISH_ID !="LCHA127_27" & # deceased during experiment
+      EXP_FISH_ID !="LCHA132_27" & # deceased during experiment
+      EXP_FISH_ID !="LKES168_27" # poor data quality
+      
+         ) 
 
 #--- remove individuals where ONLY max data is unreliable ---# 
 resp4 <- resp3 %>% 
-  subset(EXP_FISH_ID !="CSUD014_27" &  
-           EXP_FISH_ID != "LCHA124_27"& 
-           EXP_FISH_ID != "LCHA135_27" & 
-           #EXP_FISH_ID != "LCKM162_27" & 
-           EXP_FISH_ID != "CSUD026_31.5" & 
-           EXP_FISH_ID != "CTON067_28.5" & 
-           EXP_FISH_ID != "CVLA054_28.5" & 
-           EXP_FISH_ID != "LCHA114_28.5"& 
-           EXP_FISH_ID != "LCKM163_28.5" & 
-           EXP_FISH_ID != "CVLA045_28.5")
-#LCHA113_30 should be removed from resting and maximum. Data trend for resting looks very strange. 
+  subset(
+      EXP_FISH_ID !="CSUD008_27" &  # poor swim
+      EXP_FISH_ID !="CSUD008_30" &  # poor swim 
+      EXP_FISH_ID !="CSUD008_31.5" & # poor swim
+        EXP_FISH_ID !="CSUD018_31.5" & # poor swim 
+        EXP_FISH_ID !="CSUD026_30" & # max. value low 
+        EXP_FISH_ID !="CSUD074_28.5" & # fas value low 
+        EXP_FISH_ID !="CSUD079_30" &
+        EXP_FISH_ID !="CVLA052_27" & #nas value low 
+        EXP_FISH_ID !="CVLA054_28.5" & # low max value? 
+        EXP_FISH_ID !="LCHA113_27" & # poor data quality 
+        EXP_FISH_ID !="LCHA113_30" & # poor swim 
+        EXP_FISH_ID !="LCHA127_27" # deceased during experiment
+  )   
+
 
 #--- exploratory data analysis ---# 
 hist(resp4$MgO2.hr_Net); shapiro.test(resp4$MgO2.hr_Net); skewness(resp4$MgO2.hr_Net) #postive/right skewed
@@ -173,7 +175,10 @@ saveRDS(nas.1a, file = "nas_1a.RDS")
 check_model(nas.1a)
 pha.resid <-  nas.1a %>% 
   DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-nas.1a %>% DHARMa::testResiduals()
+nas.1a %>% DHARMa::testResiduals() 
+
+#sim <- simulateResiduals(nas.1a)
+#which(residuals(sim) == 1 | residuals(sim) == 0)
 
 nas.1a %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
 nas.1a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
@@ -198,7 +203,7 @@ g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
 
 predict(nas.1a, re.form=NA) 
 #data points based on month and situation - to get the group means
-residuals(nas.1a, type='response') 
+residuals(nas.1a, type='response')
 #data points based on month/situation/random effects - to get the data points
 obs <-  resp4 %>% 
   mutate(Pred=predict(nas.1a, re.form=NA),
@@ -211,7 +216,7 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
                   shape=19,
                   size=1,
                   position=position_dodge(0.2)) + 
-  scale_y_continuous(limits = c(2,8), breaks = seq(2, 8, by = 2)) + 
+  scale_y_continuous(limits = c(6,13), breaks = seq(6, 13, by = 2)) + 
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
   theme_classic() + ylab("NET AEROBIC SCOPE (NAS: MgO2/hr)") +
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),

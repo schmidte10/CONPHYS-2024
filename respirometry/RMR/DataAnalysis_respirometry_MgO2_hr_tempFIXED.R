@@ -23,15 +23,12 @@ setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/L
 # uni computer
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry")
 #--- load data ---# 
-resp <- read.delim("./SummaryData_2022_resp.txt")
+resp <- read.delim("./SummaryData_2022_resp_updated.txt")
 setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/RMR/")
 # uni computer
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/RMR")
 
 # data seems to have loaded with two extract columns at the end 
-# remove extract columns by name 
-
-resp <- resp %>% select(-c("X","X.1"))
 
 #--- preparing data ---# 
 resp2 = resp %>% 
@@ -67,7 +64,7 @@ resp3 <- resp2 %>%
 ###--- EXPLORATORY ANALYSIS ----####
 table(resp3$REGION, resp3$RESTING_CHAMBER, resp3$TEMPERATURE)
 #--- exploratory data analysis: covariates ---# 
-ggplot(resp3, aes(MASS, RESTING)) + 
+ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR)) + 
   geom_point() + 
   geom_smooth(method = "lm")
 # negative relationships between mass and resting metabolic rate  
@@ -91,7 +88,7 @@ ggplot(resp3, aes(MASS, FAS)) +
 # when looking at resting and maximum metabolic rate, and factorial aerobic scope
 
 #--- exploratory data analysis: populations ---# 
-ggplot(resp3, aes(REGION, RESTING)) + 
+ggplot(resp3, aes(REGION, RESTING_MgO2.hr_RESPR)) + 
   geom_boxplot() +
   theme_classic() + 
   facet_grid(~TEMPERATURE)
@@ -101,12 +98,12 @@ ggplot(resp3, aes(REGION, MAX)) +
   theme_classic() + 
   facet_grid(~TEMPERATURE)
 
-ggplot(resp3, aes(MASS, RESTING, color = REGION)) + 
+ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR, color = REGION)) + 
   geom_point() +
   theme_classic() + 
   geom_smooth(method = "lm")
 
-ggplot(resp3, aes(REGION, RESTING_MgO2.hr)) + 
+ggplot(resp3, aes(REGION, RESTING_MgO2.hr_RESPR)) + 
   geom_boxplot() +
   theme_classic() + 
   facet_grid(~TEMPERATURE)
@@ -132,13 +129,13 @@ hist(resp3$RESTING_MgO2.hr); shapiro.test(resp3$RESTING_MgO2.hr)
 resp3 %>% 
   group_by(REGION, TEMPERATURE)  %>%    
   dplyr::summarise(sample_size = n(), 
-                   Min. = min(RESTING_MgO2.hr), 
-                   Max. = max(RESTING_MgO2.hr), 
-                   Mean = mean(RESTING_MgO2.hr)) 
+                   Min. = min(RESTING_MgO2.hr_RESPR), 
+                   Max. = max(RESTING_MgO2.hr_RESPR), 
+                   Mean = mean(RESTING_MgO2.hr_RESPR)) 
 
 #--- model formula ---# 
 #resting metablic rate
-rest_MgO2.hr_tfixed <- glmmTMB(RESTING_MgO2.hr ~ 1+ REGION * TEMPERATURE + RESTING_CHAMBER + MASS_CENTERED + RESTING_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
+rest_MgO2.hr_tfixed <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + RESTING_CHAMBER + MASS_CENTERED + RESTING_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
                 family=gaussian(),
                 data = resp3,
                 REML = TRUE)
