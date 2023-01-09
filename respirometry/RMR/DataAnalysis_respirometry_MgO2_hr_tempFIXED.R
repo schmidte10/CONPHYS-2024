@@ -50,17 +50,22 @@ resp2 = resp %>%
          MAX_SUMP = factor(MAX_SUMP), 
          MAX_AM_PM = factor(MAX_AM_PM), 
          MAX_START_TIME = hms(MAX_START_TIME), 
-         Swim.performance = factor(Swim.performance)) %>% 
+         Swim.performance = factor(Swim.performance), 
+         NAS = as.numeric(NAS), 
+         FAS = as.numeric(FAS), 
+         MgO2.hr_Net = as.numeric(MgO2.hr_Net), 
+         RESTING_RUNTIME_SECONDS = as.numeric(hms(RESTING_RUNTIME))) %>% 
   dplyr::rename(MASS = WEIGHT) %>% 
   mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE))
 
 #--- remove individuals where data is irregular ---# 
 resp3 <- resp2 %>% 
-  subset(EXP_FISH_ID !="LCHA132_27" & 
-           EXP_FISH_ID != "LKES168_27" & 
-           EXP_FISH_ID != "LCHA113_30" & 
-           EXP_FISH_ID != "CSUD088_27" & 
-           EXP_FISH_ID != "CTON062_27")
+  subset(  
+    EXP_FISH_ID !="LCHA127_27" & # deceased during experiment
+      EXP_FISH_ID !="LCHA132_27" & # deceased during experiment
+      EXP_FISH_ID !="LKES168_27" # poor data quality
+    
+  ) 
 ###--- EXPLORATORY ANALYSIS ----####
 table(resp3$REGION, resp3$RESTING_CHAMBER, resp3$TEMPERATURE)
 #--- exploratory data analysis: covariates ---# 
@@ -113,7 +118,7 @@ ggplot(resp3, aes(REGION, MAX_MgO2.hr)) +
   theme_classic() + 
   facet_grid(~TEMPERATURE) 
 
-ggplot(resp3, aes(REGION, NAS)) + 
+ggplot(resp3, aes(REGION, MgO2.hr_Net)) + 
   geom_boxplot() +
   theme_classic() + 
   facet_grid(~TEMPERATURE) 
@@ -134,34 +139,81 @@ resp3 %>%
                    Mean = mean(RESTING_MgO2.hr_RESPR)) 
 
 #--- model formula ---# 
-#resting metablic rate
-rest_MgO2.hr_tfixed <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + RESTING_CHAMBER + MASS_CENTERED + RESTING_SUMP + (1|REGION:POPULATION) + (1|FISH_ID), 
-                family=gaussian(),
-                data = resp3,
-                REML = TRUE)
+#--- base model ---#
+rmr.1 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp3,
+                 REML = FALSE) 
 
-check_model(rest_MgO2.hr_tfixed) 
+#--- experimental rmr equipment hypothesis ---#
+rmr.2 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + RESTING_SUMP + 
+                   RESTING_AM_PM + RESTING_RUNTIME_SECONDS, 
+                 family=gaussian(),
+                 data = resp3,
+                 REML = FALSE) 
+summary(rmr.2)
+#--- base model and resting runtime ---#
+rmr.3 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
+                 family=gaussian(),
+                 data = resp3,
+                 REML = FALSE)
 
-#--- save model ---#
-saveRDS(rest_MgO2.hr_tfixed, file = "glmmTMB_rest_MgO2_hr_tfixed.RDS") 
+AICc(rmr.1, rmr.2, rmr.3, k=2)
+#followed by random effects
+rmr.3 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
+                 family=gaussian(),
+                 data = resp3,
+                 REML = TRUE) 
+
+rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp3,
+                  REML = TRUE) 
+
+rmr.3b <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID) + (1|POPULATION), 
+                  family=gaussian(),
+                  data = resp3,
+                  REML = TRUE)
+
+rmr.3c <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID) + (1|REGION/POPULATION), 
+                  family=gaussian(),
+                  data = resp3,
+                  REML = TRUE)
+
+rmr.3d <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID) + (REGION|POPULATION), 
+                  family=gaussian(),
+                  data = resp3,
+                  REML = TRUE)
+
+AICc(rmr.3, rmr.3a, rmr.3b, rmr.3c, rmr.3d, k=2)
+
+#--- Final model ---# 
+rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp3,
+                  REML = TRUE)
+
+#--- saving model ---#
+saveRDS(rmr.3a, file = "rmr_3a.RDS") 
+
 
 #--- load model ---#
 #rest_MgO2.hr_tfixed <- readRDS("glmmTMB_rest_MgO2_hr_tfixed.RDS")
 
 #--- investigate model ---#
 
-rest_MgO2.hr_tfixed %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-rest_MgO2.hr_tfixed %>% plot_model(type='est')
+rmr.3a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+rmr.3a %>% plot_model(type='est')
 
-rest_MgO2.hr_tfixed %>% summary()
-rest_MgO2.hr_tfixed %>% confint()
-rest_MgO2.hr_tfixed  %>% r.squaredGLMM()
-rest_MgO2.hr_tfixed  %>% performance::r2_nakagawa()
+rmr.3a %>% summary()
+rmr.3a %>% confint()
+rmr.3a  %>% r.squaredGLMM()
+rmr.3a  %>% performance::r2_nakagawa()
 
-rest_MgO2.hr_tfixed %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
+rmr.3a %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
 
 #--- plot ---#
-newdata <- rest_MgO2.hr_tfixed %>% 
+newdata <- rmr.3a %>% 
   ggemmeans(~TEMPERATURE|REGION) %>% 
   as.data.frame() %>% 
   dplyr::rename(TEMPERATURE = x)
@@ -170,13 +222,13 @@ g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
   geom_point()+
   theme_classic(); g1
 
-predict(rest.poly3_MgO2.hr, re.form=NA) 
+predict(rmr.3a, re.form=NA) 
 #data points based on month and situation - to get the group means
-residuals(rest.poly3_MgO2.hr, type='response') 
+residuals(rmr.3a, type='response') 
 #data points based on month/situation/random effects - to get the data points
 obs <-  resp3 %>% 
-  mutate(Pred=predict(rest_MgO2.hr_tfixed, re.form=NA),
-         Resid = residuals(rest_MgO2.hr_tfixed, type='response'),
+  mutate(Pred=predict(rmr.3a, re.form=NA),
+         Resid = residuals(rmr.3a, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
 g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)) + 
@@ -199,11 +251,11 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)
                      labels = c("Cairns (north)","Mackay (south)"), 
                      name = "Regions"); g2
 
-pdf("RMR_MgO2_hr_tFixed.pdf")
+pdf("rmr_3a.pdf")
 print(g2)
 dev.off()
 
-jpeg("RMR_MgO2_hr_tFixed.jpeg", units="in", width=7, height=5, res=300)
+jpeg("rmr_3a.jpeg", units="in", width=7, height=5, res=300)
 print(g2)
 dev.off()
 
