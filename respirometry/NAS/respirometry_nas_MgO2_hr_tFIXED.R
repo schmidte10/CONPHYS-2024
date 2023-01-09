@@ -115,7 +115,7 @@ nas.1 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED,
                               REML = FALSE) 
  
 #--- experimental resting equipment hypothesis ---#
-nas.2 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_SUMP + RESTING_CHAMBER + 
+nas.2 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_SUMP + RESTING_RUNTIME_SECONDS + 
                                 RESTING_AM_PM, 
                               family=gaussian(),
                               data = resp4,

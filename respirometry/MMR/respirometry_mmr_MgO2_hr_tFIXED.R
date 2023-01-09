@@ -41,7 +41,7 @@ resp2 = resp %>%
   mutate(FISH_ID = factor(FISH_ID), 
          POPULATION = factor(POPULATION), 
          REGION = factor(REGION), 
-         TEMPERATURE = factor(TEMPERATURE),
+         TEMPERATURE = factor(TEMPERATURE), #run with temperature as a factor
          RESTING_DATE = factor(RESTING_DATE), 
          RESTING_CHAMBER = factor(RESTING_CHAMBER), 
          RESTING_SYSTEM = factor(RESTING_SYSTEM), 
@@ -54,7 +54,11 @@ resp2 = resp %>%
          MAX_SUMP = factor(MAX_SUMP), 
          MAX_AM_PM = factor(MAX_AM_PM), 
          MAX_START_TIME = hms(MAX_START_TIME), 
-         Swim.performance = factor(Swim.performance)) %>% 
+         Swim.performance = factor(Swim.performance), 
+         NAS = as.numeric(NAS), 
+         FAS = as.numeric(FAS), 
+         MgO2.hr_Net = as.numeric(MgO2.hr_Net), 
+         RESTING_RUNTIME_SECONDS = as.numeric(hms(RESTING_RUNTIME))) %>% 
   dplyr::rename(MASS = WEIGHT) %>% 
   mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE))
 
