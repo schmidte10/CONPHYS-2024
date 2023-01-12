@@ -198,7 +198,7 @@ saveRDS(rmr.3a, file = "rmr_3a.RDS")
 
 
 #--- load model ---#
-#rest_MgO2.hr_tfixed <- readRDS("glmmTMB_rest_MgO2_hr_tfixed.RDS")
+rmr.3a <- readRDS("rmr_3a.RDS")
 
 #--- investigate model ---#
 
@@ -207,9 +207,9 @@ rmr.3a %>% plot_model(type='est')
 
 rmr.3a %>% summary()
 rmr.3a %>% confint()
-rmr.3a  %>% r.squaredGLMM()
 rmr.3a  %>% performance::r2_nakagawa()
 
+rmr.3a %>% emmeans(~ TEMPERATURE*REGION)
 rmr.3a %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
 
 #--- plot ---#
@@ -274,18 +274,18 @@ resp3 %>%
 #--- model formula ---#############################################################################################
 # Script below has not been run/edited - in current state - DO NOT USE
 #POPULATION - resting metablic rate
-pop.rest_MgO2.hr <- glmmTMB(RESTING_MgO2.hr ~ 1+ POPULATION * TEMPERATURE + MASS_CENTERED + RESTING_CHAMBER + RESTING_SUMP + (1|FISH_ID), 
+pop.rest_MgO2.hr <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ POPULATION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
                     family=gaussian(),
                     data = resp3,
                     REML = TRUE)
 
 
-pop.rest.poly2_MgO2.hr <- glmmTMB(RESTING_MgO2.hr ~ 1+ POPULATION * poly(TEMPERATURE, 2) + MASS_CENTERED + RESTING_CHAMBER + RESTING_SUMP + (1|FISH_ID), 
+pop.rest.poly2_MgO2.hr <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ POPULATION * poly(TEMPERATURE, 2) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
                           family=gaussian(),
                           data = resp3,
                           REML = TRUE)
 
-pop.rest.poly3_MgO2.hr <- glmmTMB(RESTING_MgO2.hr ~ 1+ POPULATION * poly(TEMPERATURE, 3) + MASS_CENTERED + RESTING_CHAMBER + RESTING_SUMP + (1|FISH_ID), 
+pop.rest.poly3_MgO2.hr <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ POPULATION * poly(TEMPERATURE, 3) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
                           family=gaussian(),
                           data = resp3,
                           REML = TRUE)

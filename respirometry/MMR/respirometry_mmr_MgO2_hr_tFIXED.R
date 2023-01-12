@@ -153,7 +153,7 @@ mmr.1a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + 
 saveRDS(mmr.1a, file = "mmr_1a.RDS") 
 
 #--- load model ---# 
-#mmr.p3_MgO2.hr <- readRDS("glmmTMB_mmr_p3_MgO2.hr.RDS")
+mmr.1a <- readRDS("mmr_1a.RDS")
 
 #--- investigate model ---#
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
@@ -220,14 +220,24 @@ resp4 %>%
 
 #--- model formula ---# 
 #POPULATION - MAX metablic rate
-pop.mmr_MgO2.hr <- glmmTMB(MAX_MgO2.hr ~ 1+ POPULATION * TEMPERATURE + MASS_CENTERED + MAX_CHAMBER + MAX_SUMP + (1|FISH_ID), 
+pop.mmr <- glmmTMB(MAX_MgO2.hr ~ 1+ POPULATION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
                    family=gaussian(),
-                   data = resp3,
-                   REML = TRUE)
+                   data = resp4,
+                   REML = FALSE)
 
+pop.mmr.p2 <- glmmTMB(MAX_MgO2.hr ~ 1+ POPULATION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|FISH_ID), 
+                           family=gaussian(),
+                           data = resp4,
+                           REML = FALSE) 
 
+pop.mmr.p3 <- glmmTMB(MAX_MgO2.hr ~ 1+ POPULATION * poly(TEMPERATURE, 3) + MASS_CENTERED + (1|FISH_ID), 
+                           family=gaussian(),
+                           data = resp4,
+                           REML = FALSE)
 
-check_model(pop.mmr.p3_MgO2.hr) 
+AICc(pop.mmr, pop.mmr.p2, pop.mmr.p3, k = 2, REML = FALSE)
+check_model(pop.mmr.p2) 
+ 
 
 #--- save model ---# 
 saveRDS(pop.mmr.p3_MgO2.hr, file = "glmmTMB_mmr_p3_population_MgO2.hr.RDS") 
@@ -236,15 +246,15 @@ saveRDS(pop.mmr.p3_MgO2.hr, file = "glmmTMB_mmr_p3_population_MgO2.hr.RDS")
 #pop.mmr.p3_MgO2.hr <- readRDS("glmmTMB_mmr_p3_population_MgO2.hr.RDS")
 
 #--- investigate model ---#
-pop.mmr.p3_MgO2.hr %>% plot_model(type='eff',  terms=c('TEMPERATURE','POPULATION'), show.data=TRUE)
-pop.mmr.p3_MgO2.hr %>% ggemmeans(~TEMPERATURE|POPULATION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-pop.mmr.p3_MgO2.hr %>% plot_model(type='est')
+pop.mmr.p2 %>% plot_model(type='eff',  terms=c('TEMPERATURE','POPULATION'), show.data=TRUE)
+pop.mmr.p2 %>% ggemmeans(~TEMPERATURE|POPULATION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+pop.mmr.p2 %>% plot_model(type='est')
 
-pop.mmr.p3_MgO2.hr %>% summary()
-pop.mmr.p3_MgO2.hr %>% confint()
-pop.mmr.p3_MgO2.hr  %>% r.squaredGLMM()
+pop.mmr.p2 %>% summary()
+pop.mmr.p2 %>% confint()
+pop.mmr.p2  %>% r.squaredGLMM()
 
-pop.mmr.p3_MgO2.hr %>% emtrends("POPULATION", var="TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
+pop.mmr.p2 %>% emmeans("POPULATION", var="TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
 
 ##########################################################################################
 

@@ -167,7 +167,7 @@ nas.1a <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FIS
 saveRDS(nas.1a, file = "nas_1a.RDS") 
 
 #--- load model ---# 
-#sqrt.MgO2.hr_NET.p3 <- readRDS("glmmTMB_sqrt.MgO2.hr_NET_p3.RDS") 
+#---  nas.1a <- readRDS("nas_1a.RDS") 
 
 #--- investigate model ---#
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
