@@ -135,9 +135,9 @@ pha.model.gamma <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CEN
                      REML = TRUE) 
 
 pha.model.gamma %>% check_model() 
-pha.resid <-  pha.model.gamma2 %>% 
+pha.resid <-  pha.model.gamma %>% 
   DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-pha.model %>% DHARMa::testResiduals()
+pha.model.gamma %>% DHARMa::testResiduals()
 
 #--- looks better but not great ---# 
 
@@ -154,15 +154,15 @@ pha.model %>% DHARMa::testResiduals()
 
 #--- looks better but not great ---# 
 
-pha.model.gamma <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+pha.model.tweedie <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
                            family=tweedie(), 
                            data = pha2, 
                            REML = TRUE) 
 
-pha.model.gamma %>% check_model() 
-pha.resid <-  pha.model.gamma %>% 
+pha.model.tweedie %>% check_model() 
+pha.resid <-  pha.model.tweedie %>% 
   DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-pha.model %>% DHARMa::testResiduals()
+pha.model.tweedie %>% DHARMa::testResiduals()
 #--- partial plots ---# 
 pha.model.gamma %>% ggemmeans(~TEMPERATURE*REGION) %>% plot()
 pha.model.gamma %>% summary()
@@ -170,69 +170,56 @@ pha.model.gamma %>% confint()
 pha.model.gamma %>% performance::r2()
 pha.model.gamma %>% performance::r2_nakagawa()
 
-#--- looks better but not great ---# 
+#--- glm ---#  
+#--- log-link gamma distribution ---#
 
-pha.model.gamma <- glm(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED, 
-                           family=Gamma(link="identity"), 
+pha.glm <- glm(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED, 
+                           family=Gamma(link="log"), 
                            data = pha2) 
 
-pha.model.gamma %>% check_model() 
-pha.resid <-  pha.model.gamma %>% 
+pha.glm %>% check_model() 
+pha.resid <-  pha.glm %>% 
   DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-pha.model %>% DHARMa::testResiduals()
+pha.glm %>% DHARMa::testResiduals()
+
+#--- identity-link gamma distribution ---#
+pha.glm.gammai <- glm(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED, 
+               family=Gamma(link="inverse"), 
+               data = pha2) 
+
+pha.glm.gammai %>% check_model() 
+pha.resid <-  pha.glm.gammai %>% 
+  DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+pha.glm.gammai %>% DHARMa::testResiduals()
+
+#--- final model ---# 
+pha.glm.gamma <- glm(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED, 
+               family=Gamma(link="inverse"), 
+               data = pha2) 
 
 #--- partial plots ---# 
-pha.model.gamma %>% ggemmeans(~TEMPERATURE*REGION) %>% plot()
-pha.model.gamma %>% summary()
-pha.model.gamma %>% confint()
-pha.model.gamma %>% performance::r2()
+pha.glm.gamma %>% ggemmeans(~TEMPERATURE*REGION) %>% plot()
+pha.glm.gamma %>% summary()
+pha.glm.gamma %>% confint()
+pha.glm.gamma %>% performance::r2()
 
-#--- Results ---#
-pha.model %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE) 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#--- model selection ---#
-MuMIn::AICc(pha.model, pha.modelb, pha.modelc, pha.model2)
-
-# Gamma distribution not transformed data 
-pha.model.gamma <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+#--- investigation on which random factors to include ---#
+ pha.glmm.gamma <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
                                 family=Gamma('inverse'), 
                                 data = pha2, 
                                 REML = TRUE) 
 
-pha.model.gamma.b <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|REGION) + (1|POPULATION) + (1|FISH_ID), 
+pha.glmm.gamma.b <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|POPULATION) + (1|FISH_ID), 
                                  family=Gamma('inverse'), 
-                                 data = pha2, 
-                      control=glmmTMBControl(optimizer=optim,
-                                             optArgs = list(method='BFGS')),
+                                 data = pha2,
                                  REML = TRUE) 
 
-pha.model.gamma.c <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|REGION*POPULATION) + (1|FISH_ID), 
+pha.glmm.gamma.c <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|REGION*POPULATION) + (1|FISH_ID), 
                                  family=Gamma('inverse'), 
                                  data = pha2, 
-                      control=glmmTMBControl(optimizer=optim,
-                                             optArgs = list(method='BFGS')),
                                  REML = TRUE) 
 
-pha.model.gamma.d <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (REGION|POPULATION) + (1|FISH_ID), 
+pha.glmm.gamma.d <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (REGION|POPULATION) + (1|FISH_ID), 
                                  family=Gamma('inverse'), 
                                  data = pha2,
                             control=glmmTMBControl(optimizer=optim,
@@ -240,35 +227,27 @@ pha.model.gamma.d <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_C
                             
                                  REML = TRUE)
 
-pha.model.gamma.e <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|POPULATION) + (1|FISH_ID), 
-                            family=Gamma('inverse'), 
-                            data = pha2,
-                            control=glmmTMBControl(optimizer=optim,
-                                                   optArgs = list(method='BFGS')),
-                            
-                            REML = TRUE)
 
+MuMIn::AICc(pha.glmm.gamma, pha.glmm.gamma.b, pha.glmm.gamma.c,pha.glmm.gamma.d)
 
-MuMIn::AICc(pha.model.gamma, pha.model.gamma.b, pha.model.gamma.c,pha.model.gamma.d,pha.model.gamma.e)
-MuMIn::AICc(pha.model.gamma,pha.model)
 
 #--- model validation ---#
-pha.model.gamma %>% check_model() 
-pha.resid <-  pha.model.gamma %>% 
+pha.glmm.gamma %>% check_model() 
+pha.resid <-  pha.glmm.gamma %>% 
   DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-pha.model.gamma %>% DHARMa::testResiduals()
+pha.glmm.gamma %>% DHARMa::testResiduals()
 
 #--- partial plots ---# 
-pha.model.gamma %>% ggemmeans(~TEMPERATURE*REGION) %>% plot()
-pha.model.gamma %>% summary()
-pha.model.gamma %>% confint()
-pha.model.gamma %>% performance::r2_nakagawa()
+pha.glmm.gamma %>% ggemmeans(~TEMPERATURE*REGION) %>% plot()
+pha.glmm.gamma %>% summary()
+pha.glmm.gamma %>% confint()
+pha.glmm.gamma %>% performance::r2_nakagawa()
 
 #--- Results ---#
-pha.model.gamma %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE) 
-
+pha.glmm.gamma %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE) 
+pha.glmm.gamma %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "REGION") %>% summary(infer=TRUE) 
 #--- plot ---# 
-newdata <- pha.model.gamma %>% ggemmeans(~TEMPERATURE|REGION) %>% 
+newdata <- pha.glmm.gamma %>% ggemmeans(~TEMPERATURE|REGION) %>% 
   as.data.frame() %>% 
   dplyr::rename(TEMPERATURE = x) 
 
@@ -276,12 +255,12 @@ g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
   geom_point() + 
   theme_classic(); g1
 
-# predict(pha.model.gamma, re.form=NA)
-# residuals(pha.model.gamma, type = "response") 
+# predict(pha.glmm.gamma, re.form=NA)
+# residuals(pha.glmm.gamma, type = "response") 
 
 obs <- pha2 %>% 
-  mutate(Pred = predict(pha.model.gamma, re.form=NA), 
-         Resid = residuals(pha.model.gamma, type = 'response'), 
+  mutate(Pred = predict(pha.glmm.gamma, re.form=NA), 
+         Resid = residuals(pha.glmm.gamma, type = 'response'), 
          Fit = Pred - Resid)
 
 g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
