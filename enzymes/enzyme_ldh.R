@@ -99,7 +99,7 @@ for (i in sample_names_list) {
     }) %>%
     ungroup() %>%
     filter(CUVETTE == ("5")) %>% 
-    rename(Background = Slope)
+    dplyr::rename(Background = Slope)
   
   final_table <- LDH_activity %>% 
     full_join(distinct(LDH_activity_means[,c(1,5)]), by = "UNIQUE_SAMPLE_ID") %>% 
@@ -186,7 +186,7 @@ ggplot(ldh.data, aes(x = LDH_ACTIVITY, fill = temperature, color = temperature))
 
 ldh.data %>% 
   group_by(fish_id) %>% 
-  summarise(sample_size = n(), 
+  summarise(#sample_size = count(), 
             Min. = min(LDH_ACTIVITY), 
             Max. = max(LDH_ACTIVITY), 
             Mean = mean(LDH_ACTIVITY)) 
@@ -198,17 +198,24 @@ ldh.model.1 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTE
                        data = ldh.data, 
                        REML = TRUE) 
 
-ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|POPULATION)+ (1|fish_id), 
+ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|fish_id) + (1|POPULATION), 
                   family=gaussian(), 
                   data = ldh.data,
                   control=glmmTMBControl(optimizer=optim, 
                                          optArgs = list(method='BFGS')), 
                   REML = TRUE) 
 
+ldh.model.3 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
+                       family=gaussian(), 
+                       data = ldh.data,
+                       control=glmmTMBControl(optimizer=optim, 
+                                              optArgs = list(method='BFGS')), 
+                       REML = TRUE)
+
 #control=glmmTMBControl(optimizer=optim,
 #optArgs = list(method='BFGS')),
 #--- Model comparison ---# 
-AICc(ldh.model.1, ldh.model.2, k=2)
+AICc(ldh.model.1, ldh.model.2, ldh.model.3, k=2)
 
 ldh.model.1 %>% check_model()
 ldh.model.1 %>% simulateResiduals(plot = TRUE, integerResponse = TRUE) 
@@ -222,7 +229,7 @@ ldh.model.1 %>% performance::r2()
 
 #--- results ---# 
 ldh.model.1 %>% emmeans(~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(infer = TRUE) 
-
+ldh.model.1 %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer = TRUE) 
 #--- plot ---# 
 newdata <- ldh.model.1 %>% ggemmeans(~temperature|REGION) %>% 
   as.data.frame() %>% 
@@ -255,3 +262,25 @@ dev.off()
 jpeg("LDH.jpeg", units="in", width=7, height=5, res=300) 
 print(g2)
 dev.off()
+#--- 
+
+ldh.cmb <- glmmTMB(LDH_ACTIVITY ~ 1 + as.numeric(temperature) + TISSUE_MASS_CENTERED + (1|fish_id), 
+                   family=gaussian(), 
+                   data = ldh.data, 
+                   REML = TRUE)
+
+ldh.cmb.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + poly(as.numeric(temperature), 2) + TISSUE_MASS_CENTERED + (1|fish_id), 
+                   family=gaussian(), 
+                   data = ldh.data, 
+                   REML = TRUE) 
+
+ldh.cmb.3 <- glmmTMB(LDH_ACTIVITY ~ 1 + poly(as.numeric(temperature), 3) + TISSUE_MASS_CENTERED + (1|fish_id), 
+                   family=gaussian(), 
+                   data = ldh.data, 
+                   REML = TRUE) 
+
+AICc(ldh.cmb, ldh.cmb.2, ldh.cmb.3, k=2)
+
+summary(ldh.cmb.3)
+ldh.cmb.3 %>% check_model()
+ldh.cmb.3 %>% emmeans( ~ temperature, type = "response") %>% summary(infer = TRUE)
