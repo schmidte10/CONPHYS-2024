@@ -24,6 +24,7 @@ setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/L
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry")
 #--- load data ---# 
 resp <- read.delim("./SummaryData_2022_resp_updated.txt")
+# personal computer
 setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/RMR/")
 # uni computer
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/RMR")
@@ -44,6 +45,7 @@ resp2 = resp %>%
          RESTING_SUMP = factor(RESTING_SUMP), 
          RESTING_AM_PM = factor(RESTING_AM_PM), 
          RESTING_START_TIME = hms(RESTING_START_TIME),
+        RESTING_END_TIME = hms(RESTING_ENDTIME),
          MAX_DATE = factor(MAX_DATE), 
          MAX_CHAMBER = factor(MAX_CHAMBER), 
          MAX_SYSTEM = factor(MAX_SYSTEM), 
@@ -274,24 +276,13 @@ resp3 %>%
 #--- model formula ---#############################################################################################
 # Script below has not been run/edited - in current state - DO NOT USE
 #POPULATION - resting metablic rate
-pop.rest_MgO2.hr <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ POPULATION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
+pop.rest <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ POPULATION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
                     family=gaussian(),
                     data = resp3,
                     REML = TRUE)
 
 
-pop.rest.poly2_MgO2.hr <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ POPULATION * poly(TEMPERATURE, 2) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
-                          family=gaussian(),
-                          data = resp3,
-                          REML = TRUE)
-
-pop.rest.poly3_MgO2.hr <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ POPULATION * poly(TEMPERATURE, 3) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
-                          family=gaussian(),
-                          data = resp3,
-                          REML = TRUE)
-
-AICc(pop.rest_MgO2.hr, pop.rest.poly2_MgO2.hr, pop.rest.poly3_MgO2.hr, k = 2, REML = TRUE)
-check_model(pop.rest.poly3_MgO2.hr) 
+check_model(pop.rest) 
 
 #--- save model ---# 
 saveRDS(pop.rest.poly3_MgO2.hr, file = "glmmTMB_rest_p3_population_MgO2_hr.RDS") 
@@ -301,14 +292,58 @@ saveRDS(pop.rest.poly3_MgO2.hr, file = "glmmTMB_rest_p3_population_MgO2_hr.RDS")
 
 
 #--- investigate model ---#
-pop.rest.poly3_MgO2.hr %>% plot_model(type='eff',  terms=c('TEMPERATURE','POPULATION'), show.data=TRUE)
-pop.rest.poly3_MgO2.hr %>% ggemmeans(~TEMPERATURE|POPULATION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-pop.rest.poly3_MgO2.hr %>% plot_model(type='est')
+pop.rest %>% plot_model(type='eff',  terms=c('TEMPERATURE','POPULATION'), show.data=TRUE)
+pop.rest %>% ggemmeans(~TEMPERATURE|POPULATION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+pop.rest %>% plot_model(type='est')
 
-pop.rest.poly3_MgO2.hr %>% summary()
-pop.rest.poly3_MgO2.hr %>% confint()
-pop.rest.poly3_MgO2.hr  %>% r.squaredGLMM()
+pop.rest %>% summary()
+pop.rest %>% confint()
+pop.rest  %>% r.squaredGLMM()
 
-pop.rest.poly3_MgO2.hr %>% emtrends("POPULATION", var="TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
 
 ###########################################################################################
+#--- custome contrast ---# 
+
+emm1 = emmeans(pop.rest, specs = ~ POPULATION*TEMPERATURE); emm1
+
+#--- temperature treatment - 27C - ---#
+core27 = c(0,0,0,1/3,1/3,1/3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+mackay27 = c(0,1/2,1/2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+chauvel27 = c(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+
+contrast27 = emmeans(pop.rest, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core27 - mackay27, 
+                                                                                           "core - chauvel" = core27 - chauvel27, 
+                                                                                           "mackay - chauvel" = mackay27 -chauvel27)) %>% summary(infer=TRUE) 
+
+#--- temperature treatment - 28.5C - ---#
+core28.5 =    c(0,0,0,0,0,0,0,0,0,1/3,1/3,1/3,0,0,0,0,0,0,0,0,0,0,0,0) 
+mackay28.5 =  c(0,0,0,0,0,0,0,1/2,1/2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+chauvel28.5 = c(0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+
+contrast28.5 = emmeans(pop.rest, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core28.5 - mackay28.5, 
+                                                                                             "core - chauvel" = core28.5 - chauvel28.5, 
+                                                                                             "mackay - chauvel" = mackay28.5 -chauvel28.5)) %>% summary(infer=TRUE) 
+
+#--- temperature treatment - 30.0C - ---#
+core30 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/3,1/3,1/3,0,0,0,0,0,0) 
+mackay30 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,1/2,1/2,0,0,0,0,0,0,0,0,0) 
+chauvel30 = c(0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0) 
+
+contrast30 = emmeans(pop.rest, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core30 - mackay30, 
+                                                                                           "core - chauvel" = core30 - chauvel30, 
+                                                                                           "mackay - chauvel" = mackay30 -chauvel30)) %>% summary(infer=TRUE) 
+
+#--- temperature treatment - 31.5C - ---#
+core31.5 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/3,1/3,1/3) 
+mackay31.5 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/2,1/2,0,0,0) 
+chauvel31.5 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0) 
+
+contrast31.5 = emmeans(pop.rest, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core31.5 - mackay31.5, 
+                                                                                             "core - chauvel" = core31.5 - chauvel31.5, 
+                                                                                             "mackay - chauvel" = mackay31.5 - chauvel31.5)) %>% summary(infer=TRUE)
+
+
+#--- contrasts ---# 
+print("TEMPERATURE - 27"); contrast27; print("TEMPERATURE - 28.5"); contrast28.5;print("TEMPERATURE - 30"); contrast30; print("TEMPERATURE - 31.5"); contrast31.5
+
+

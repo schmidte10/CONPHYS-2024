@@ -225,22 +225,8 @@ pop.mmr <- glmmTMB(MAX_MgO2.hr ~ 1+ POPULATION * TEMPERATURE + MASS_CENTERED + (
                    data = resp4,
                    REML = FALSE)
 
-pop.mmr.p2 <- glmmTMB(MAX_MgO2.hr ~ 1+ POPULATION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|FISH_ID), 
-                           family=gaussian(),
-                           data = resp4,
-                           REML = FALSE) 
-
-pop.mmr.p3 <- glmmTMB(MAX_MgO2.hr ~ 1+ POPULATION * poly(TEMPERATURE, 3) + MASS_CENTERED + (1|FISH_ID), 
-                           family=gaussian(),
-                           data = resp4,
-                           REML = FALSE)
-
-AICc(pop.mmr, pop.mmr.p2, pop.mmr.p3, k = 2, REML = FALSE)
-check_model(pop.mmr.p2) 
- 
-
 #--- save model ---# 
-saveRDS(pop.mmr.p3_MgO2.hr, file = "glmmTMB_mmr_p3_population_MgO2.hr.RDS") 
+saveRDS(pop.mmr, file = "glmmTMB_mmr_p3_population_MgO2.hr.RDS") 
 
 #--- load model ---#
 #pop.mmr.p3_MgO2.hr <- readRDS("glmmTMB_mmr_p3_population_MgO2.hr.RDS")
@@ -259,5 +245,48 @@ pop.mmr.p2 %>% emmeans("POPULATION", var="TEMPERATURE") %>% pairs() %>% summary(
 ##########################################################################################
 
 
+#--- custome contrast ---# 
+
+emm1 = emmeans(pop.mmr, specs = ~ POPULATION*TEMPERATURE); emm1
+
+#--- temperature treatment - 27C - ---#
+core27 = c(0,0,0,1/3,1/3,1/3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+mackay27 = c(0,1/2,1/2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+chauvel27 = c(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+
+contrast27 = emmeans(pop.mmr, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core27 - mackay27, 
+                                                                                           "core - chauvel" = core27 - chauvel27, 
+                                                                                           "mackay - chauvel" = mackay27 -chauvel27)) %>% summary(infer=TRUE) 
+
+#--- temperature treatment - 28.5C - ---#
+core28.5 =    c(0,0,0,0,0,0,0,0,0,1/3,1/3,1/3,0,0,0,0,0,0,0,0,0,0,0,0) 
+mackay28.5 =  c(0,0,0,0,0,0,0,1/2,1/2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+chauvel28.5 = c(0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+
+contrast28.5 = emmeans(pop.mmr, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core28.5 - mackay28.5, 
+                                                                                             "core - chauvel" = core28.5 - chauvel28.5, 
+                                                                                             "mackay - chauvel" = mackay28.5 -chauvel28.5)) %>% summary(infer=TRUE) 
+
+#--- temperature treatment - 30.0C - ---#
+core30 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/3,1/3,1/3,0,0,0,0,0,0) 
+mackay30 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,1/2,1/2,0,0,0,0,0,0,0,0,0) 
+chauvel30 = c(0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0) 
+
+contrast30 = emmeans(pop.mmr, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core30 - mackay30, 
+                                                                                           "core - chauvel" = core30 - chauvel30, 
+                                                                                           "mackay - chauvel" = mackay30 -chauvel30)) %>% summary(infer=TRUE) 
+
+#--- temperature treatment - 31.5C - ---#
+core31.5 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/3,1/3,1/3) 
+mackay31.5 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/2,1/2,0,0,0) 
+chauvel31.5 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0) 
+
+contrast31.5 = emmeans(pop.mmr, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core31.5 - mackay31.5, 
+                                                                                             "core - chauvel" = core31.5 - chauvel31.5, 
+                                                                                             "mackay - chauvel" = mackay31.5 - chauvel31.5)) %>% summary(infer=TRUE)
+
+
+#--- contrasts ---# 
+print("TEMPERATURE - 27"); contrast27; print("TEMPERATURE - 28.5"); contrast28.5;print("TEMPERATURE - 30"); contrast30; print("TEMPERATURE - 31.5"); contrast31.5
 
 

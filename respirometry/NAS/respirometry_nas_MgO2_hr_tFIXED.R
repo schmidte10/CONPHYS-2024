@@ -82,8 +82,9 @@ resp4 <- resp3 %>%
         EXP_FISH_ID !="CVLA054_28.5" & # low max value? 
         EXP_FISH_ID !="LCHA113_27" & # poor data quality 
         EXP_FISH_ID !="LCHA113_30" & # poor swim 
-        EXP_FISH_ID !="LCHA127_27" # deceased during experiment
-  )   
+        EXP_FISH_ID !="LCHA127_27" & # deceased during experiment
+        EXP_FISH_ID !="LCHA114_28.5"  # poor swim 
+        )   
 
 
 #--- exploratory data analysis ---# 
@@ -102,6 +103,13 @@ resp4 <- resp4 %>%
 
 resp4 %>% 
   group_by(REGION, TEMPERATURE)  %>%    
+  dplyr::summarise(sample_size = n(), 
+                   Min. = min(MgO2.hr_Net), 
+                   Max. = max(MgO2.hr_Net), 
+                   Mean = mean(MgO2.hr_Net))
+
+pop.sample.size <- resp4 %>% 
+  group_by(POPULATION, TEMPERATURE)  %>%    
   dplyr::summarise(sample_size = n(), 
                    Min. = min(MgO2.hr_Net), 
                    Max. = max(MgO2.hr_Net), 
@@ -246,6 +254,130 @@ print(g2)
 dev.off()
 ##########################################################################################
 
+
+##########################################################################################
+##########################################################################################
+####################                                                    ##################
+####################                 population analysis                ##################
+###################                                                     ##################
+##########################################################################################
+
+
+# thus indicating that there is little difference in variation explained by populations
+
+#--- custome contrast ---# 
+nas.pop <- glmmTMB(MgO2.hr_Net ~ 1+ TEMPERATURE*POPULATION + MASS_CENTERED + (1|FISH_ID), 
+                   family=gaussian(),
+                   data = resp4,
+                   REML = FALSE) 
+saveRDS(nas.pop, "population.RDS")
+
+
+emm1 = emmeans(nas.pop, specs = ~ POPULATION*TEMPERATURE); emm1
+
+#--- temperature treatment - 27C - ---#
+core27 = c(0,0,0,1/3,1/3,1/3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+mackay27 = c(0,1/2,1/2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+chauvel27 = c(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+
+contrast27 = emmeans(nas.pop, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core27 - mackay27, 
+                                                                                     "core - chauvel" = core27 - chauvel27, 
+                                                                                     "mackay - chauvel" = mackay27 -chauvel27)) %>% summary(infer=TRUE) 
+
+#--- temperature treatment - 28.5C - ---#
+core28.5 =    c(0,0,0,0,0,0,0,0,0,1/3,1/3,1/3,0,0,0,0,0,0,0,0,0,0,0,0) 
+mackay28.5 =  c(0,0,0,0,0,0,0,1/2,1/2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+chauvel28.5 = c(0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+
+contrast28.5 = emmeans(nas.pop, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core28.5 - mackay28.5, 
+                                                                                           "core - chauvel" = core28.5 - chauvel28.5, 
+                                                                                           "mackay - chauvel" = mackay28.5 -chauvel28.5)) %>% summary(infer=TRUE) 
+
+#--- temperature treatment - 30.0C - ---#
+core30 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/3,1/3,1/3,0,0,0,0,0,0) 
+mackay30 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,1/2,1/2,0,0,0,0,0,0,0,0,0) 
+chauvel30 = c(0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0) 
+
+contrast30 = emmeans(nas.pop, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core30 - mackay30, 
+                                                                                           "core - chauvel" = core30 - chauvel30, 
+                                                                                           "mackay - chauvel" = mackay30 -chauvel30)) %>% summary(infer=TRUE) 
+
+#--- temperature treatment - 31.5C - ---#
+core31.5 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/3,1/3,1/3) 
+mackay31.5 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/2,1/2,0,0,0) 
+chauvel31.5 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0) 
+
+contrast31.5 = emmeans(nas.pop, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core31.5 - mackay31.5, 
+                                                                                           "core - chauvel" = core31.5 - chauvel31.5, 
+                                                                                           "mackay - chauvel" = mackay31.5 - chauvel31.5)) %>% summary(infer=TRUE)
+
+
+#--- contrasts ---# 
+print("TEMPERATURE - 27"); contrast27; print("TEMPERATURE - 28.5"); contrast28.5;print("TEMPERATURE - 30"); contrast30; print("TEMPERATURE - 31.5"); contrast31.5
+
+#--- figure ---# 
+resp7 <- resp4 |> 
+  mutate(LOCATION = case_when(POPULATION == "Sudbury Reef" ~ "Core", 
+                              POPULATION == "Vlassof Cay" ~ "Core",
+                              POPULATION == "Tongue Reef" ~ "Core",
+                              POPULATION == "Cockermouth Island" ~ "Mackay (inshore)",
+                              POPULATION == "Keswick Island" ~ "Mackay (inshore)",
+                              POPULATION == "Chauvel Reef" ~ "Chauvel")) 
+
+#--- plot ---# 
+
+nas.pop2 <- glmmTMB(MgO2.hr_Net ~ 1+ TEMPERATURE*LOCATION + MASS_CENTERED + (1|FISH_ID), 
+                   family=gaussian(),
+                   data = resp7,
+                   REML = FALSE)
+nas.pop2 %>% plot_model(type='eff',  terms=c('TEMPERATURE','LOCATION'), show.data=TRUE)
+
+newdata <- nas.pop2 %>% ggemmeans(~TEMPERATURE|LOCATION) %>%
+  as.data.frame %>% 
+  dplyr::rename(TEMPERATURE = x) 
+
+
+g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
+  geom_point()+
+  theme_classic(); g1
+
+predict(nas.pop2, re.form=NA) 
+#data points based on month and situation - to get the group means
+residuals(nas.pop2, type='response')
+#data points based on month/situation/random effects - to get the data points
+obs <-  resp4 %>% 
+  mutate(Pred=predict(nas.pop2, re.form=NA),
+         Resid = residuals(nas.pop2, type='response'),
+         Fit = Pred + Resid)
+obs %>% head() 
+g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) + 
+  geom_pointrange(aes(ymin=conf.low, 
+                      ymax=conf.high), 
+                  shape=19,
+                  size=1,
+                  position=position_dodge(0.2)) + 
+  scale_y_continuous(limits = c(6,13), breaks = seq(6, 13, by = 2)) + 
+  #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
+  theme_classic() + ylab("NET AEROBIC SCOPE (NAS: MgO2/hr)") +
+  scale_color_manual(values=c("#DA3A36", "orange", "#0D47A1"), labels = c("Cairns", "Chauvel Reef (southern)","Mackay (inshore)"),
+                     name = "Regions"); g2
+#+ 
+#geom_signif(
+#y_position = c(4.11+1.5, 5.18+1.5,5.15+1.5,4.66+1.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
+# annotation = c("ns", "ns", "**\np =0.046", "ns"), tip_length = 0.025, color = "black"); g2
+
+pdf("", width = 7, height = 5)
+print()
+dev.off()
+
+jpeg("", units="in", width=7, height=5, res=300) 
+print()
+dev.off()
+
+# may be worth investigating individual performance curves. 
+######################################################################################################################################
+
+
 ##########################################################################################
 ##########################################################################################
 ####################                                                    ##################
@@ -257,9 +389,9 @@ resp5 <- resp4 %>%
 
 
 nas.1a.woc <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
-                  family=gaussian(),
-                  data = resp5,
-                  REML = TRUE) 
+                      family=gaussian(),
+                      data = resp5,
+                      REML = TRUE) 
 
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
 check_model(nas.1a.woc)
@@ -285,173 +417,3 @@ nas.1a.woc %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "
 # CONCLUSION: Significant differences remain unchanged, however results are slightly 'less significant'
 
 #################################################################################################
-
-##########################################################################################
-##########################################################################################
-####################                                                    ##################
-####################                 population analysis                ##################
-###################                                                     ##################
-##########################################################################################
-
-#--- preparing data ---# 
-resp6 <-  resp4 %>% 
-  mutate(fTEMPERATURE = factor(TEMPERATURE), 
-         cMASS_CENTERED = scale(MASS), 
-         cTEMPERATURE = scale(as.numeric(TEMPERATURE)))
-
-ggplot(resp6, aes(x= cTEMPERATURE, y = MgO2.hr_Net, group = POPULATION)) + 
-  geom_line(aes(color = POPULATION)) + ylab("net aerobic scope") + 
-  xlab("Mean-centered temperature") + theme_classic()
-
-#--- model formula ---# 
-#net aerobic scope looking at differences between populations
-nas.pop <- glmmTMB(MgO2.hr_Net ~ 1+ POPULATION * cTEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
-                  family=gaussian(),
-                  data = resp6,
-                  REML = TRUE)
-
-#--- linear ---#
-model1.1 <- lmer(MgO2.hr_Net ~ TEMPERATURE*POPULATION + MASS_CENTERED + (1|POPULATION), 
-                 REML = FALSE, 
-                 data = resp6)
-
-summary(model1.1)
-r.squaredGLMM(model1.1)
-
-model1.1 %>% emmeans(~ TEMPERATURE*POPULATION, type = "response") %>% pairs()
-model1.1 %>% emmeans(consec ~ TEMPERATURE*POPULATION, type = "response") 
-
-temperature_pred <- data.frame(cTEMPERATURE = seq(from = min(df.pop2$cTEMPERATURE, 
-                                                             to = max(df.pop2$cTEMPERATURE), 
-                                                             50)))
-temperature_pred$fit1.1 <- predict(model1.1, newdata = temperature_pred, re.form = NA)
-
-ggplot(temperature_pred, aes( x = cTEMPERATURE, y = fit1.1)) + 
-  geom_line(data = df.pop2, aes(y = emmean, color = POPULATION), size =1.5) + 
-  geom_line(size = 2)+ 
-  theme_classic()
-
-#--- quadratic ---#
-model1.2 <- lmer(MgO2.hr_Net ~ poly(cTEMPERATURE, 2, raw = TRUE)*POPULATION + (1|POPULATION), 
-                 REML = FALSE, 
-                 data = resp6)
-
-summary(model1.2)
-r.squaredGLMM(model1.2)
-
-temperature_pred$fit1.2 <- predict(model1.2, newdata = temperature_pred, re.form = NA)
-
-ggplot(temperature_pred, aes(x = cTEMPERATURE, y = fit1.2)) +
-  geom_line(data = df.pop2, aes(y = emmean, colour = POPULATION)) +
-  geom_line(size = 2) +
-  theme_classic()
-
-summary(model1.1)$logLik
-summary(model1.2)$logLik
-chi2 <- 2*(summary(model1.2)$logLik - summary(model1.1)$logLik)
-1-pchisq(chi2,1)
-AIC(model1.1, model1.2) 
-
-model1.2 %>% plot_model(type='eff',  terms=c('cTEMPERATURE'), show.data=TRUE)
-
-#--- polynomial ---#
-model1.3 <- lmer(MgO2.hr_Net ~ poly(cTEMPERATURE, 3, raw = TRUE)*POPULATION + (1|POPULATION), 
-                 REML = FALSE, 
-                 data = resp6)
-
-summary(model1.3)
-r.squaredGLMM(model1.3)
-
-temperature_pred$fit1.2 <- predict(model1.3, newdata = temperature_pred, re.form = NA)
-
-ggplot(temperature_pred, aes(x = cTEMPERATURE, y = fit1.2)) +
-  geom_line(data = df.pop2, aes(y = emmean, colour = POPULATION)) +
-  geom_line(size = 2) +
-  theme_classic()
-
-chi2 <- 2*(summary(model1.3)$logLik - summary(model1.1)$logLik)
-1-pchisq(chi2,1)
-
-
-
-AIC(model1.1, model1.2, model1.3)
-
-#--- adding in the population random variable does improve the model 
-#--- not by much but by P = 0.049 
-#--- not we will analyses the changing of random slopes 
-
-model1.5 <- lmer(MgO2.hr_Net ~ cTEMPERATURE*POPULATION + (1+cTEMPERATURE|POPULATION), 
-                 REML = FALSE, 
-                 data = resp6)
-
-summary(model1.5)
-r.squaredGLMM(model1.5)
-
-temperature_pred$fit1.5 <- predict(model1.5, newdata = temperature_pred, re.form = NA)
-df.pop2$pred_pop1.5 <- predict(model1.5, re.form = NA)
-df.pop2$pred_pop1.5 <- predict(model1.5, re.form = ~1(+cTEMPERATURE|POPULATION))
-
-ggplot(temperature_pred, aes(x = cTEMPERATURE, y = fit1.5)) +
-  geom_line(data = df.pop2, aes(y = pred_pop1.5, group = POPULATION, colour = POPULATION), lty = 2) +
-  geom_line(data = df.pop2, aes(y = emmean, group = POPULATION, color = POPULATION), size = 1) + 
-  geom_line(size = 2) +
-  theme_classic()
-
-
-summary(model1.3)$logLik
-summary(model1.5)$logLik
-chi2 <- 2*(summary(model1.5)$logLik - summary(model1.4)$logLik)
-1-pchisq(chi2, 2) 
-
-AIC(model1.1, model1.2, model1.3, model1.5)
-
-# no significant difference between model1.4 and model1.5 
-# will try to improve model by allowing population slopes to vary in curvature 
-
-model1.6 <- lmer(MgO2.hr_Net ~ cTEMPERATURE*POPULATION + 
-                   (1 + cTEMPERATURE + I(cTEMPERATURE^2)|POPULATION), 
-                 REML = FALSE, data = resp6)
-
-summary(model1.6)
-r.squaredGLMM(model1.6)
-
-summary(model1.4)$logLik
-summary(model1.6)$logLik
-chi2 <- 2*(summary(model1.6)$logLik - summary(model1.4)$logLik)
-1-pchisq(chi2, 6) 
-
-AIC(model1.1, model1.2, model1.3, model1.5, model1.6, nas.1a)
-
-
-nas.pop <- glmmTMB(MgO2.hr_Net ~ 1+ TEMPERATURE*POPULATION + MASS_CENTERED + (1|FISH_ID), 
-                   family=gaussian(),
-                   data = resp4,
-                   REML = FALSE)
-
-model1.1 <- lmer(MgO2.hr_Net ~ TEMPERATURE*POPULATION + MASS_CENTERED + (1|POPULATION), 
-                 REML = FALSE, 
-                 data = resp6)
-model1.2 <- lmer(MgO2.hr_Net ~ poly(cTEMPERATURE, 2, raw = TRUE)*POPULATION + (1|POPULATION), 
-                 REML = FALSE, 
-                 data = resp6)
-model1.3 <- lmer(MgO2.hr_Net ~ poly(cTEMPERATURE, 3, raw = TRUE)*POPULATION + (1|POPULATION), 
-                 REML = FALSE, 
-                 data = resp6)
-model1.5 <- lmer(MgO2.hr_Net ~ cTEMPERATURE*POPULATION + (1+cTEMPERATURE|POPULATION), 
-                 REML = FALSE, 
-                 data = resp6)
-model1.6 <- lmer(MgO2.hr_Net ~ cTEMPERATURE*POPULATION + 
-                   (1 + cTEMPERATURE + I(cTEMPERATURE^2)|POPULATION), 
-                 REML = FALSE, data = resp6)
-
-AIC(model1.1, model1.2, model1.3, model1.5, model1.6, nas.pop)
-
-chi2 <- 2*(summary(nas.pop)$logLik - summary(model1.1)$logLik)
-1-pchisq(chi2, 0) 
-# best model is --- nas.pop 
-# thus indicating that there is little difference in variation explained by populations
-
-#--- custome contrast ---# 
-
-# may be worth investigating individual performance curves. 
-
