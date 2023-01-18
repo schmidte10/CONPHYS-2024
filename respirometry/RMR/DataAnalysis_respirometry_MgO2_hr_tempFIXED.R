@@ -71,7 +71,7 @@ resp3 <- resp2 %>%
 ###--- EXPLORATORY ANALYSIS ----####
 table(resp3$REGION, resp3$RESTING_CHAMBER, resp3$TEMPERATURE)
 #--- exploratory data analysis: covariates ---# 
-ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR)) + 
+ggplot(resp3, aes(MASS,MgO2.hr_Net)) + 
   geom_point() + 
   geom_smooth(method = "lm")
 # negative relationships between mass and resting metabolic rate  

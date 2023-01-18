@@ -112,9 +112,14 @@ mmr.2 <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MAX_SUMP + MAX_CH
                    MAX_AM_PM, 
                  family=gaussian(),
                  data = resp4,
-                 REML = FALSE) 
+                 REML = FALSE)  
 
-AICc(mmr.1, mmr.2, k=2)
+mmr.3 <-  glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + steepest_slope, 
+              family=gaussian(),
+              data = resp4,
+              REML = FALSE)  
+
+AICc(mmr.1, mmr.2, mmr.3, k=2)
 #followed by random effects
 mmr.1 <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
                  family=gaussian(),

@@ -46,6 +46,7 @@ resp2 = resp %>%
          RESTING_SUMP = factor(RESTING_SUMP), 
          RESTING_AM_PM = factor(RESTING_AM_PM), 
          RESTING_START_TIME = hms(RESTING_START_TIME),
+         RESTING_END_TIME = hms(RESTING_ENDTIME),
          MAX_DATE = factor(MAX_DATE), 
          MAX_CHAMBER = factor(MAX_CHAMBER), 
          MAX_SYSTEM = factor(MAX_SYSTEM), 
@@ -53,7 +54,8 @@ resp2 = resp %>%
          MAX_AM_PM = factor(MAX_AM_PM), 
          MAX_START_TIME = hms(MAX_START_TIME), 
          Swim.performance = factor(Swim.performance), 
-         MgO2.hr_Net = as.numeric(MgO2.hr_Net)) %>% 
+         MgO2.hr_Net = as.numeric(MgO2.hr_Net), 
+         RESTING_RUNTIME_SECONDS = as.numeric(hms(RESTING_RUNTIME))) %>% 
   dplyr::rename(MASS = DRY_WEIGHT) %>% 
   mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE)) %>% 
   drop_na(MASS)%>%
@@ -283,7 +285,7 @@ chauvel27 = c(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 contrast27 = emmeans(nas.pop, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core27 - mackay27, 
                                                                                      "core - chauvel" = core27 - chauvel27, 
                                                                                      "mackay - chauvel" = mackay27 -chauvel27)) %>% summary(infer=TRUE) 
-
+contrast.27 <- as.data.frame(contrast27)
 #--- temperature treatment - 28.5C - ---#
 core28.5 =    c(0,0,0,0,0,0,0,0,0,1/3,1/3,1/3,0,0,0,0,0,0,0,0,0,0,0,0) 
 mackay28.5 =  c(0,0,0,0,0,0,0,1/2,1/2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
@@ -292,7 +294,7 @@ chauvel28.5 = c(0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 contrast28.5 = emmeans(nas.pop, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core28.5 - mackay28.5, 
                                                                                            "core - chauvel" = core28.5 - chauvel28.5, 
                                                                                            "mackay - chauvel" = mackay28.5 -chauvel28.5)) %>% summary(infer=TRUE) 
-
+contrast.28.5 <- as.data.frame(contrast28.5)
 #--- temperature treatment - 30.0C - ---#
 core30 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/3,1/3,1/3,0,0,0,0,0,0) 
 mackay30 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,1/2,1/2,0,0,0,0,0,0,0,0,0) 
@@ -301,7 +303,7 @@ chauvel30 = c(0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0)
 contrast30 = emmeans(nas.pop, specs = ~ POPULATION*TEMPERATURE) %>% contrast(method = list("core - mackay" = core30 - mackay30, 
                                                                                            "core - chauvel" = core30 - chauvel30, 
                                                                                            "mackay - chauvel" = mackay30 -chauvel30)) %>% summary(infer=TRUE) 
-
+contrast.30 <- as.data.frame(contrast30)
 #--- temperature treatment - 31.5C - ---#
 core31.5 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/3,1/3,1/3) 
 mackay31.5 = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1/2,1/2,0,0,0) 
@@ -311,7 +313,7 @@ contrast31.5 = emmeans(nas.pop, specs = ~ POPULATION*TEMPERATURE) %>% contrast(m
                                                                                            "core - chauvel" = core31.5 - chauvel31.5, 
                                                                                            "mackay - chauvel" = mackay31.5 - chauvel31.5)) %>% summary(infer=TRUE)
 
-
+contrast.31.5 <- as.data.frame(contrast31.5)
 #--- contrasts ---# 
 print("TEMPERATURE - 27"); contrast27; print("TEMPERATURE - 28.5"); contrast28.5;print("TEMPERATURE - 30"); contrast30; print("TEMPERATURE - 31.5"); contrast31.5
 
@@ -325,7 +327,7 @@ resp7 <- resp4 |>
                               POPULATION == "Chauvel Reef" ~ "Chauvel")) 
 
 #--- plot ---# 
-
+cc.df <- rbind(contrast.27, contrast.28.5, contrast.30, contrast.31.5)
 nas.pop2 <- glmmTMB(MgO2.hr_Net ~ 1+ TEMPERATURE*LOCATION + MASS_CENTERED + (1|FISH_ID), 
                    family=gaussian(),
                    data = resp7,
@@ -356,7 +358,7 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
                   shape=19,
                   size=1,
                   position=position_dodge(0.2)) + 
-  scale_y_continuous(limits = c(6,13), breaks = seq(6, 13, by = 2)) + 
+  scale_y_continuous(limits = c(4,14), breaks = seq(4, 14, by = 2)) + 
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
   theme_classic() + ylab("NET AEROBIC SCOPE (NAS: MgO2/hr)") +
   scale_color_manual(values=c("#DA3A36", "orange", "#0D47A1"), labels = c("Cairns", "Chauvel Reef (southern)","Mackay (inshore)"),
@@ -366,12 +368,12 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
 #y_position = c(4.11+1.5, 5.18+1.5,5.15+1.5,4.66+1.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
 # annotation = c("ns", "ns", "**\np =0.046", "ns"), tip_length = 0.025, color = "black"); g2
 
-pdf("", width = 7, height = 5)
-print()
+pdf("population_nas.pdf", width = 7, height = 5)
+print(g2)
 dev.off()
 
-jpeg("", units="in", width=7, height=5, res=300) 
-print()
+jpeg("population_nas.jpeg", units="in", width=7, height=5, res=300) 
+print(g2)
 dev.off()
 
 # may be worth investigating individual performance curves. 
