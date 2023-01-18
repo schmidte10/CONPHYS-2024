@@ -213,7 +213,7 @@ rmr.3a  %>% performance::r2_nakagawa()
 
 rmr.3a %>% emmeans(~ TEMPERATURE*REGION)
 rmr.3a %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
-
+rmr.3a %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "REGION") %>% summary(infer=TRUE)
 #--- plot ---#
 newdata <- rmr.3a %>% 
   ggemmeans(~TEMPERATURE|REGION) %>% 

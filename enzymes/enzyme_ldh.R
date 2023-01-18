@@ -263,24 +263,26 @@ jpeg("LDH.jpeg", units="in", width=7, height=5, res=300)
 print(g2)
 dev.off()
 #--- 
-
-ldh.cmb <- glmmTMB(LDH_ACTIVITY ~ 1 + as.numeric(temperature) + TISSUE_MASS_CENTERED + (1|fish_id), 
+ldh.data2 <- ldh.data %>% 
+  mutate(temperature = as.numeric(temperature))
+ldh.cmb <- glmmTMB(LDH_ACTIVITY ~ 1 + temperature + TISSUE_MASS_CENTERED + (1|fish_id), 
                    family=gaussian(), 
-                   data = ldh.data, 
+                   data = ldh.data2, 
                    REML = TRUE)
 
-ldh.cmb.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + poly(as.numeric(temperature), 2) + TISSUE_MASS_CENTERED + (1|fish_id), 
+ldh.cmb.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + poly(temperature, 2) + TISSUE_MASS_CENTERED + (1|fish_id), 
                    family=gaussian(), 
-                   data = ldh.data, 
+                   data = ldh.data2, 
                    REML = TRUE) 
 
-ldh.cmb.3 <- glmmTMB(LDH_ACTIVITY ~ 1 + poly(as.numeric(temperature), 3) + TISSUE_MASS_CENTERED + (1|fish_id), 
+ldh.cmb.3 <- glmmTMB(LDH_ACTIVITY ~ 1 + poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id), 
                    family=gaussian(), 
-                   data = ldh.data, 
+                   data = ldh.data2, 
                    REML = TRUE) 
 
 AICc(ldh.cmb, ldh.cmb.2, ldh.cmb.3, k=2)
 
 summary(ldh.cmb.3)
 ldh.cmb.3 %>% check_model()
-ldh.cmb.3 %>% emmeans( ~ temperature, type = "response") %>% summary(infer = TRUE)
+ldh.cmb.3 %>% emtrends(~ temperature, var = "temperature") %>% summary(infer = TRUE)
+ldh.cmb.3 %>% performance::r2_nakagawa()
