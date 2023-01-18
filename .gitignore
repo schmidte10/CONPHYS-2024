@@ -35,6 +35,7 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
+
 # R Environment Variables
 .Renviron
 
@@ -42,3 +43,4 @@ vignettes/*.pdf
 *.txt
 *.xlsx
 C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/import_files/
+*.vcf
