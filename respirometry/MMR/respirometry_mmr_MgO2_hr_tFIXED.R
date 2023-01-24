@@ -119,7 +119,7 @@ mmr.3 <-  glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + steepest_slope,
               data = resp4,
               REML = FALSE)  
 
-AICc(mmr.1, mmr.2, mmr.3, k=2)
+AIC(mmr.1, mmr.2, mmr.3, k=2)
 #followed by random effects
 mmr.1 <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
                  family=gaussian(),
@@ -131,51 +131,46 @@ mmr.1a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + 
                   data = resp4,
                   REML = TRUE) 
 
-mmr.1b <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (1|POPULATION), 
+mmr.1b <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|POPULATION/FISH_ID), 
                   family=gaussian(),
                   data = resp4,
                   REML = TRUE)
 
-mmr.1c <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (1|REGION/POPULATION), 
+mmr.1c <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (REGION|POPULATION), 
                   family=gaussian(),
                   data = resp4,
                   REML = TRUE)
 
-mmr.1d <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (REGION|POPULATION), 
-                  family=gaussian(),
-                  data = resp4,
-                  REML = TRUE)
-
-AICc(mmr.1, mmr.1a, mmr.1b, mmr.1c, mmr.1d, k=2)
+AIC(mmr.1, mmr.1a, mmr.1b, mmr.1c,  k=2)
 
 #--- Final model ---# 
-mmr.1a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+mmr.1b <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|POPULATION/FISH_ID), 
                   family=gaussian(),
                   data = resp4,
                   REML = TRUE)
 
 #--- saving model ---#
-saveRDS(mmr.1a, file = "mmr_1a.RDS") 
+saveRDS(mmr.1b, file = "mmr_1b.RDS") 
 
 #--- load model ---# 
-mmr.1a <- readRDS("mmr_1a.RDS")
+mmr.1b <- readRDS("mmr_1b.RDS")
 
 #--- investigate model ---#
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
-check_model(mmr.1a)
+check_model(mmr.1b)
 
-mmr.1a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-mmr.1a %>% plot_model(type='est')
+mmr.1b %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+mmr.1b %>% plot_model(type='est')
 
-mmr.1a %>% summary()
-mmr.1a %>% confint()
-mmr.1a  %>% r.squaredGLMM()
-mmr.1a  %>% performance::r2_nakagawa()
+mmr.1b %>% summary()
+mmr.1b %>% confint()
+mmr.1b  %>% performance::r2_nakagawa()
 
-mmr.1a %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
+mmr.1b %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
+mmr.1b %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "REGION") %>% summary(infer=TRUE)
 
 #--- plot ---#
-newdata <- mmr.1a %>% ggemmeans(~TEMPERATURE|REGION) %>%
+newdata <- mmr.1b %>% ggemmeans(~TEMPERATURE|REGION) %>%
   as.data.frame %>% 
   dplyr::rename(TEMPERATURE = x)
 
@@ -183,13 +178,13 @@ g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
   geom_point()+
   theme_classic(); g1
 
-predict(mmr.1a, re.form=NA) 
+predict(mmr.1b, re.form=NA) 
 #data points based on month and situation - to get the group means
-residuals(mmr.1a, type='response') 
+residuals(mmr.1b, type='response') 
 #data points based on month/situation/random effects - to get the data points
 obs <-  resp4 %>% 
-  mutate(Pred=predict(mmr.1a, re.form=NA),
-         Resid = residuals(mmr.1a, type='response'),
+  mutate(Pred=predict(mmr.1b, re.form=NA),
+         Resid = residuals(mmr.1b, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
 g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
@@ -202,19 +197,42 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
   scale_y_continuous(limits = c(11,18), breaks = seq(11, 18, by = 2)) +
   theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR: MgO2/hr)")+
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"), 
-                     name = "Regions")#+ 
-  #geom_signif(
+                     name = "Regions"); g2
+#+ geom_signif(
   #y_position = c(13.91+0.5, 15.10+0.5,15.80+0.5,16.06+0.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
   #annotation = c("ns", "ns", "**\np =0.020", "**\np =0.010"), tip_length = 0.025, color = "black"); g2
 
-pdf("mmr_1a.pdf", width= 7, height = 5)
+pdf("mmr_1b.pdf", width= 7, height = 5)
 print(g2)
 dev.off()
 
-jpeg("mmr_1a.jpeg", units="in", width=7, height=5, res=300) 
+jpeg("mmr_1b.jpeg", units="in", width=7, height=5, res=300) 
 print(g2)
 dev.off()
 #########################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 resp4 %>% 
   group_by(POPULATION, TEMPERATURE)  %>%    
   dplyr::summarise(sample_size = n(), 

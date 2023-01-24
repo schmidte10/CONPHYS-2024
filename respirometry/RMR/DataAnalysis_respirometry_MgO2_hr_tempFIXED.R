@@ -153,14 +153,14 @@ rmr.2 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + RESTING_SUMP 
                  family=gaussian(),
                  data = resp3,
                  REML = FALSE) 
-summary(rmr.2)
+
 #--- base model and resting runtime ---#
 rmr.3 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
                  family=gaussian(),
                  data = resp3,
                  REML = FALSE)
 
-AICc(rmr.1, rmr.2, rmr.3, k=2)
+AIC(rmr.1, rmr.2, rmr.3, k=2)
 #followed by random effects
 rmr.3 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
                  family=gaussian(),
@@ -172,22 +172,18 @@ rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERE
                   data = resp3,
                   REML = TRUE) 
 
-rmr.3b <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID) + (1|POPULATION), 
+
+rmr.3b <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|POPULATION/FISH_ID), 
                   family=gaussian(),
                   data = resp3,
                   REML = TRUE)
 
-rmr.3c <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID) + (1|REGION/POPULATION), 
+rmr.3c <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID) + (1|POPULATION), 
                   family=gaussian(),
                   data = resp3,
                   REML = TRUE)
 
-rmr.3d <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID) + (REGION|POPULATION), 
-                  family=gaussian(),
-                  data = resp3,
-                  REML = TRUE)
-
-AICc(rmr.3, rmr.3a, rmr.3b, rmr.3c, rmr.3d, k=2)
+AIC(rmr.3, rmr.3a, rmr.3b, rmr.3c,  k=2)
 
 #--- Final model ---# 
 rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
@@ -196,11 +192,11 @@ rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERE
                   REML = TRUE)
 
 #--- saving model ---#
-saveRDS(rmr.3a, file = "rmr_3a.RDS") 
+saveRDS(rmr.3a, file = "rmr_3b.RDS") 
 
 
 #--- load model ---#
-rmr.3a <- readRDS("rmr_3a.RDS")
+rmr.3a <- readRDS("rmr_3b.RDS")
 
 #--- investigate model ---#
 
@@ -246,10 +242,10 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)
                   position=position_dodge(0.2)) + 
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
   theme_classic() + ylab("RESTING_MgO2.hr (RMR: MgO2/hr)")+
-  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), 
+  scale_fill_manual(values=c("#DA3b36", "#0D47A1"), 
                     labels = c("Cairns (north)","Mackay (south)"), 
                     name = "Regions")+ 
-  scale_color_manual(values=c("#DA3A36", "#0D47A1"), 
+  scale_color_manual(values=c("#DA3b36", "#0D47A1"), 
                      labels = c("Cairns (north)","Mackay (south)"), 
                      name = "Regions"); g2
 

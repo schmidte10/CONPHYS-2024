@@ -1,5 +1,6 @@
 #--- load libraries ---#  
 library(tidyverse) 
+library(tidyr)
 library(plyr)
 library(dplyr)
 library(lubridate) 
@@ -76,12 +77,12 @@ resp4 <- resp3 %>%
       EXP_FISH_ID !="CSUD008_27" &  # poor swim
       EXP_FISH_ID !="CSUD008_30" &  # poor swim 
       EXP_FISH_ID !="CSUD008_31.5" & # poor swim
-        EXP_FISH_ID !="CSUD018_31.5" & # poor swim 
         EXP_FISH_ID !="CSUD026_30" & # max. value low 
         EXP_FISH_ID !="CSUD074_28.5" & # fas value low 
         EXP_FISH_ID !="CSUD079_30" &
         EXP_FISH_ID !="CVLA052_27" & #nas value low 
         EXP_FISH_ID !="CVLA054_28.5" & # low max value? 
+        EXP_FISH_ID !="CVLA104_27" &
         EXP_FISH_ID !="LCHA113_27" & # poor data quality 
         EXP_FISH_ID !="LCHA113_30" & # poor swim 
         EXP_FISH_ID !="LCHA127_27" & # deceased during experiment
@@ -90,19 +91,13 @@ resp4 <- resp3 %>%
 
 
 #--- exploratory data analysis ---# 
-hist(resp4$MgO2.hr_Net); shapiro.test(resp4$MgO2.hr_Net); skewness(resp4$MgO2.hr_Net) #postive/right skewed
+
 resp4 %>% ggplot(aes(x=TEMPERATURE, y=MgO2.hr_Net, fill = REGION)) + geom_boxplot() 
 resp4 %>% ggplot(aes(x=MgO2.hr_Net, fill=TEMPERATURE)) + geom_density(alpha = 0.5) + 
   facet_wrap(~TEMPERATURE)
 
-hist(sqrt(resp4$MgO2.hr_Net)); shapiro.test(sqrt(resp4$MgO2.hr_Net)); skewness(sqrt(resp4$MgO2.hr_Net)) # sqrt transforming data seems to fix skewness
-resp4 %>% ggplot(aes(x=TEMPERATURE, y=sqrt(MgO2.hr_Net), fill = REGION)) + geom_boxplot() 
-resp4 %>% ggplot(aes(x=sqrt(MgO2.hr_Net), fill=TEMPERATURE)) + geom_density(alpha = 0.5) + 
-  facet_wrap(~TEMPERATURE)
-#--- make sqrt transformed column ---# 
-resp4 <- resp4 %>% 
-  mutate(sqrt.MgO2.hr_NET = sqrt(MgO2.hr_Net))
 
+#--- make sqrt transformed column ---# 
 resp4 %>% 
   group_by(REGION, TEMPERATURE)  %>%    
   dplyr::summarise(sample_size = n(), 
@@ -115,7 +110,7 @@ pop.sample.size <- resp4 %>%
   dplyr::summarise(sample_size = n(), 
                    Min. = min(MgO2.hr_Net), 
                    Max. = max(MgO2.hr_Net), 
-                   Mean = mean(MgO2.hr_Net))
+                   Mean = mean(MgO2.hr_Net)); pop.sample.size
 
 #--- model formula ---# 
 #--- base model ---# 
@@ -123,7 +118,7 @@ nas.1 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED,
                               family=gaussian(),
                               data = resp4,
                               REML = FALSE) 
- 
+
 #--- experimental resting equipment hypothesis ---#
 nas.2 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_SUMP + RESTING_RUNTIME_SECONDS + 
                                 RESTING_AM_PM, 
@@ -132,30 +127,13 @@ nas.2 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING
                               REML = FALSE) 
 
 #--- experimental max equipment hypothesis ---#
-nas.3 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MAX_SUMP + MAX_CHAMBER + 
+nas.3 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE +  MAX_SUMP + MAX_CHAMBER + 
                    MAX_AM_PM, 
                  family=gaussian(),
                  data = resp4,
                  REML = FALSE) 
 
-AICc(nas.1, nas.2, nas.3, k=2)
-#--- followed by how to treat temperature
-nas.1 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
-                 family=gaussian(),
-                 data = resp4,
-                 REML = TRUE) 
-
-nas.1q <-  glmmTMB(MgO2.hr_Net ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED, 
-                   family=gaussian(),
-                   data = resp4,
-                   REML = FALSE)  
-
-nas.1p <-  glmmTMB(MgO2.hr_Net ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED, 
-                   family=gaussian(),
-                   data = resp4,
-                   REML = FALSE) 
-
-AICc(nas.1, nas.1q, nas.1p, k=2) 
+AIC(nas.1, nas.2, nas.3, k=2)
 
 #--- followed by inclusion of random variables
 nas.1a <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
@@ -178,7 +156,7 @@ nas.1d <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FIS
                   data = resp4,
                   REML = TRUE)
 
-AICc(nas.1, nas.1a, nas.1b, nas.1c, nas.1d, k=2)
+AIC(nas.1, nas.1a, nas.1b, nas.1c, nas.1d, k=2)
 
 #--- Final model ---# 
 nas.1a <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
@@ -208,7 +186,6 @@ nas.1a %>% plot_model(type='est')
 
 nas.1a %>% summary()
 nas.1a %>% confint()
-nas.1a  %>% r.squaredGLMM()
 nas.1a  %>% performance::r2_nakagawa()
 
 nas.1a %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)

@@ -198,7 +198,7 @@ ldh.model.1 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTE
                        data = ldh.data, 
                        REML = TRUE) 
 
-ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|fish_id) + (1|POPULATION), 
+ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
                   family=gaussian(), 
                   data = ldh.data,
                   control=glmmTMBControl(optimizer=optim, 
@@ -214,24 +214,30 @@ ldh.model.3 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTE
 
 #control=glmmTMBControl(optimizer=optim,
 #optArgs = list(method='BFGS')),
-#--- Model comparison ---# 
-AICc(ldh.model.1, ldh.model.2, ldh.model.3, k=2)
 
-ldh.model.1 %>% check_model()
-ldh.model.1 %>% simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-ldh.model.1 %>% testResiduals()
+
+#--- Model comparison ---# 
+AIC(ldh.model.1, ldh.model.2, ldh.model.3, k=2)
+
+#--- save model ---# 
+saveRDS(ldh.model.2, "ldh_model_2.RDS")
+
+#--- model investigation ---# 
+ldh.model.2 %>% check_model()
+ldh.model.2 %>% simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+ldh.model.2 %>% testResiduals()
 
 #--- partial plots ---# 
-ldh.model.1 %>% ggemmeans(~temperature*REGION) %>% plot()
-ldh.model.1 %>% summary()
-ldh.model.1 %>% confint()
-ldh.model.1 %>% performance::r2()
+ldh.model.2 %>% ggemmeans(~temperature*REGION) %>% plot()
+ldh.model.2 %>% summary()
+ldh.model.2 %>% confint()
+ldh.model.2 %>% performance::r2()
 
 #--- results ---# 
-ldh.model.1 %>% emmeans(~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(infer = TRUE) 
-ldh.model.1 %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer = TRUE) 
+ldh.model.2 %>% emmeans(~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(infer = TRUE) 
+ldh.model.2 %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer = TRUE) 
 #--- plot ---# 
-newdata <- ldh.model.1 %>% ggemmeans(~temperature|REGION) %>% 
+newdata <- ldh.model.2 %>% ggemmeans(~temperature|REGION) %>% 
   as.data.frame() %>% 
   rename(TEMPERATURE = x)
   
@@ -240,8 +246,8 @@ g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
   theme_classic(); g1
 
 obs <- ldh.data %>% 
-  mutate(Pred = predict(ldh.model.1, re.form=NA), 
-         Resid = residuals(ldh.model.1, type = 'response'), 
+  mutate(Pred = predict(ldh.model.2, re.form=NA), 
+         Resid = residuals(ldh.model.2, type = 'response'), 
          Fit = Pred - Resid)
 
 g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
@@ -262,7 +268,8 @@ dev.off()
 jpeg("LDH.jpeg", units="in", width=7, height=5, res=300) 
 print(g2)
 dev.off()
-#--- 
+
+#--- general relationship between LDH and temperature (all fish) ---#
 ldh.data2 <- ldh.data %>% 
   mutate(temperature = as.numeric(temperature))
 ldh.cmb <- glmmTMB(LDH_ACTIVITY ~ 1 + temperature + TISSUE_MASS_CENTERED + (1|fish_id), 
@@ -280,7 +287,9 @@ ldh.cmb.3 <- glmmTMB(LDH_ACTIVITY ~ 1 + poly(temperature, 3) + TISSUE_MASS_CENTE
                    data = ldh.data2, 
                    REML = TRUE) 
 
-AICc(ldh.cmb, ldh.cmb.2, ldh.cmb.3, k=2)
+AIC(ldh.cmb, ldh.cmb.2, ldh.cmb.3, k=2)
+
+saveRDS(ldh.cmb.3, "ldh_cmb_3.RDS")
 
 summary(ldh.cmb.3)
 ldh.cmb.3 %>% check_model()

@@ -66,8 +66,10 @@ model.1b <- glmmTMB(PERC_RBC ~ REGION + (REGION|POPULATION),
                     REML = TRUE, 
                     data = hema) 
 
-AICc(model.1, model.1a, model.1b, k=2)
+AIC(model.1, model.1a, model.1b, k=2)
 
+#--- save model ---# 
+saveRDS(model.1, "hema_model_1.RDS")
 # model 1 is the best 
 
 #--- checking model performance ---#
