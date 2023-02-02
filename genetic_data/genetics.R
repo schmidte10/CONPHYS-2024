@@ -2,10 +2,9 @@
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/genetic_data") 
 
 #--- libraries ---# 
-library(vcfR) 
-
+library(tidyverse)
+library(adegenet) 
+library(ade4)
 #--- importing data ---# 
-vcf_file <- read.vcfR("SCH11429_finalgatk.vcf") 
+load("./gl.RData")
 
-# this can take a couple minutes 
-# go grab a coffee or something :) 

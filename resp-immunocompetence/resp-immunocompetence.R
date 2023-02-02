@@ -106,47 +106,50 @@ resp5 <- resp4 %>%
 hema.nas <- resp5 %>% 
   full_join(select(hema, c("FISH_ID","PERC_RBC")), by="FISH_ID") %>% 
   drop_na(EXP_FISH_ID) %>% 
-  mutate(sPERC_RBC = scale(PERC_RBC), 
-         sMASS = scale(MASS))
+  mutate(sPERC_RBC = as.numeric(scale(PERC_RBC)), 
+         sMASS = as.numeric(scale(MASS)))
 
 #--- model selection ---# 
-model1.1 <- lm(MgO2.hr_Net ~ 1 + sPERC_RBC + REGION, 
+model1.1 <- lm(MAX_MgO2.hr_RESPR ~ 1 + sPERC_RBC + REGION, 
                data = hema.nas)
 
-model1.2 <- lm(MgO2.hr_Net ~ 1 + sPERC_RBC*REGION, 
+model1.2 <- lm(MAX_MgO2.hr_RESPR ~ 1 + sPERC_RBC*REGION, 
                data = hema.nas)
 
-model1.3 <- lm(MgO2.hr_Net ~ 1 + sPERC_RBC + REGION + sMASS, 
+model1.3 <- lm(MAX_MgO2.hr_RESPR ~ 1 + sPERC_RBC + REGION + sMASS, 
                data = hema.nas)
 
-AICc(model1.1, model1.2, model1.3, k=2)
+model1.4 <- lm(MAX_MgO2.hr_RESPR ~ 1 + sPERC_RBC * REGION + sMASS, 
+               data = hema.nas)
+
+AIC(model1.1, model1.2, model1.3, model1.4, k=2)
 # model1.3 has the lowest AICc score 
 
 #--- check model performance ---# 
-model1.3 %>% check_model() # model distribution looks a bit off try a glm
-pha.resid <-  model1.3 %>% 
+model1.4 %>% check_model() # model distribution looks a bit off try a glm
+pha.resid <-  model1.4 %>% 
   DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-model1.3 %>% DHARMa::testResiduals() 
+model1.4 %>% DHARMa::testResiduals() 
 
 #--- model selection --# 
-model.gamma1 <- glm(MgO2.hr_Net ~ 1 + sPERC_RBC, 
+model.gamma1 <- glm(MAX_MgO2.hr_RESPR ~ 1 + sPERC_RBC, 
                     data = hema.nas, 
                     family = Gamma(link = 'log'))
 
 
-model.gamma2 <- glm(MgO2.hr_Net ~ 1 + sPERC_RBC + sMASS, 
+model.gamma2 <- glm(MAX_MgO2.hr_RESPR ~ 1 + sPERC_RBC + sMASS, 
                data = hema.nas, 
                family = Gamma(link="log")) 
 
-model.gamma3 <- glm(MgO2.hr_Net ~ 1 + REGION + sPERC_RBC + sMASS, 
+model.gamma3 <- glm(MAX_MgO2.hr_RESPR ~ 1 + REGION + sPERC_RBC + sMASS, 
                     data = hema.nas, 
                     family = Gamma(link = 'log')) 
 
-model.gamma4 <- glm(MgO2.hr_Net ~ 1 + sPERC_RBC * REGION + sMASS, 
+model.gamma4 <- glm(MAX_MgO2.hr_RESPR ~ 1 + sPERC_RBC * REGION + sMASS, 
                     data = hema.nas, 
                     family = Gamma(link = 'log')) 
 
-AICc(model.gamma1, model.gamma2, model.gamma3, model.gamma4, k=2)
+AIC(model.gamma1, model.gamma2, model.gamma3, model.gamma4, k=2)
 saveRDS(model.gamma3, "hema-nas_model_gamma_3.RDS")
 #--- model performance ---# 
 model.gamma4 %>% check_model()
@@ -156,7 +159,7 @@ model.gamma4 %>% DHARMa::testResiduals()
 # model looks good
 
 #--- results ---#
-model.gamma4 %>% plot_model(type='eff',  terms=c('sPERC_RBC'), show.data=TRUE)
+model.gamma4 %>% plot_model(type="pred", terms=c('sPERC_RBC'), show.data=TRUE)
 model.gamma4 %>% plot_model(type='eff',  terms=c('sPERC_RBC',"REGION"), show.data=TRUE)
 figure1 <- model.gamma4 %>% plot_model(type='eff',  terms=c('sPERC_RBC',"REGION"), show.data=TRUE)
 model.gamma4 %>% plot_model(type='est')
@@ -166,10 +169,10 @@ model.gamma4 %>% confint()
 
 model.gamma4 %>% emtrends(var = "sPERC_RBC", type = "response")  %>% regrid() %>% summary(infer=TRUE)
 
-pdf("hema_nas.pdf", width = 7, height = 5)
+pdf("hema_max.pdf", width = 7, height = 5)
 print(figure1)
 dev.off()
 
-jpeg("hema_nas.jpeg", units="in", width=7, height=5, res=300) 
+jpeg("hema_max.jpeg", units="in", width=7, height=5, res=300) 
 print(figure1)
 dev.off()

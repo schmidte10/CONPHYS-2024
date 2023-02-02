@@ -1,0 +1,74 @@
+---
+title: "Chapter1 - Local Adaptation in a coral reef fish"
+author: "Elliott Schmidt"
+date: "2023-01-30"
+output: html_document
+---
+
+```{r setup, include=FALSE, hide=TRUE}
+setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/genetic_data/") 
+```
+
+Load libraries 
+
+```{r libraries, message=FALSE, warnings=FALSE}
+library(tidyverse)
+library(adegenet) 
+library(ade4)
+```
+
+```{r load_data, cache=TRUE}
+load("./gl.RData")
+```
+
+```{r Allele_frequency_spectrum}
+myFreq <-  glMean(gl)
+myFreq <- c(myFreq, 1-myFreq)
+temp <- density(myFreq, bw=0.05)
+hist(myFreq, proba=TRUE, 
+     col="cadetblue4", 
+     xlab="Allele Frequencies", 
+     main="Distribution of Allele Frequencies", 
+     nclass=20, 
+     ylim = c(0,4)) ;lines(temp$x, temp$y*2, lwd=3)
+``` 
+
+```{r Allele_frequency_spectrum2}
+# per population 
+# need to rename  gl@pop for this to begin work ing 
+# currently individuals are listed as pop 
+gl@pop
+pop.list <- c("SUD", "SUD", "SUD", "SUD", "SUD", 
+             "VLA", "VLA", "VLA", "VLA", "VLA", 
+             "TON", "TON", "TON", "TON", "TON", 
+             "SUD","SUD","SUD","SUD", 
+             "VLA",
+             "TON", 
+             "CHA", "CHA", "CHA", "CHA", "CHA", 
+             "KES", "KES", "KES", 
+             "CKM", "CKM", "CKM", "CKM", "CKM", 
+             "KES", 
+             "CKM","CKM","CKM")
+pop(gl) <- pop.list 
+nPop(gl)
+for (i in levels(gl@pop)) {
+  myFreq <- glMean(gl[gl@pop == i])
+  myFreq <- c(myFreq, 1 - myFreq)
+  hist(myFreq, proba=TRUE, 
+     col="cadetblue4", 
+     xlab="Allele Frequencies", 
+     main="Distribution of Allele Frequencies", 
+     nclass=20, 
+     ylim = c(0,4)) ;lines(temp$x, temp$y*2, lwd=3)
+}
+
+``` 
+
+# PCA 
+
+```{r PCA} 
+#pca1 <- glPca(gl, 
+             # parallel = TRUE)
+
+
+```
