@@ -112,7 +112,7 @@ for (i in sample_names_list) {
 }
 
 
-tables[["white.muscle_LCKM163_40"]]
+tables[["white.muscle_LCKM165_40"]]
 
 
 
@@ -176,8 +176,8 @@ ldh.data <- final_table %>%
          LDH_ACTIVITY = ((LDH_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))*-1)  
   #filter(LDH_ACTIVITY >= 0)
   
-ggplot(ldh.data, aes(x =temperature, y= LDH_ACTIVITY, fill = REGION)) + 
-  geom_boxplot()
+ggplot(ldh.data, aes(x =as.numeric(temperature), y= LDH_ACTIVITY, color = POPULATION)) + 
+  geom_point() + geom_smooth(method = "lm", se=FALSE)
 #--- begin data analysis ---# 
 ggplot(ldh.data, aes(x = LDH_ACTIVITY, fill = temperature, color = temperature)) + 
   geom_density(alpha =0.5, position = "identity") 
@@ -191,8 +191,19 @@ ldh.data %>%
             Max. = max(LDH_ACTIVITY), 
             Mean = mean(LDH_ACTIVITY)) 
 
-#--- models ---# 
+#--- models - fixed factor ---# 
+ldh.model.1 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED, 
+                       family=gaussian(), 
+                       data = ldh.data, 
+                       REML = TRUE)  
 
+ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature, 
+                       family=gaussian(), 
+                       data = ldh.data, 
+                       REML = TRUE)  
+
+AIC(ldh.model.1, ldh.model.2, k=2)
+#--- models ---# 
 ldh.model.1 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|fish_id), 
                        family=gaussian(), 
                        data = ldh.data, 

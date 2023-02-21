@@ -172,7 +172,7 @@ nas.pop.1a <- glmmTMB(MgO2.hr_Net ~ 1+ POPULATION * poly(as.numeric(TEMPERATURE)
 saveRDS(nas.pop.1a, file = "nas_pop_1a.RDS") 
 
 #--- investigate model ---#
-#rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
+nas.pop.1a <- readRDS("nas_pop_1a.RDS")
 check_model(nas.pop.1a)
 pha.resid <-  nas.pop.1a %>% 
   DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
