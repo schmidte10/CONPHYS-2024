@@ -16,6 +16,8 @@ library(tidyverse)
 library(adegenet) 
 library(ade4)
 library(dartR)
+library(patchwork) 
+library(ape)
 ```
 
 ```{r load_data, cache=TRUE}
@@ -188,11 +190,10 @@ load("dapcPop.RData")
 
 dapcPoptbl <- tibble(pop =gl@pop, 
                      inds =gl@ind.names, 
-                     gdapcPop =factor(dapcPop$assign, levels = c("Sudbury reef/Vlassof Cay", 
-                                                                "Tongue Reef", 
-                                                                "Chauvel Reef", 
-                                                                "Keswick/Cockermouth island")), 
-                     xdapcPop = dapcPop$ind.coord[,1], ydapcPop =dapcPop$ind.coord[,2])
+                     gdapcPop =factor(dapcPop$assign), 
+                     xdapcPop = dapcPop$ind.coord[,1], 
+                     ydapcPop =dapcPop$ind.coord[,2]) 
+levels(dapcPoptbl$gdapcPop) <- c("Chauvel", "Sudbury Reef/Vlassof Cay", "Cockermouth/Keswick Island", "Tongue Reef")
 
 ggplot(dapcPoptbl, aes(pop, gdapcPop)) + 
   geom_count() + 
@@ -211,11 +212,68 @@ g <- ggplot(dapcPoptbl, aes(xdapcPop, ydapcPop)) +
   ylab(paste0('DA2 (', sprintf('%0.1f%% explained var.', 100*dapcPop$var*dapcPop$eig[2]/sum(dapcPop$eig)), ")")) +
   labs(shape = 'Assigned\npopulation', color = 'Site') + 
   stat_ellipse(aes(xdapcPop, ydapcPop, group =gdapcPop), level =0.99, alpha =0.3, linetype ='dotted') + 
-  theme(plot.margin =unit(c(-1,1,1,1), 'cm')) 
+  theme(plot.margin =unit(c(-1,1,1,1), 'cm')); g
 
-g2 <- ggplot(dapctbl, aes(xdapcPop, fill =gl@pop, color = gl@pop)) + 
+g2 <- ggplot(dapcPoptbl, aes(xdapcPop, fill =gl@pop, color = gl@pop)) + 
   geom_density(alpha =0.3) + 
+  theme_bw() + 
+  xlab("") +
+  ylab("") +
+  theme(legend.position = 'none', #c(0.1, 0.8),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        plot.margin = unit(c(1, 1, -1, 1), 'cm')) 
+
+g2+g  + plot_layout(heights = c(1, 3), ncol = 1)
   
 
-compoplot(dapcPop, col=c("green","blue","red","yellow"))
+compoplot(dapcPop, col=c("green","blue","red","yellow")) 
+```
+
+```{r contribtuion_of_alleles}
+contribPopx <- loadingplot(dapcPop$var.contr, threshold = 4.8e-07, axis =1, lab.jitter =1, lab =gl@loc.names, 
+                           srt =90, adj=0, 
+                           cex.lab =0.5) 
+
+dapcdriverPopx <- contribPopx$var.names
+write_lines(dapcdriverPopx, file="./dapcdriver_pops_x.txt") 
+
+freqs <- tab(gl[,gl@loc.names %in% contribPopx$var.names], freq = TRUE)
+fr <- as.data.frame(freqs) %>% 
+  mutate(grp = dapcPop$assign, pops = gl@pop, inds = gl@ind.names) %>% 
+  group_by(grp) %>% 
+  summarize(across(contains('ENA'), list(mean))) %>% 
+  pivot_longer(cols = -1, names_to = 'Locus', values_to = 'Frequency') 
+
+ggplot(fr, aes(reorder(Locus, Frequency), grp, fill = Frequency)) + 
+  geom_tile() + 
+  theme_classic() + 
+  coord_fixed(ratio = 2/1) + 
+  theme(axis.text.x = element_blank()) + 
+  xlab("DAPC group") + 
+  ylab("Locus")
+
+# by site of origin 
+fr.site <- as.data.frame(freqs) %>% 
+  mutate(grp = dapcPop$assign, pops = gl@pop, inds = gl@ind.names) %>% 
+  group_by(pops) %>% 
+  summarize(across(contains('ENA'), list(mean))) %>% 
+  pivot_longer(cols = -1, names_to = 'Locus', values_to = 'Frequency') 
+
+ggplot(fr.site, aes(reorder(Locus, Frequency), pops, fill = Frequency)) + 
+  geom_tile() + 
+  theme_classic() + 
+  coord_fixed(ratio = 2/1) + 
+  theme(axis.text.x = element_blank()) + 
+  xlab("DAPC group") + 
+  ylab("Locus")
+```
+
+# Neighbour-joining tree 
+```{r neighbour-joining tree}
+NJ <- load("nj.RData")
+par(mfrow=c(1,2))
+#plot(NJ, "p", show.tip.label=TRUE,cex=1,font=1) 
+plot.phylo(NJ, type = 'fan', tip.color = c("#b05d3f","#7657aa","#b7ab49","#5ca6d3","#6bb376","#ab4e7a")[gl$pop], cex =0.5)
+plot.phylo(NJ, type = 'radial',tip.color = c("black","blue","red")[gl$pop], cex =0.5 )
 ```
