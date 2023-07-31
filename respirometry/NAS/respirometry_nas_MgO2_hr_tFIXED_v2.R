@@ -227,3 +227,30 @@ jpeg("nas_1b.jpeg", units="in", width=7, height=5, res=300)
 print(g2)
 dev.off()
 
+#--- figure for 3MT ---# 
+g2 <- ggplot(newdata, aes(y=predicted, x=as.numeric(TEMPERATURE), color=group)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm', se=F, fill=NA, 
+              formula=y ~ poly(x, 3, raw=TRUE), linewidth = 2)+
+  xlab("TEMPERATURE") +
+  scale_y_continuous(limits = c(6,13), breaks = seq(6, 13, by = 2)) + 
+  scale_x_discrete(limits=c("27","28.5","30","31.5"))+
+  #scale_x_continuous(limits = c(26,32), breaks = seq(27,31.5, by =1.5))+
+  #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
+  theme_classic() + 
+  theme(axis.title.x=element_text(colour="white"), 
+        axis.title.y=element_text(colour="white"), 
+        axis.text = element_text(color="white"), 
+        axis.line = element_line(color="white"), 
+        axis.ticks = element_line(color="white"), 
+        panel.background = element_rect(fill = "transparent", 
+                                        color = NA_character_),
+        plot.background = element_rect(fill = "transparent",
+                                       colour = NA_character_), 
+        panel.grid.major = element_line(colour = "NA")) +
+  ylab("NET AEROBIC SCOPE (NAS: MgO2/hr)") +
+  scale_color_manual(values=c("#DA3A36", "#00FFFF"), labels = c("Cairns (north)","Mackay (south)"),
+                     name = "Regions");g2
+
+ggsave('mt_figure2.png',g2,bg='transparent', 
+       width = 6, height = 3.2, units = "in", dpi=300, device = 'png')

@@ -15,7 +15,7 @@ GBR_data <- st_read("C:/Users/jc527762/OneDrive - James Cook University/PhD diss
 class(GBR_data)
 
 #--- set working directory ---# 
-setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/map/")
+setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/map")
 
 #--- Filtering islands in Australia only ---#
 # Sampling 500 random reefs from the dataset so it won't be too heavy
@@ -37,17 +37,40 @@ myreefs.core <- GBR_data %>%
            Country == "Australia" & 
           QLD_NAME != "U/N Reef" & 
            QLD_NAME != "U/N Rock") %>% 
-  filter(QLD_NAME == "Sudbury Reef" | 
-           QLD_NAME == "Vlasoff Reef" | 
-           QLD_NAME == "Tongue Reef" | 
+  filter(#QLD_NAME == "Sudbury Reef" | 
+           #QLD_NAME == "Vlasoff Reef" | 
+           #QLD_NAME == "Tongue Reef" | 
            QLD_NAME == "Arlington Reef" | 
            QLD_NAME == "Morinda Shoal" | 
-           QLD_NAME == "Maori Reef" | 
-           QLD_NAME == "Oyster Reef" | 
+           #QLD_NAME == "Maori Reef" | 
+           #QLD_NAME == "Oyster Reef" | 
            QLD_NAME == "Otter Reef" | 
            QLD_NAME == "Satellite Reef") %>%
   add_row(QLD_NAME = "Pretty Patches Reef", X_COORD = 146.042, Y_COORD =-16.622)  %>% 
-  add_row(QLD_NAME = "Russell Island", X_COORD = 146.094, Y_COORD =-17.229)
+  add_row(QLD_NAME = "Russell Island", X_COORD = 146.094, Y_COORD =-17.229) %>% 
+  #add_row(QLD_NAME = "Keswick Island", X_COORD = 149.406, Y_COORD =-20.908) %>% 
+  add_row(QLD_NAME = "Cockermouth Island", X_COORD = 149.398, Y_COORD =-20.772) %>% 
+  add_row(QLD_NAME = "Low Wooded Island", X_COORD = 145.38, Y_COORD =-15.094)
+  
+  # add locations 
+city_names <- c("Cairns", "Cooktown", "Mackay", "Townsville")
+cities <-  GBR_data %>% 
+  filter(DATASET == "GBR Features" & 
+           LEVEL_1 == "Reef" & 
+           Country == "Australia" & 
+           QLD_NAME != "U/N Reef" & 
+           QLD_NAME != "U/N Rock") %>% 
+  add_row(QLD_NAME = "Cooktown", X_COORD = 145.25050, Y_COORD =-15.46814)  %>% 
+  add_row(QLD_NAME = "Cairns", X_COORD = 145.754120, Y_COORD =-16.925491) %>% 
+  add_row(QLD_NAME = "Townsville", X_COORD = 146.816956, Y_COORD =-19.258965)  %>% 
+  add_row(QLD_NAME = "Mackay", X_COORD = 149.186813, Y_COORD =-21.144337) %>% 
+  filter(QLD_NAME %in% city_names)
+  
+  #add_row(QLD_NAME = "Chauvel Reef (Southern)", X_COORD = 150.363, Y_COORD =-20.863) #%>% 
+  #add_row(QLD_NAME = "Low Wooded Island", X_COORD = 145.367, Y_COORD = -15.084)
+
+#myreefs.core.sample.size <- myreefs.core %>% 
+  #add_column(sample.size= c("1","1","1","4","2","1","5"))
 
 # Putting the gbr dataset in the same coordinate system as the AUS dataset
 world <- ne_countries(scale = "medium", returnclass = "sf")
@@ -76,27 +99,29 @@ core.reefs <- ggplot() +
   annotation_north_arrow(location = "bl", which_north = "true", 
                          pad_x = unit(0.1, "in"), pad_y = unit(0.25, "in"),
                          style = north_arrow_fancy_orienteering) +
-  coord_sf(xlim = c(142, 153), ylim = c(-25, -10), expand = F) +
-  coord_sf(xlim = c(145, 150), ylim = c(-20, -15), expand = F) +
+  coord_sf(xlim = c(143, 155), ylim = c(-22, -14), expand = F) +
   theme(panel.background = element_rect(fill = "lightblue")) +
-  xlab("")+ylab("")+ ggtitle("Core region reefs") +
+  xlab("")+ylab("")+ #ggtitle("Core region reefs") +
   geom_point(data = myreefs.core, aes(x = X_COORD, y = Y_COORD), size = 5, 
              shape = 21, fill = "#2f3544") + 
   geom_label_repel(data = myreefs.core, aes(X_COORD, Y_COORD, label=QLD_NAME), 
                    fill = "white", 
-                   nudge_x = 1.2, 
-                   nudge_y = 0.5, 
+                   nudge_x = 4.0, 
+                   nudge_y = 1.0, 
                    max.iter = 5000)+
+  geom_point(data = cities, aes(x = X_COORD, y = Y_COORD), size =4, shape = 18, color = "red") + 
+  geom_label_repel(data = cities, aes(X_COORD, Y_COORD, label=QLD_NAME), 
+                   fill = "gray90", 
+                   nudge_x = -0.5); core.reefs #%>%
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank(), 
         axis.text.y=element_blank(),
         panel.border = element_rect(colour = "#2f3544", fill=NA, size=2),
-        axis.ticks.y=element_blank())
-core.reefs
+        axis.ticks.y=element_blank()); core.reefs
 
 #---final figure ---# 
-pdf("population_map_allReefs.pdf")
+pdf("population_map_HolsworthReefs.pdf")
 core.reefs
 dev.off() 
 
-ggsave("population_map_allReefs.jpeg", plot = core.reefs, width = 10, height = 7, units = "in", dpi = 300)
+ggsave("population_map_HolsworthReefs.jpeg", plot = core.reefs, width = 10, height = 7, units = "in", dpi = 300)
