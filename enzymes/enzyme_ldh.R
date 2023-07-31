@@ -31,6 +31,7 @@ ldh2 <- ldh %>%
 ldh3 <- ldh2 %>% 
   mutate(TIME = hms(ldh2$TIME)) %>% 
   mutate(TIME = chron(times=ldh2$TIME)) %>% 
+  arrange(TIME) %>%
   group_by(UNIQUE_SAMPLE_ID, sample_id_1) %>% 
   mutate(TIME_DIFF = TIME - first(TIME)) %>% 
   ungroup() %>% 
@@ -122,7 +123,8 @@ LDH_activity <- ldh3 %>%
   do({
     mod = lm(result ~ MINUTES, data = .)
     data.frame(Intercept = coef(mod)[1],
-               Slope = coef(mod)[2])
+               Slope = coef(mod)[2], 
+               r2 = summary(mod)$adj.r.squared)
   }) %>%
   ungroup() %>%
   filter(CUVETTE != ("6"))%>% 
