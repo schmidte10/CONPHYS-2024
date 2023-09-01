@@ -166,6 +166,7 @@ mmr.1b %>% summary()
 mmr.1b %>% confint()
 mmr.1b  %>% performance::r2_nakagawa()
 
+mmr.1b %>% emmeans(~ TEMPERATURE*REGION)
 mmr.1b %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
 mmr.1b %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "REGION") %>% summary(infer=TRUE)
 

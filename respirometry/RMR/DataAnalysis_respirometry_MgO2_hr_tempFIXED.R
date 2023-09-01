@@ -21,13 +21,13 @@ library(vtable)
 #--- set working directory ---#
 setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/")
 # uni computer
-setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry")
+setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation")
 #--- load data ---# 
-resp <- read.delim("./SummaryData_2022_resp_updated.txt")
+resp <- read.delim("./import_files/SummaryData_2022_resp_updated.txt")
 # personal computer
 setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/RMR/")
 # uni computer
-setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/RMR")
+setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/respirometry/RMR/")
 
 # data seems to have loaded with two extract columns at the end 
 
@@ -192,11 +192,11 @@ rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERE
                   REML = TRUE)
 
 #--- saving model ---#
-saveRDS(rmr.3a, file = "rmr_3b.RDS") 
+saveRDS(rmr.3a, file = "rmr_3a.RDS") 
 
 
 #--- load model ---#
-rmr.3a <- readRDS("rmr_3b.RDS")
+rmr.3a <- readRDS("rmr_3a.RDS")
 
 #--- investigate model ---#
 
