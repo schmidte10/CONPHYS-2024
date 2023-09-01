@@ -24,7 +24,7 @@ pha <- read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD disser
 
 
 #--- set working directory ---# 
-setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/immunocompetence")
+setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/immunocompetence")
 
 #--- preparing data ---# 
 pha2 <- pha %>% 
@@ -196,7 +196,7 @@ AIC(pha.glmm.gamma, pha.glmm.gamma.b, pha.glmm.gamma.c, k=2)
 
 #--- save model ---# 
 saveRDS(pha.glmm.gamma.b, "pha_gamma_b.RDS")
-
+pha.glmm.gamma.b = readRDS(file = "./pha_gamma_b.RDS")
 #--- model validation ---#
 pha.glmm.gamma.b %>% check_model() 
 pha.resid <-  pha.glmm.gamma.b %>% 
@@ -212,6 +212,10 @@ pha.glmm.gamma.b %>% performance::r2_nakagawa()
 #--- Results ---#
 pha.glmm.gamma.b %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% regrid() %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE) 
 pha.glmm.gamma.b %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% regrid() %>% pairs(by = "REGION") %>% summary(infer=TRUE) 
+
+pha.glmm.gamma.b %>% emmeans("TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
+pha.glmm.gamma.b %>% emmeans(~ TEMPERATURE, type = "response") %>% summary(infer =TRUE)
+
 #--- plot ---# 
 newdata <- pha.glmm.gamma.b %>% ggemmeans(~TEMPERATURE|REGION) %>% 
   as.data.frame() %>% 
