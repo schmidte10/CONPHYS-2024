@@ -24,7 +24,7 @@ library(ggsignif)
 # personal computer
 setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/")
 # uni computer
-setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/respirometry")
+setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/import_files/")
 #--- load data ---# 
 resp <- read.delim("./SummaryData_2022_resp_updated.txt")
 # personal computer
@@ -88,7 +88,7 @@ resp4 <- resp3 %>%
       EXP_FISH_ID !="LCHA127_27" & # deceased during experiment
       EXP_FISH_ID !="LCHA114_28.5"  # poor swim 
   )   
-
+save(resp4, file="./resp4.RData")
 
 #--- exploratory data analysis ---# 
 
