@@ -10,11 +10,11 @@ library(grid)
 library(ggpubr)
 library(ggrepel)
 #--- Loading shape data ---#
-GBR_data <- st_read("./PhD dissertation/Statistics_wrkshp/Maps/TS_AIMS_NESP_Torres_Strait_Features_V1b_with_GBR_Features")
+GBR_data <- st_read("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Statistics_wrkshp/Maps/TS_AIMS_NESP_Torres_Strait_Features_V1b_with_GBR_Features")
 class(GBR_data)
 
 #--- set working directory ---# 
-setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation")
+setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation")
 
 #--- Filtering islands in Australia only ---#
 #--- GBR data ---#
@@ -100,7 +100,8 @@ insert1 <- ggplot() +
   geom_sf(data = AUS,fill = "gray90", color = "#333333", size = 0.1) +
   annotation_scale(location = "bl", width_hint = 0.3) +
   coord_sf(xlim = c(145, 147), ylim = c(-17.6, -16), expand = F) +
-  theme(panel.background = element_rect(fill = "lightblue")) +
+  theme(panel.background = element_rect(fill = "lightblue"), 
+        panel.grid.major = element_line(colour = "lightblue")) +
   xlab("")+ylab("")+
   annotate("segment", x = 145.7926, xend = 145.7926+0.3, y = -16.32093, yend = -16.32093+0.18, colour = "black", size = 1)+
   annotate("segment", x = 146.2049, xend = 146.2049+0.3, y = -16.99838, yend = -16.99838+0.18, colour = "black", size = 1)+
@@ -145,10 +146,11 @@ map <- ggarrange(p1, cb,
                  labels = c("A","")); map
 
 pdf("population_map.pdf")
-map
+map2
 dev.off() 
 
-ggsave("population_map.jpeg", width = 11, height = 8, units = "in", dpi = 300)
+ggsave("population_map2.jpeg", width = 11, height = 8, units = "in", dpi = 360)
+ggsave("population_map2.pdf", width = 11, height = 8, units = "in", dpi = 360)
 
 #--- 3MT final figure ---# 
 mt_figure <- ggplot() +
