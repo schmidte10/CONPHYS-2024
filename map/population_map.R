@@ -77,7 +77,7 @@ map_aus <- ggplot(data = AUS) +
 
 #--- Plot ---#
 p1 <- ggplot() +
-  geom_sf(data = coords,fill = "gray90", color = "orange", size = 0.5) +
+  geom_sf(data = coords,fill = "gray90", color = "grey20", size = 0.5) +
   geom_sf(data = AUS,fill = "gray90", color = "#333333", size = 0.1) +
   annotation_scale(location = "bl", width_hint = 0.5) +
   annotation_north_arrow(location = "bl", which_north = "true", 
@@ -96,19 +96,19 @@ p1 <- ggplot() +
   annotate("text", x = 149.8, y = -14, label = "Coral \nSea", fontface = "italic", size = 6);p1 
 
 insert1 <- ggplot() +
-  geom_sf(data = coords,fill = "gray90", color = "orange", size = 0.5) +
+  geom_sf(data = coords,fill = "gray90", color = "grey20", size = 0.5) +
   geom_sf(data = AUS,fill = "gray90", color = "#333333", size = 0.1) +
   annotation_scale(location = "bl", width_hint = 0.3) +
   coord_sf(xlim = c(145, 147), ylim = c(-17.6, -16), expand = F) +
   theme(panel.background = element_rect(fill = "lightblue"), 
         panel.grid.major = element_line(colour = "lightblue")) +
   xlab("")+ylab("")+
-  annotate("segment", x = 145.7926, xend = 145.7926+0.3, y = -16.32093, yend = -16.32093+0.18, colour = "black", size = 1)+
-  annotate("segment", x = 146.2049, xend = 146.2049+0.3, y = -16.99838, yend = -16.99838+0.18, colour = "black", size = 1)+
-  annotate("segment", x = 145.9929, xend = 145.9929+0.3, y = -16.65520, yend = -16.65520+0.18, colour = "black", size = 1)+
+  #annotate("segment", x = 145.7926, xend = 145.7926+0.3, y = -16.32093, yend = -16.32093+0.18, colour = "black", size = 1)+
+  #annotate("segment", x = 146.2049, xend = 146.2049+0.3, y = -16.99838, yend = -16.99838+0.18, colour = "black", size = 1)+
+  #annotate("segment", x = 145.9929, xend = 145.9929+0.3, y = -16.65520, yend = -16.65520+0.18, colour = "black", size = 1)+
   geom_point(data = myreefs.core, aes(x = X_COORD, y = Y_COORD), size = 5, 
              shape = 21, fill = "#DA3A36") + 
-  geom_label(data = myreefs.core, aes(X_COORD+.3, Y_COORD+.2, label=QLD_NAME), fill = "white")+
+  geom_label(data = myreefs.core, aes(X_COORD+.3, Y_COORD+.01, label=QLD_NAME), fill = "white")+
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank(), 
         axis.text.y=element_blank(),
@@ -116,7 +116,7 @@ insert1 <- ggplot() +
         axis.ticks.y=element_blank()); insert1
 
 insert2 <- ggplot() +
-  geom_sf(data = coords,fill = "gray90", color = "orange", size = 0.5) +
+  geom_sf(data = coords,fill = "gray90", color = "grey20", size = 0.5) +
   geom_sf(data = AUS,fill = "gray90", color = "#333333", size = 0.1) +
   annotation_scale(location = "bl", width_hint = 0.3) +
   coord_sf(xlim = c(148, 151), ylim = c(-21.7, -20.2), expand = F) +
@@ -149,8 +149,8 @@ pdf("population_map.pdf")
 map2
 dev.off() 
 
-ggsave("population_map2.jpeg", width = 11, height = 8, units = "in", dpi = 360)
-ggsave("population_map2.pdf", width = 11, height = 8, units = "in", dpi = 360)
+ggsave("./figures/figure1.jpeg", width = 11, height = 8, units = "in", dpi = 360)
+ggsave("./figures/figure1.pdf", width = 11, height = 8, units = "in", dpi = 360)
 
 #--- 3MT final figure ---# 
 mt_figure <- ggplot() +
