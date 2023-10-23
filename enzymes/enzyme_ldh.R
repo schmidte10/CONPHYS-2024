@@ -198,7 +198,7 @@ ldh.data <- final_table %>%
          Background = as.numeric(Background), 
          Background_perc = as.numeric(Background_perc)) %>% 
   mutate(Background2 = case_when(Background_perc <= 0.05 ~ 0, 
-                                    TRUE ~ Mean - Background), 
+                                    TRUE ~ Background), 
          LDH_ABSORBANCE = Mean - Background2) %>%
   drop_na() %>% 
   inner_join(select(ldh3.filtered, c(UNIQUE_SAMPLE_ID, REGION, POPULATION, temperature, fish_id)), by ="UNIQUE_SAMPLE_ID") %>% 
@@ -271,7 +271,7 @@ ldh.model.3 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTE
 
 
 #--- Model comparison ---# 
-AIC(ldh.model.1, ldh.model.2, ldh.model.3, k=2)
+AIC(ldh.model.1, ldh.model.2, k=2)
 
 #--- save model ---# 
 saveRDS(ldh.model.2, "ldh_model_2.RDS")
