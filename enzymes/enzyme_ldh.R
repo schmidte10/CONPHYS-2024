@@ -19,12 +19,12 @@ setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/
 ldh <- read_delim("LDH_LocalAdapt.txt", delim = "\t", 
                   escape_double = FALSE, col_types = cols(`Creation time` = col_datetime(format = "%d/%m/%Y %H:%M")), 
                   trim_ws = TRUE)
-tissue.mass <- read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/enzymes/tissue_mass.txt")
+tissue.mass <- read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/enzymes/tissue_mass.txt")
 #--- data preparation/manipulation ---# 
 ldh2 <- ldh %>%
   clean_names() %>%
   mutate(muscle_type = str_replace(muscle_type, " ", ".")) %>%
-  unite("UNIQUE_SAMPLE_ID", c(muscle_type,fish_id,temperature), sep="_", remove = FALSE) %>% 
+  unite("UNIQUE_SAMPLE_ID", c(fish_id,temperature,sample_index), sep="_", remove = FALSE) %>% 
   separate(creation_time, into=c('DATE','TIME'), sep = " ", remove = FALSE) %>% 
   arrange(sample_id_1, DATE, TIME) 
 
@@ -34,6 +34,7 @@ ldh3 <- ldh2 %>%
   arrange(TIME) %>%
   group_by(UNIQUE_SAMPLE_ID, sample_id_1) %>% 
   mutate(TIME_DIFF = TIME - first(TIME)) %>% 
+  filter(TIME != first(TIME)) %>%
   ungroup() %>% 
   mutate(TIME_DIFF_SECS = period_to_seconds(hms(TIME_DIFF))) %>% 
   mutate(MINUTES = TIME_DIFF_SECS/60) %>% 
@@ -44,9 +45,40 @@ ldh3 <- ldh2 %>%
          SAMPLE_NO = substr(fish_id, 5, 7)) %>% 
   mutate(REGION = case_when( REGION =="L"~ "Leading", 
                              REGION == "C" ~ "Core", 
-                             TRUE ~ "na"))
+                             TRUE ~ "na")) 
 
-  
+#--- filter out samples that need do not pass quailty check ---# 
+grp1 <- c("CSUD008_20_1","CSUD008_20_2","CSUD008_20_3","CSUD008_20_4","CSUD008_20_5","CSUD008_20_6", 
+          "CVLA047_50_1","CVLA047_50_2","CVLA047_50_3","CVLA047_50_4","CVLA047_50_5","CVLA047_50_6", 
+          "CVLA046_50_1","CVLA046_50_2","CVLA046_50_3","CVLA046_50_4","CVLA046_50_5","CVLA046_50_6") 
+grp2 <- c("LCKM180_30_1","LCKM180_30_2","LCKM180_30_3","LCKM180_30_4","LCKM180_30_5","LCKM180_30_6", 
+          "LKES172_50_1","LKES172_50_2","CLKES172_50_3","LKES172_50_4","LKES172_50_5","LKES172_50_6", 
+          "LCHA114_50_1","LCHA114_50_2","LCHA114_50_3","LCHA114_50_4","LCHA114_50_5","LCHA114_50_6", 
+          "CSUD074_50_1","CSUD074_50_2","CSUD074_50_3","CSUD074_50_4","CSUD074_50_5","CSUD074_50_6")
+grp3 <- c("LCKM165_50_1","LCKM165_50_2","LCKM165_50_3","LCKM165_50_4","LCKM165_50_5","LCKM165_50_6", 
+          "LCKM163_50_1","LCKM163_50_2","CLCKM163_50_3","LCKM163_50_4","LCKM163_50_5","LCKM163_50_6", 
+          "CTON068_50_1","CTON068_50_2","CTON068_50_3","CTON068_50_4","CTON068_50_5","CTON068_50_6", 
+          "CVLA104_50_1","CVLA104_50_2","CVLA104_50_3","CVLA104_50_4","CVLA104_50_5","CVLA104_50_6") 
+grp4 <- c("LCHA135_50_1","LCHA135_50_2","LCHA135_50_3","LCHA135_50_4","LCHA135_50_5","LCHA135_50_6", 
+          "CTON069_50_1","CTON069_50_2","CCTON069_50_3","CTON069_50_4","CTON069_50_5","CTON069_50_6", 
+          "CVLA045_50_1","CVLA045_50_2","CVLA045_50_3","CVLA045_50_4","CVLA045_50_5","CVLA045_50_6") 
+grp5 <- c("CSUD014_50_1","CSUD014_50_2","CSUD014_50_3","CSUD014_50_4","CSUD014_50_5","CSUD014_50_6", 
+          "CTON110_50_1","CTON110_50_2","CCTON110_50_3","CTON110_50_4","CTON110_50_5","CTON110_50_6")
+
+ldh3.filtered <- ldh3 %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% c("LCKM154_20_1", 
+                                   "LKES143_30_3", 
+                                   "LKES143_20_2", 
+                                   "CSUD010_40_2"))) %>% 
+  group_by(UNIQUE_SAMPLE_ID) %>% 
+  arrange(UNIQUE_SAMPLE_ID, TIME) %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% grp1 & row_number() > (n() - 1))) %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% grp2 & row_number() > (n() - 2))) %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% grp3 & row_number() > (n() - 3))) %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% grp4 & row_number() > (n() - 4))) %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% grp5 & row_number() > (n() - 5))) %>% 
+  ungroup() %>% 
+  mutate(UNIQUE_SAMPLE_ID = str_sub(UNIQUE_SAMPLE_ID, end = -3))
 
 #--- making plot ---# 
 sample_names_list <- unique(ldh3$UNIQUE_SAMPLE_ID)
@@ -118,7 +150,7 @@ tables[["white.muscle_LCKM165_40"]]
 
 
 #--- Template - use for data analysis---#
-LDH_activity <- ldh3 %>% 
+LDH_activity <- ldh3.filtered %>% 
   group_by(UNIQUE_SAMPLE_ID, CUVETTE) %>% 
   do({
     mod = lm(result ~ MINUTES, data = .)
@@ -146,26 +178,30 @@ LDH_background <- ldh3 %>%
   }) %>%
   ungroup() %>%
   filter(CUVETTE == ("5")) %>% 
-  dplyr::rename(Background = Slope)
+  dplyr::rename(Background = Slope) %>% 
+  mutate(UNIQUE_SAMPLE_ID = str_sub(UNIQUE_SAMPLE_ID, end = -3))
 
 final_table <- LDH_activity %>% 
-  full_join(distinct(LDH_activity_means[,c(1,5)]), by = "UNIQUE_SAMPLE_ID") %>% 
+  full_join(distinct(LDH_activity_means[,c(1,6)]), by = "UNIQUE_SAMPLE_ID") %>% 
   full_join(LDH_background[,c(1,4)], by = "UNIQUE_SAMPLE_ID") 
 final_table$Mean[duplicated(final_table$Mean)] <- ""
 final_table$Background[duplicated(final_table$Background)] <- ""
 final_table <- final_table %>% 
   mutate(Mean = as.numeric(Mean), 
          Background = as.numeric(Background), 
-         Background_perc = Background/Mean)
+         Background_perc = Background/Mean) 
 
 
 ldh.data <- final_table %>% 
-  select(c(UNIQUE_SAMPLE_ID, Mean, Background)) %>% 
+  select(c(UNIQUE_SAMPLE_ID, Mean, Background, Background_perc)) %>% 
   mutate(Mean = as.numeric(Mean), 
-         Background = as.numeric(Background),
-         LDH_ABSORBANCE = Mean - Background) %>% 
+         Background = as.numeric(Background), 
+         Background_perc = as.numeric(Background_perc)) %>% 
+  mutate(Background2 = case_when(Background_perc <= 0.05 ~ 0, 
+                                    TRUE ~ Mean - Background), 
+         LDH_ABSORBANCE = Mean - Background2) %>%
   drop_na() %>% 
-  inner_join(select(ldh3, c(UNIQUE_SAMPLE_ID, REGION, POPULATION, temperature, fish_id)), by ="UNIQUE_SAMPLE_ID") %>% 
+  inner_join(select(ldh3.filtered, c(UNIQUE_SAMPLE_ID, REGION, POPULATION, temperature, fish_id)), by ="UNIQUE_SAMPLE_ID") %>% 
   inner_join(tissue.mass, by = "fish_id") %>% 
   mutate(TISSUE_MASS_CENTERED = scale(TISSUE_MASS, center = TRUE, scale = FALSE)) %>%
   distinct(UNIQUE_SAMPLE_ID, REGION, POPULATION, .keep_all = TRUE) %>% 
@@ -177,6 +213,11 @@ ldh.data <- final_table %>%
          SAMPLE_VOL = 0.025, 
          LDH_ACTIVITY = ((LDH_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))*-1)  
   #filter(LDH_ACTIVITY >= 0)
+
+#--- quailty check ---# 
+# use app to compelte quailty check 
+
+
   
 ggplot(ldh.data, aes(x =as.numeric(temperature), y= LDH_ACTIVITY, color = POPULATION)) + 
   geom_point() + geom_smooth(method = "lm", se=FALSE)
@@ -271,7 +312,7 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
                   position = position_dodge(0.2)) + 
   #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
   theme_classic() + ylab("LDH activity slope") + 
-  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
+  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
                      name = "Regions"); g2
 
 pdf("LDH.pdf", width= 7, height = 5)
