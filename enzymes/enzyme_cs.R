@@ -27,7 +27,6 @@ tissue.mass <- read.delim("C:/Users/jc527762/OneDrive - James Cook University/Ph
 
 
 cs2 <- cs %>%
-  clean_names() %>%
   mutate(muscle_type = str_replace(muscle_type, " ", ".")) %>%
   unite("UNIQUE_SAMPLE_ID", c(fish_id,temperature,sample_index), sep="_", remove = FALSE) %>% 
   separate(creation_time, into=c('DATE','TIME'), sep = " ", remove = FALSE) %>% 
@@ -39,23 +38,25 @@ cs3 <- cs2 %>%
   mutate(TIME = hms(cs2$TIME)) %>% 
   mutate(TIME = chron(times=cs2$TIME)) %>% 
   arrange(TIME) %>%
-  group_by(UNIQUE_SAMPLE_ID, `Sample ID 1`) %>% 
+  group_by(UNIQUE_SAMPLE_ID, sample_id_1) %>% 
   mutate(TIME_DIFF = TIME - first(TIME)) %>% 
   filter(TIME != first(TIME)) %>%
   ungroup() %>% 
   mutate(TIME_DIFF_SECS = period_to_seconds(hms(TIME_DIFF))) %>% 
   mutate(MINUTES = TIME_DIFF_SECS/60) %>% 
   mutate(MINUTES = round(MINUTES, digits = 2)) %>% 
-  dplyr::rename(CUVETTE = `Sample ID 1`) %>% 
-  mutate(REGION = substr(FISH_id, 1, 1 ), 
-         POPULATION = substr(FISH_ID, 2, 4), 
-         SAMPLE_NO = substr(FISH_ID, 5, 7)) %>% 
+  dplyr::rename(CUVETTE = sample_id_1) %>% 
+  mutate(REGION = substr(fish_id, 1, 1 ), 
+         POPULATION = substr(fish_id, 2, 4), 
+         SAMPLE_NO = substr(fish_id, 5, 7)) %>% 
   mutate(REGION = case_when( REGION =="L"~ "Leading", 
                              REGION == "C" ~ "Core", 
                              TRUE ~ "na")) 
 
 #---- filter out samples ---# 
 cs3.filtered <- cs3 %>% 
+  rename(TEMPERATURE = temperature, 
+         FISH_ID = fish_id) %>%
   filter(!(TEMPERATURE == "50" & FISH_ID == "LCKM158")) %>% 
   filter(!(TEMPERATURE == "50" & FISH_ID == "CSUD010")) %>% 
   filter(!(TEMPERATURE == "40" & FISH_ID == "CSUD018")) %>% 
@@ -73,7 +74,7 @@ cs3.filtered <- cs3 %>%
 CS_activity <- cs3.filtered %>% 
   group_by(UNIQUE_SAMPLE_ID, CUVETTE) %>% 
   do({
-    mod = lm(Result ~ MINUTES, data = .)
+    mod = lm(result ~ MINUTES, data = .)
     data.frame(Intercept = coef(mod)[1],
                Slope = coef(mod)[2], 
                r2 = summary(mod)$adj.r.squared)
@@ -81,8 +82,8 @@ CS_activity <- cs3.filtered %>%
   ungroup() %>%
   filter(CUVETTE != ("6"))%>% 
   filter(CUVETTE != ("4"))%>% 
-  filter(CUVETTE != ("5"))%>% 
-  mutate(UNIQUE_SAMPLE_ID = str_sub(UNIQUE_SAMPLE_ID, end = -3))
+  filter(CUVETTE != ("5"))#%>% 
+  #mutate(UNIQUE_SAMPLE_ID = str_sub(UNIQUE_SAMPLE_ID, end = -3))
 
 CS_activity_means <- CS_activity %>% 
   group_by(UNIQUE_SAMPLE_ID) %>% 
@@ -93,15 +94,15 @@ distinct(CS_activity_means[,c(1,5)])
 CS_background <- cs3.filtered %>% 
   group_by(UNIQUE_SAMPLE_ID, CUVETTE) %>% 
   do({
-    mod = lm(Result ~ MINUTES, data = .)
+    mod = lm(result ~ MINUTES, data = .)
     data.frame(Intercept = coef(mod)[1],
                Slope = coef(mod)[2], 
                r2 = summary(mod)$adj.r.squared)
   }) %>%
   ungroup() %>%
-  filter(CUVETTE == ("Cuvette_5")) %>% 
-  dplyr::rename(Background = Slope) %>% 
-  mutate(UNIQUE_SAMPLE_ID = str_sub(UNIQUE_SAMPLE_ID, end = -3))
+  filter(CUVETTE == ("5")) %>% 
+  dplyr::rename(Background = Slope) #%>% 
+  #mutate(UNIQUE_SAMPLE_ID = str_sub(UNIQUE_SAMPLE_ID, end = -2))
 
 final_table <- CS_activity %>% 
   full_join(distinct(CS_activity_means[,c(1,6)]), by = "UNIQUE_SAMPLE_ID") %>% 
@@ -133,7 +134,7 @@ CS.data <- final_table %>%
          TISSUE_CONCENTRATION = 0.2, 
          ASSAY_VOL = 930, 
          SAMPLE_VOL = 0.020, 
-         CS_ACTIVITY = ((CS_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL)))  
+         CS_ACTIVITY = ((CS_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))*-1)  
 #filter(LDH_ACTIVITY >= 0)
 
 #--- modelling data ---# 
@@ -192,7 +193,7 @@ cs.model.1 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERE
                       REML = TRUE) 
 
 #--- save model ---# 
-saveRDS(cs.model.1, "cs_model_2.RDS")
+saveRDS(cs.model.1, "cs_model_1.RDS")
 
 #--- model investigation ---# 
 cs.model.1 %>% check_model()
@@ -240,3 +241,30 @@ dev.off()
 jpeg("cs.jpeg", units="in", width=7, height=5, res=300) 
 print(g2)
 dev.off()
+
+#--- general relationship between LDH and temperature (all fish) ---#
+cs.data2 <- CS.data %>% 
+  mutate(temperature = as.numeric(temperature))
+cs.cmb <- glmmTMB(CS_ACTIVITY ~ 1 + temperature + TISSUE_MASS_CENTERED + (1|FISH_ID), 
+                   family=gaussian(), 
+                   data = cs.data2, 
+                   REML = TRUE)
+
+cs.cmb.2 <- glmmTMB(CS_ACTIVITY ~ 1 + poly(temperature, 2) + TISSUE_MASS_CENTERED + (1|FISH_ID), 
+                     family=gaussian(), 
+                     data = cs.data2, 
+                     REML = TRUE) 
+
+cs.cmb.3 <- glmmTMB(CS_ACTIVITY ~ 1 + poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|FISH_ID), 
+                     family=gaussian(), 
+                     data = cs.data2, 
+                     REML = TRUE) 
+
+AIC(cs.cmb, cs.cmb.2, cs.cmb.3, k=2)
+
+saveRDS(cs.cmb.3, "cs_cmb_3.RDS")
+
+summary(cs.cmb.3)
+cs.cmb.3 %>% check_model()
+cs.cmb.3 %>% emtrends(~ temperature, var = "temperature") %>% summary(infer = TRUE)
+cs.cmb.3 %>% performance::r2_nakagawa()

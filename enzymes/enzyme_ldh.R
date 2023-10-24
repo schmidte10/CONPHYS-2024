@@ -80,75 +80,6 @@ ldh3.filtered <- ldh3 %>%
   ungroup() %>% 
   mutate(UNIQUE_SAMPLE_ID = str_sub(UNIQUE_SAMPLE_ID, end = -3))
 
-#--- making plot ---# 
-sample_names_list <- unique(ldh3$UNIQUE_SAMPLE_ID)
-Plots <- list()
-for (i in sample_names_list) {
-  Plots[[i]] <- ldh3 %>% 
-    filter(UNIQUE_SAMPLE_ID == i) %>%
-    ggplot(aes(MINUTES, result)) + 
-    geom_point() +
-    facet_wrap(~CUVETTE) + 
-    geom_smooth(method = "lm") + 
-    theme_bw() + 
-    ggtitle(i) + 
-    stat_regline_equation(label.y = 0.7) + 
-    stat_cor(label.y = 0.6)
-  Plots[[i]] = Plots[[i]]
-}
-
-
-#--- making table - quick processing for app---# 
-tables <- list()
-
-for (i in sample_names_list) {
-  
-  LDH_activity <- ldh3 %>% 
-    filter(UNIQUE_SAMPLE_ID == i) %>%
-    group_by(UNIQUE_SAMPLE_ID, CUVETTE) %>% 
-    do({
-      mod = lm(result ~ MINUTES, data = .)
-      data.frame(Intercept = coef(mod)[1],
-                 Slope = coef(mod)[2])
-    }) %>%
-  ungroup() %>%
-  filter(CUVETTE != ("6"))%>% 
-  filter(CUVETTE != ("4"))%>% 
-  filter(CUVETTE != ("5"))
-  
-  LDH_activity_means <- LDH_activity %>% 
-    group_by(UNIQUE_SAMPLE_ID) %>% 
-    mutate(Mean = mean(Slope)) 
-  
-  distinct(LDH_activity_means[,c(1,5)]) 
-  
-  LDH_background <- ldh3 %>% 
-    filter(UNIQUE_SAMPLE_ID == i) %>%
-    group_by(UNIQUE_SAMPLE_ID, CUVETTE) %>% 
-    do({
-      mod = lm(result ~ MINUTES, data = .)
-      data.frame(Intercept = coef(mod)[1],
-                 Slope = coef(mod)[2])
-    }) %>%
-    ungroup() %>%
-    filter(CUVETTE == ("5")) %>% 
-    dplyr::rename(Background = Slope)
-  
-  final_table <- LDH_activity %>% 
-    full_join(distinct(LDH_activity_means[,c(1,5)]), by = "UNIQUE_SAMPLE_ID") %>% 
-    full_join(LDH_background[,c(1,4)], by = "UNIQUE_SAMPLE_ID")
-  final_table$Mean[duplicated(final_table$Mean)] <- ""
-  final_table$Background[duplicated(final_table$Background)] <- ""
-  tables[[i]] <- final_table 
-  
-  
-}
-
-
-tables[["white.muscle_LCKM165_40"]]
-
-
-
 #--- Template - use for data analysis---#
 LDH_activity <- ldh3.filtered %>% 
   group_by(UNIQUE_SAMPLE_ID, CUVETTE) %>% 
@@ -246,6 +177,7 @@ ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature,
                        REML = TRUE)  
 
 AIC(ldh.model.1, ldh.model.2, k=2)
+
 #--- models ---# 
 ldh.model.1 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|fish_id), 
                        family=gaussian(), 
@@ -271,7 +203,7 @@ ldh.model.3 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTE
 
 
 #--- Model comparison ---# 
-AIC(ldh.model.1, ldh.model.2, k=2)
+AIC(ldh.model.1, ldh.model.2, ldh.model.3, k=2)
 
 #--- save model ---# 
 saveRDS(ldh.model.2, "ldh_model_2.RDS")
