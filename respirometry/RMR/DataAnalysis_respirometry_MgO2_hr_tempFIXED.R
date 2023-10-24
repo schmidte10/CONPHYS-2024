@@ -211,14 +211,14 @@ rmr.3a %>% emmeans(~ TEMPERATURE*REGION)
 rmr.3a %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
 rmr.3a %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "REGION") %>% summary(infer=TRUE)
 #--- plot ---#
-newdata <- rmr.3a %>% 
+rmr.newdata <- rmr.3a %>% 
   ggemmeans(~TEMPERATURE|REGION) %>% 
   as.data.frame() %>% 
   dplyr::rename(TEMPERATURE = x)
 
-g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
+rmr.g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
   geom_point()+
-  theme_classic(); g1
+  theme_classic(); rmr.g1
 
 predict(rmr.3a, re.form=NA) 
 #data points based on month and situation - to get the group means
@@ -229,25 +229,18 @@ obs <-  resp3 %>%
          Resid = residuals(rmr.3a, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
-g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill = group)) + 
-  geom_line(method="lm", stat="smooth",
-            formula=y ~ poly(x, 3, raw=FALSE), 
-            aes(color = group), 
-            size = 1, 
-            alpha = 0.5)+
+rmr.g2 <- ggplot(rmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
   geom_pointrange(aes(ymin=conf.low, 
                       ymax=conf.high), 
-                  shape=21,
+                  shape=19,
                   size=1,
                   position=position_dodge(0.2)) + 
-  #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
-  theme_classic() + ylab("RESTING_MgO2.hr (RMR: MgO2/hr)")+
-  scale_fill_manual(values=c("#DA3b36", "#0D47A1"), 
-                    labels = c("Cairns (north)","Mackay (south)"), 
-                    name = "Regions")+ 
-  scale_color_manual(values=c("#DA3b36", "#0D47A1"), 
-                     labels = c("Cairns (north)","Mackay (south)"), 
-                     name = "Regions"); g2
+  #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
+  #scale_y_continuous(limits = c(11,18), breaks = seq(11, 18, by = 2)) +
+  theme_classic() + ylab("RESTING METABOLIC RATE (MMR: MgO2/hr)")+
+  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low","High"),
+                     name = "Latitude") + 
+  theme(legend.position = c(0.2,0.8)); rmr.g2
 
 pdf("rmr_3a.pdf")
 print(g2)

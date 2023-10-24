@@ -201,7 +201,7 @@ pha.glmm.gamma.b = readRDS(file = "./pha_gamma_b.RDS")
 pha.glmm.gamma.b %>% check_model() 
 pha.resid <-  pha.glmm.gamma.b %>% 
   DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-pha.glmm.gamma %>% DHARMa::testResiduals()
+pha.glmm.gamma.b %>% DHARMa::testResiduals()
 
 #--- partial plots ---# 
 pha.glmm.gamma.b %>% ggemmeans(~TEMPERATURE*REGION) %>% plot()
@@ -217,23 +217,23 @@ pha.glmm.gamma.b %>% emmeans("TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
 pha.glmm.gamma.b %>% emmeans(~ TEMPERATURE, type = "response") %>% summary(infer =TRUE)
 
 #--- plot ---# 
-newdata <- pha.glmm.gamma.b %>% ggemmeans(~TEMPERATURE|REGION) %>% 
+pha.newdata <- pha.glmm.gamma.b %>% ggemmeans(~TEMPERATURE|REGION) %>% 
   as.data.frame() %>% 
   dplyr::rename(TEMPERATURE = x) 
 
-g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
+pha.g1 <- ggplot(pha.newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
   geom_point() + 
   theme_classic(); g1
 
 # predict(pha.glmm.gamma, re.form=NA)
 # residuals(pha.glmm.gamma, type = "response") 
 
-obs <- pha2 %>% 
+pha.obs <- pha2 %>% 
   mutate(Pred = predict(pha.glmm.gamma.b, re.form=NA), 
          Resid = residuals(pha.glmm.gamma.b, type = 'response'), 
          Fit = Pred - Resid)
 
-g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
+pha.g2 <- ggplot(pha.newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
   geom_pointrange(aes(ymin=conf.low, 
                       ymax=conf.high), 
                   shape=19, 
@@ -241,8 +241,9 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
                   position = position_dodge(0.2)) + 
   scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
   theme_classic() + ylab("PHA Swelling response (mm)") + 
-  scale_color_manual(values=c("#DA3A36","#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
-                     name = "Regions"); g2
+  scale_color_manual(values=c("#DA3A36","#0D47A1"), labels = c("Low","High"),
+                     name = "Latitude") + 
+  theme(legend.position = c(0.8,0.8)); pha.g2
   #geom_signif( 
     #y_position = c(0.305+0.05, 0.55+0.05, 0.267+0.05, 0.125+0.05), 
     #xmin = c(0.8, 1.8, 2.8, 3.8), 
@@ -257,4 +258,10 @@ dev.off()
 
 jpeg("pha_figure.jpeg", units="in", width=7, height=5, res=300)
 print(g2)
+dev.off()
+
+pha.plot2 <- plot_grid(pha.g2); pha.plot2
+
+ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/figures/figure3.pdf", width = 18, height = 13, units = 'cm', dpi = 360)
+pha.plot2 
 dev.off()

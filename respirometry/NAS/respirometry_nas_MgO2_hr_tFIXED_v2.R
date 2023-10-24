@@ -92,6 +92,26 @@ save(resp4, file="./resp4.RData")
 
 #--- exploratory data analysis ---# 
 
+
+mass.distr <- resp4 %>% distinct(FISH_ID, .keep_all = TRUE) %>% 
+  ggplot(aes(x=MASS, y=REGION, fill=REGION)) + 
+  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low","High"),
+                    name = "Latitude") +
+  ylab("")+
+  geom_density_ridges(scale = 2, jittered_points=TRUE, position = position_points_jitter(height = 0),
+                      point_shape = '|', point_size = 3, point_alpha = 1, alpha = 0.7) + 
+  theme_classic() + 
+  theme(axis.title.y=element_blank(),
+               axis.text.y=element_blank(), 
+               axis.ticks.y=element_blank()) 
+
+pdf(file = "C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/supplemental_figures/Supplemental_figure3.pdf", 
+    width = 10, height=6)
+mass.distr
+dev.off()
+
+
+
 resp4 %>% ggplot(aes(x=TEMPERATURE, y=MgO2.hr_Net, fill = REGION)) + geom_boxplot() 
 resp4 %>% ggplot(aes(x=MgO2.hr_Net, fill=TEMPERATURE)) + geom_density(alpha = 0.5) + 
   facet_wrap(~TEMPERATURE)
@@ -187,13 +207,13 @@ nas.1b %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=T
 nas.1b %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
 nas.1b %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "REGION") %>% summary(infer=TRUE)
 #--- plot ---#
-newdata <- nas.1b %>% ggemmeans(~TEMPERATURE|REGION) %>%
+nas.newdata <- nas.1b %>% ggemmeans(~TEMPERATURE|REGION) %>%
   as.data.frame %>% 
   dplyr::rename(TEMPERATURE = x)
 
-g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
+nas.g1 <- ggplot(nas.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
   geom_point()+
-  theme_classic(); g1
+  theme_classic(); nas.g1
 
 predict(nas.1b, re.form=NA) 
 #data points based on month and situation - to get the group means
@@ -204,7 +224,8 @@ obs <-  resp4 %>%
          Resid = residuals(nas.1b, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
-g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) + 
+
+nas.g2 <- ggplot(nas.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) + 
   geom_pointrange(aes(ymin=conf.low, 
                       ymax=conf.high), 
                   shape=19,
@@ -214,7 +235,15 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
   theme_classic() + ylab("NET AEROBIC SCOPE (NAS: MgO2/hr)") +
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
-                     name = "Regions")#+ 
+                     name = "Regions") + 
+  theme(legend.position = "none") + 
+  geom_signif( 
+    y_position = c(12,11.5), 
+    xmin = c(2.75,3.75), 
+    xmax = c(3.15,4.15), 
+    annotations = c("**","*"), 
+    tip_length = 0, 
+    color = "black"); nas.g2#+ 
 #geom_signif(
 #y_position = c(4.11+1.5, 5.18+1.5,5.15+1.5,4.66+1.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
 # annotation = c("ns", "ns", "**\np =0.046", "ns"), tip_length = 0.025, color = "black"); g2
@@ -254,3 +283,16 @@ g2 <- ggplot(newdata, aes(y=predicted, x=as.numeric(TEMPERATURE), color=group)) 
 
 ggsave('mt_figure2.png',g2,bg='transparent', 
        width = 6, height = 3.2, units = "in", dpi=300, device = 'png')
+
+#--- final figure for paper ---# 
+resp.plot2 <- plot_grid(rmr.g2, mmr.g2, nas.g2, 
+                        ncol = 1, 
+                        align = "h", 
+                        axis="bt", 
+                        rel_widths = c(1,1,1), 
+                        labels = c("A","B","C")); resp.plot2
+
+ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/figures/figure2.pdf", width = 18, height = 32, units = 'cm', dpi = 360)
+resp.plot2 
+dev.off()
+

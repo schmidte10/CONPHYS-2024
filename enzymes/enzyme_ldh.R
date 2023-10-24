@@ -223,20 +223,16 @@ ldh.model.2 %>% performance::r2()
 ldh.model.2 %>% emmeans(~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(infer = TRUE) 
 ldh.model.2 %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer = TRUE) 
 #--- plot ---# 
-newdata <- ldh.model.2 %>% ggemmeans(~temperature|REGION) %>% 
+ldh.newdata <- ldh.model.2 %>% ggemmeans(~temperature|REGION) %>% 
   as.data.frame() %>% 
   rename(TEMPERATURE = x)
   
-g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
-  geom_point() + 
-  theme_classic(); g1
-
-obs <- ldh.data %>% 
+ldh.obs <- ldh.data %>% 
   mutate(Pred = predict(ldh.model.2, re.form=NA), 
          Resid = residuals(ldh.model.2, type = 'response'), 
          Fit = Pred - Resid)
 
-g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
+ldh2 <- ggplot(ldh.newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
   geom_pointrange(aes(ymin=conf.low, 
                       ymax=conf.high), 
                   shape=19, 
@@ -245,15 +241,19 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
   #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
   theme_classic() + ylab("LDH activity slope") + 
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
-                     name = "Regions"); g2
+                     name = "Regions") +
+  scale_y_continuous(limits=c(0,7), breaks = seq(0,6,1.5))+
+  theme(legend.position = 'none'); ldh2
 
 pdf("LDH.pdf", width= 7, height = 5)
-print(g2)
+print(ldh2)
 dev.off()
 
 jpeg("LDH.jpeg", units="in", width=7, height=5, res=300) 
-print(g2)
+print(ldh2)
 dev.off()
+
+save(ldh2, file="lda.plot.RData")
 
 #--- general relationship between LDH and temperature (all fish) ---#
 ldh.data2 <- ldh.data %>% 

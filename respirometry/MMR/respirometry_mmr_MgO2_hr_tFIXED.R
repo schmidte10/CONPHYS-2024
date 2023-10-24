@@ -171,13 +171,13 @@ mmr.1b %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summa
 mmr.1b %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "REGION") %>% summary(infer=TRUE)
 
 #--- plot ---#
-newdata <- mmr.1b %>% ggemmeans(~TEMPERATURE|REGION) %>%
+mmr.newdata <- mmr.1b %>% ggemmeans(~TEMPERATURE|REGION) %>%
   as.data.frame %>% 
   dplyr::rename(TEMPERATURE = x)
 
-g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
+mmr.g1 <- ggplot(mmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
   geom_point()+
-  theme_classic(); g1
+  theme_classic(); mmr.g1
 
 predict(mmr.1b, re.form=NA) 
 #data points based on month and situation - to get the group means
@@ -188,7 +188,7 @@ obs <-  resp4 %>%
          Resid = residuals(mmr.1b, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
-g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
+mmr.g2 <- ggplot(mmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
   geom_pointrange(aes(ymin=conf.low, 
                       ymax=conf.high), 
                   shape=19,
@@ -197,8 +197,15 @@ g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
   scale_y_continuous(limits = c(11,18), breaks = seq(11, 18, by = 2)) +
   theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR: MgO2/hr)")+
-  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"), 
-                     name = "Regions"); g2
+  scale_color_manual(values=c("#DA3A36", "#0D47A1")) + 
+  theme(legend.position = 'none')+ 
+  geom_signif( 
+    y_position = c(17.5,17.7), 
+    xmin = c(2.75,3.75), 
+    xmax = c(3.15,4.15), 
+    annotations = c("*","*"), 
+    tip_length = 0, 
+    color = "black"); mmr.g2
 #+ geom_signif(
   #y_position = c(13.91+0.5, 15.10+0.5,15.80+0.5,16.06+0.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
   #annotation = c("ns", "ns", "**\np =0.020", "**\np =0.010"), tip_length = 0.025, color = "black"); g2

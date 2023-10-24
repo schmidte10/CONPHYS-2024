@@ -11,6 +11,7 @@ library(performance)
 library(DHARMa)
 library(emmeans) 
 library(ggeffects)
+library(cowplot)
 #--- set working directory ---# 
 # uni computer
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/enzymes") 
@@ -224,16 +225,18 @@ obs <- CS.data %>%
          Resid = residuals(cs.model.2, type = 'response'), 
          Fit = Pred - Resid)
 
-g2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
+cs.plot2 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
   geom_pointrange(aes(ymin=conf.low, 
                       ymax=conf.high), 
                   shape=19, 
                   size=1, 
                   position = position_dodge(0.2)) + 
   #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
-  theme_classic() + ylab("cs activity slope") + 
-  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
-                     name = "Regions"); g2
+  theme_classic() + ylab("CS activity slope") + 
+  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low","High"),
+                     name = "Latitude") + 
+  scale_y_continuous(limits=c(-450,0), breaks = seq(-450,0,100))+
+  theme(legend.position = c(.8, .90)); cs.plot2
 
 pdf("cs.pdf", width= 7, height = 5)
 print(g2)
@@ -269,3 +272,11 @@ summary(cs.cmb.3)
 cs.cmb.3 %>% check_model()
 cs.cmb.3 %>% emtrends(~ temperature, var = "temperature") %>% summary(infer = TRUE)
 cs.cmb.3 %>% performance::r2_nakagawa()
+####### 
+load("./ldh.plot.RData")
+enzyme.plot <- ggarrange(ldh2, cs.plot2, labels = c("A","B")) ; enzyme.plot
+enzyme.plot2 <- plot_grid(ldh2, cs.plot2, align = "h", axis="bt", rel_widths = c(1,1.1), labels = c("A","B")); enzyme.plot2
+
+ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/figures/figure4.pdf", width = 20, height = 12, units = 'cm', dpi = 360)
+enzyme.plot2 
+dev.off()

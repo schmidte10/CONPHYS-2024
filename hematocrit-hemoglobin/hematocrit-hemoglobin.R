@@ -71,7 +71,7 @@ AIC(model.1, model.1a, model.1b, k=2)
 #--- save model ---# 
 saveRDS(model.1, "hema_model_1.RDS")
 # model 1 is the best 
-
+model.1 <- readRDS("./hema_model_1.RDS")
 #--- checking model performance ---#
 model.1 %>% check_model()
 model.1.reside <- model.1 %>% 
@@ -87,28 +87,42 @@ model.1 %>% r.squaredGLMM()
 model.1 %>% emmeans(~ REGION, type = "response") %>% pairs() %>% summary(infer=TRUE) 
 
 #--- plot ---# 
-newdata <-  model.1 %>% ggemmeans(~REGION) %>% 
+hema.newdata <-  model.1 %>% ggemmeans(~REGION) %>% 
   as.data.frame() %>% 
   dplyr::rename(REGION = x)
 
-plot1 <- ggplot(newdata, aes(y=predicted, x=REGION)) + 
+hema.plot1 <- ggplot(hema.newdata, aes(y=predicted, x=REGION)) + 
   geom_point() + 
-  theme_classic(); plot1
+  theme_classic(); hema.plot1
 
-obs <- hema %>% 
+obs <- hema %>% drop_na(MASS) %>%
   mutate(Pred = predict(model.1, re.form=NA), 
          Resid = residuals(model.1, type = "response"), 
          Fit = Pred + Resid)
  
-hematocrit.plot <- ggplot(newdata, aes(y=predicted, x=REGION)) + 
+hematocrit.plot <- ggplot(hema.newdata, aes(y=predicted, x=REGION, color=REGION))  + 
+  geom_jitter(data=obs, aes(y=Pred, x=REGION, color =REGION), 
+              width = 0.05, alpha=0.3)+
   geom_pointrange(aes(ymin=conf.low, 
                       ymax=conf.high), 
                   shape = 19, 
                   size = 1, 
                   position = position_dodge(0.2)) + 
-  ylab("Hematocrit Ratio") + xlab("Region") + 
-  theme_classic(); hematocrit.plot
+  scale_color_manual(values=c("#DA3A36","#0D47A1"), labels = c("Low","High"),
+                     name = "Latitude") +
+  ylab("Hematocrit Ratio") +
+  scale_x_discrete(name = "Latitude", 
+                   labels = c("Low","High"))+
+  theme_classic() + 
+  theme(legend.position = 'none'); hematocrit.plot
+
 
 pdf("hematocrit_plot.pdf", width = 7, height = 5)
 print(hematocrit.plot)
+dev.off()
+
+hema.plot2 <- plot_grid(hematocrit.plot); hema.plot2
+
+ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/supplemental_figures/Supplemental_figure4.pdf", width = 18, height = 13, units = 'cm', dpi = 360)
+hema.plot2 
 dev.off()
