@@ -196,7 +196,7 @@ mmr.g2 <- ggplot(mmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
                   position=position_dodge(0.2)) + 
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
   scale_y_continuous(limits = c(11,18), breaks = seq(11, 18, by = 2)) +
-  theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR: MgO2/hr)")+
+  theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR: MgO2/hr)")+ xlab("")+
   scale_color_manual(values=c("#DA3A36", "#0D47A1")) + 
   theme(legend.position = 'none')+ 
   geom_signif( 

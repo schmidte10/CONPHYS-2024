@@ -240,7 +240,7 @@ pha.g2 <- ggplot(pha.newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
                   size=1, 
                   position = position_dodge(0.2)) + 
   scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
-  theme_classic() + ylab("PHA Swelling response (mm)") + 
+  theme_classic() + ylab("PHA SWELLING RESPONSE (mm)") + 
   scale_color_manual(values=c("#DA3A36","#0D47A1"), labels = c("Low","High"),
                      name = "Latitude") + 
   theme(legend.position = c(0.8,0.8)); pha.g2

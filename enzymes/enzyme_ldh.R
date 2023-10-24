@@ -239,7 +239,7 @@ ldh2 <- ggplot(ldh.newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
                   size=1, 
                   position = position_dodge(0.2)) + 
   #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
-  theme_classic() + ylab("LDH activity slope") + 
+  theme_classic() + ylab("LDH ACTIVITY SLOPE") + 
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
                      name = "Regions") +
   scale_y_continuous(limits=c(0,7), breaks = seq(0,6,1.5))+

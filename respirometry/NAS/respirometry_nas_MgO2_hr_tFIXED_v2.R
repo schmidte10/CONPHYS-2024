@@ -233,7 +233,7 @@ nas.g2 <- ggplot(nas.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
                   position=position_dodge(0.2)) + 
   scale_y_continuous(limits = c(6,13), breaks = seq(6, 13, by = 2)) + 
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
-  theme_classic() + ylab("NET AEROBIC SCOPE (NAS: MgO2/hr)") +
+  theme_classic() + ylab("ABSOLUTE AEROBIC SCOPE (AAS: MgO2/hr)") +
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
                      name = "Regions") + 
   theme(legend.position = "none") + 
@@ -277,7 +277,7 @@ g2 <- ggplot(newdata, aes(y=predicted, x=as.numeric(TEMPERATURE), color=group)) 
         plot.background = element_rect(fill = "transparent",
                                        colour = NA_character_), 
         panel.grid.major = element_line(colour = "NA")) +
-  ylab("NET AEROBIC SCOPE (NAS: MgO2/hr)") +
+  ylab("Absolute AEROBIC SCOPE (AAS: MgO2/hr)") +
   scale_color_manual(values=c("#DA3A36", "#00FFFF"), labels = c("Cairns (north)","Mackay (south)"),
                      name = "Regions");g2
 

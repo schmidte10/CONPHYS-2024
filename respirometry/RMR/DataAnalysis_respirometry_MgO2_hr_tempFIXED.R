@@ -237,7 +237,7 @@ rmr.g2 <- ggplot(rmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
                   position=position_dodge(0.2)) + 
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
   #scale_y_continuous(limits = c(11,18), breaks = seq(11, 18, by = 2)) +
-  theme_classic() + ylab("RESTING METABOLIC RATE (MMR: MgO2/hr)")+
+  theme_classic() + ylab("RESTING METABOLIC RATE (MMR: MgO2/hr)")+ xlab("")+
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low","High"),
                      name = "Latitude") + 
   theme(legend.position = c(0.2,0.8)); rmr.g2
