@@ -164,7 +164,7 @@ cs.model.1 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERE
                        data = CS.data, 
                        REML = TRUE) 
 
-cs.model.2 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|POPULATION), 
+cs.model.2 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|POPULATION/FISH_ID), 
                        family=gaussian(), 
                        data = CS.data,
                        control=glmmTMBControl(optimizer=optim, 
@@ -178,6 +178,7 @@ cs.model.3 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERE
                                               optArgs = list(method='BFGS')), 
                        REML = TRUE)
 
++ (1|POPULATION/fish_id)
 
 #control=glmmTMBControl(optimizer=optim,
 #optArgs = list(method='BFGS')),
@@ -187,30 +188,30 @@ cs.model.3 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERE
 AIC(cs.model.1, cs.model.2, k=2)
 
 #---final model ---# 
-cs.model.1 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|FISH_ID), 
+cs.model.2 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|POPULATION/FISH_ID), 
                       family=gaussian(), 
                       data = CS.data, 
                       REML = TRUE) 
 
 #--- save model ---# 
-saveRDS(cs.model.1, "cs_model_1.RDS")
+saveRDS(cs.model.2, "cs_model_2.RDS")
 
 #--- model investigation ---# 
-cs.model.1 %>% check_model()
-cs.model.1 %>% simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-cs.model.1 %>% testResiduals()
+cs.model.2 %>% check_model()
+cs.model.2 %>% simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+cs.model.2 %>% testResiduals()
 
 #--- partial plots ---# 
-cs.model.1 %>% ggemmeans(~temperature*REGION) %>% plot()
-cs.model.1 %>% summary()
-cs.model.1 %>% confint()
-cs.model.1 %>% performance::r2()
+cs.model.2 %>% ggemmeans(~temperature*REGION) %>% plot()
+cs.model.2 %>% summary()
+cs.model.2 %>% confint()
+cs.model.2 %>% performance::r2()
 
 #--- results ---# 
-cs.model.1 %>% emmeans(~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(infer = TRUE) 
-cs.model.1 %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer = TRUE) 
+cs.model.2 %>% emmeans(~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(infer = TRUE) 
+cs.model.2 %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer = TRUE) 
 #--- plot ---# 
-newdata <- cs.model.1 %>% ggemmeans(~temperature|REGION) %>% 
+newdata <- cs.model.2 %>% ggemmeans(~temperature|REGION) %>% 
   as.data.frame() %>% 
   rename(TEMPERATURE = x)
 
