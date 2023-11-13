@@ -24,7 +24,7 @@ cs <- read_delim("CS_LocalAdapt6.txt",
   clean_names() %>% 
   mutate(creation_time = as.POSIXct(creation_time, format = "%d/%m/%Y %H:%M:%S"))
 tissue.mass <- read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/enzymes/tissue_mass.txt") %>% 
-  rename(FISH_ID = fish_id)
+  dplyr::rename(FISH_ID = fish_id)
 
 
 cs2 <- cs %>%
@@ -56,7 +56,7 @@ cs3 <- cs2 %>%
 
 #---- filter out samples ---# 
 cs3.filtered <- cs3 %>% 
-  rename(TEMPERATURE = temperature, 
+  dplyr::rename(TEMPERATURE = temperature, 
          FISH_ID = fish_id) %>%
   filter(!(TEMPERATURE == "50" & FISH_ID == "LCKM158")) %>% 
   filter(!(TEMPERATURE == "50" & FISH_ID == "CSUD010")) %>% 
@@ -132,8 +132,8 @@ CS.data <- final_table %>%
   mutate(temperature = factor(TEMPERATURE), 
          PATH_LENGTH = 1, 
          EXTINCTION_COEFFICIENT = 13.6, 
-         TISSUE_CONCENTRATION = 0.2, 
-         ASSAY_VOL = 930, 
+         TISSUE_CONCENTRATION = 0.01, 
+         ASSAY_VOL = 0.930, 
          SAMPLE_VOL = 0.020, 
          CS_ACTIVITY = ((CS_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))*-1)  
 #filter(LDH_ACTIVITY >= 0)

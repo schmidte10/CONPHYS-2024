@@ -96,7 +96,8 @@ LDH_activity <- ldh3.filtered %>%
 
 LDH_activity_means <- LDH_activity %>% 
   group_by(UNIQUE_SAMPLE_ID) %>% 
-  mutate(Mean = mean(Slope)) 
+  dplyr::mutate(Mean = mean(Slope)) %>% 
+  ungroup()
 
 distinct(LDH_activity_means[,c(1,5)]) 
 
@@ -139,7 +140,7 @@ ldh.data <- final_table %>%
   mutate(temperature = factor(temperature), 
          PATH_LENGTH = 1, 
          EXTINCTION_COEFFICIENT = 6.22, 
-         TISSUE_CONCENTRATION = 0.2, 
+         TISSUE_CONCENTRATION = 0.005, 
          ASSAY_VOL = 2.975, 
          SAMPLE_VOL = 0.025, 
          LDH_ACTIVITY = ((LDH_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))*-1)  

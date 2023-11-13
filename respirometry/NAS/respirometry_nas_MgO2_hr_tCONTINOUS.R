@@ -40,7 +40,7 @@ resp2 = resp %>%
   mutate(FISH_ID = factor(FISH_ID), 
          POPULATION = factor(POPULATION), 
          REGION = factor(REGION), 
-         TEMPERATURE = factor(TEMPERATURE),
+         TEMPERATURE = as.numeric(TEMPERATURE),
          RESTING_DATE = factor(RESTING_DATE), 
          RESTING_CHAMBER = factor(RESTING_CHAMBER), 
          RESTING_SYSTEM = factor(RESTING_SYSTEM), 
@@ -76,7 +76,7 @@ resp4 <- resp3 %>%
   subset(
     EXP_FISH_ID !="CSUD008_27" &  # poor swim
       EXP_FISH_ID !="CSUD008_30" &  # poor swim 
-      EXP_FISH_ID !="CSUD008_31.5" & # poor swim
+      EXP_FISH_ID !="CSUD008_28.5" & # poor swim
       EXP_FISH_ID !="CSUD026_30" & # max. value low 
       EXP_FISH_ID !="CSUD074_28.5" & # fas value low 
       EXP_FISH_ID !="CSUD079_30" &
@@ -102,8 +102,8 @@ mass.distr <- resp4 %>% distinct(FISH_ID, .keep_all = TRUE) %>%
                       point_shape = '|', point_size = 3, point_alpha = 1, alpha = 0.7) + 
   theme_classic() + 
   theme(axis.title.y=element_blank(),
-               axis.text.y=element_blank(), 
-               axis.ticks.y=element_blank()) 
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank()) 
 
 pdf(file = "C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/supplemental_figures/Supplemental_figure3.pdf", 
     width = 10, height=6)
@@ -155,26 +155,45 @@ nas.3 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE +  MAX_SUMP + MAX_CHAMBER
 
 AIC(nas.1, nas.2, nas.3, k=2)
 
+#---linear ---# 
+nas.1 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp4,
+                 REML = FALSE) 
+
+#--- second order polynomial ---# 
+nas.1.p2 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * poly(TEMPERATURE,2) + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp4,
+                 REML = FALSE) 
+
+#--- third order polynomial ---#
+nas.1.p3 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp4,
+                 REML = FALSE) 
+
+AICc(nas.1, nas.1.p2, nas.1.p3, k=2)
 #--- followed by inclusion of random variables
-nas.1a <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+nas.1a <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * poly(TEMPERATURE,2) + MASS_CENTERED + (1|FISH_ID), 
                   family=gaussian(),
                   data = resp4,
                   REML = TRUE) 
 
-nas.1b <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|POPULATION/FISH_ID), 
+nas.1b <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * poly(TEMPERATURE,2) + MASS_CENTERED + (1|POPULATION/FISH_ID), 
                   family=gaussian(),
                   data = resp4,
                   REML = TRUE)
 
-nas.1c <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (REGION|POPULATION), 
+nas.1c <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * poly(TEMPERATURE,2) + MASS_CENTERED + (1|FISH_ID) + (REGION|POPULATION), 
                   family=gaussian(),
                   data = resp4,
                   REML = TRUE)
 
-AIC( nas.1a, nas.1b, nas.1c, k=2)
+AICc( nas.1a, nas.1b, nas.1c, k=2)
 
 #--- Final model ---# 
-nas.1a <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+nas.1.p2 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * poly(TEMPERATURE,2) + MASS_CENTERED + (1|FISH_ID), 
                   family=gaussian(),
                   data = resp4,
                   REML = TRUE)
@@ -183,38 +202,32 @@ nas.1a <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FIS
 saveRDS(nas.1a, file = "nas_1a.RDS") 
 
 #--- load model ---# 
-nas.1a <- readRDS("nas_1a.RDS") 
+nas.1 <- readRDS("nas_1a.RDS") 
 
 #--- investigate model ---#
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
-check_model(nas.1b)
-pha.resid <-  nas.1b %>% 
+check_model(nas.1.p2)
+pha.resid <-  nas.1.p2 %>% 
   DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-nas.1b %>% DHARMa::testResiduals() 
+nas.1.p2 %>% DHARMa::testResiduals() 
 
 #sim <- simulateResiduals(nas.1a)
 #which(residuals(sim) == 1 | residuals(sim) == 0)
 
-nas.1b %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
-nas.1b %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-nas.1b %>% plot_model(type='est')
+nas.1.p2 %>% plot_model(type='eff',  terms=c('TEMPERATURE','REGION'), show.data=TRUE)
+nas.1.p2 %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+nas.1.p2 %>% plot_model(type='est')
 
-nas.1b %>% summary()
-nas.1b %>% Anova()
-nas.1b %>% confint()
-nas.1b  %>% performance::r2_nakagawa()
+nas.1.p2 %>% summary()
+nas.1.p2 %>% Anova()
+nas.1.p2 %>% confint()
+nas.1.p2  %>% performance::r2_nakagawa()
 
-nas.1b %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
-nas.1b %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE", simple = "each", combine = T) %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
-
-
-nas.1b %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "REGION") %>% summary(by = NULL, adjust = "tukey",infer=TRUE)
-
-emmeans(nas.1b, pairwise ~TEMPERATURE*REGION, adjust="sidak")
-
-
+nas.1.p2 %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
+nas.1.p2 %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+nas.1.p2 %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 #--- plot ---#
-nas.newdata <- nas.1b %>% ggemmeans(~TEMPERATURE|REGION) %>%
+nas.newdata <- nas.1.p2 %>% ggemmeans(~TEMPERATURE|REGION) %>%
   as.data.frame %>% 
   dplyr::rename(TEMPERATURE = x)
 
@@ -232,74 +245,77 @@ obs <-  resp4 %>%
          Fit = Pred + Resid)
 obs %>% head() 
 
-nas.g2 <- ggplot(nas.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) + 
-  geom_pointrange(aes(ymin=conf.low, 
-                      ymax=conf.high), 
-                  shape=19,
-                  size=1,
-                  position=position_dodge(0.2)) + 
+nas.1.p2.g2 <- ggplot(nas.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) + 
+  stat_smooth(method = "lm", 
+              formula =y ~ poly(x, 2, raw=TRUE)) + 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= conf.low, ymax= conf.high, fill = group), 
+              alpha = 0.4, color=NA)+
   scale_y_continuous(limits = c(6,13), breaks = seq(6, 13, by = 2)) + 
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
   theme_classic() + ylab("ABSOLUTE AEROBIC SCOPE (AAS: MgO2/hr)") +
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
                      name = "Regions") + 
-  theme(legend.position = "none") + 
-  geom_signif( 
-    y_position = c(12,11.5), 
-    xmin = c(2.75,3.75), 
-    xmax = c(3.15,4.15), 
-    annotations = c("**","*"), 
-    tip_length = 0, 
-    color = "black"); nas.g2#+ 
+  theme(legend.position = "none"); nas.1.p2.g2
+
+
+
 #geom_signif(
 #y_position = c(4.11+1.5, 5.18+1.5,5.15+1.5,4.66+1.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
 # annotation = c("ns", "ns", "**\np =0.046", "ns"), tip_length = 0.025, color = "black"); g2
 
-pdf("nas_1b.pdf", width = 7, height = 5)
-print(nas.g2)
+pdf("nas_1_p2.pdf", width = 7, height = 5)
+print(nas.1.p2.g2)
 dev.off()
 
-jpeg("nas_1b.jpeg", units="in", width=7, height=5, res=300) 
-print(nas.g2)
+jpeg("nas_1_p2.jpeg", units="in", width=7, height=5, res=300) 
+print(nas.1.p2.g2)
 dev.off()
 
-#--- figure for 3MT ---# 
-g2 <- ggplot(newdata, aes(y=predicted, x=as.numeric(TEMPERATURE), color=group)) + 
-  geom_point() + 
-  geom_smooth(method = 'lm', se=F, fill=NA, 
-              formula=y ~ poly(x, 3, raw=TRUE), linewidth = 2)+
-  xlab("TEMPERATURE") +
-  scale_y_continuous(limits = c(6,13), breaks = seq(6, 13, by = 2)) + 
-  scale_x_discrete(limits=c("27","28.5","30","31.5"))+
-  #scale_x_continuous(limits = c(26,32), breaks = seq(27,31.5, by =1.5))+
+#---mackay, core, cahuvel ---# 
+resp7 <- resp4 |> 
+  mutate(LOCATION = case_when(POPULATION == "Sudbury Reef" ~ "Core", 
+                              POPULATION == "Vlassof Cay" ~ "Core",
+                              POPULATION == "Tongue Reef" ~ "Core",
+                              POPULATION == "Cockermouth Island" ~ "Mackay (inshore)",
+                              POPULATION == "Keswick Island" ~ "Mackay (inshore)",
+                              POPULATION == "Chauvel Reef" ~ "Chauvel")) 
+
+nas.pop2 <- glmmTMB(MgO2.hr_Net ~ 1+ poly(TEMPERATURE, 2)*LOCATION + MASS_CENTERED + (1|FISH_ID), 
+                    family=gaussian(),
+                    data = resp7,
+                    REML = FALSE)
+
+nas.pop2 %>% summary()
+nas.pop2 %>% Anova()
+nas.pop2 %>% confint()
+nas.pop2  %>% performance::r2_nakagawa()
+
+nas.pop2 %>% emmeans(~ TEMPERATURE*LOCATION, type = "response")  %>% summary(infer=TRUE)
+nas.pop2 %>% emmeans(pairwise ~ TEMPERATURE*LOCATION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+nas.pop2 %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+
+
+nas.pop2 %>% plot_model(type='eff',  terms=c('TEMPERATURE','LOCATION'), show.data=TRUE)
+nas.pop2 %>% ggemmeans(~TEMPERATURE|LOCATION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+nas.pop2 %>% plot_model(type='est')
+
+nas.newdata <- nas.pop2 %>% ggemmeans(~TEMPERATURE|LOCATION) %>%
+  as.data.frame %>% 
+  dplyr::rename(TEMPERATURE = x)
+
+nas.g1 <- ggplot(nas.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
+  geom_point()+
+  theme_classic(); nas.g1
+
+nas.1.p2.g2_location <- ggplot(nas.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) + 
+  stat_smooth(method = "lm", SE=FALSE,
+              formula =y ~ poly(x, 2, raw=TRUE)) + 
+  #geom_ribbon(aes(x=TEMPERATURE, ymin= conf.low, ymax= conf.high, fill = group), 
+              #alpha = 0.4, color=NA)+
+  #scale_y_continuous(limits = c(6,13), breaks = seq(6, 13, by = 2)) + 
   #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
-  theme_classic() + 
-  theme(axis.title.x=element_text(colour="white"), 
-        axis.title.y=element_text(colour="white"), 
-        axis.text = element_text(color="white"), 
-        axis.line = element_line(color="white"), 
-        axis.ticks = element_line(color="white"), 
-        panel.background = element_rect(fill = "transparent", 
-                                        color = NA_character_),
-        plot.background = element_rect(fill = "transparent",
-                                       colour = NA_character_), 
-        panel.grid.major = element_line(colour = "NA")) +
-  ylab("Absolute AEROBIC SCOPE (AAS: MgO2/hr)") +
-  scale_color_manual(values=c("#DA3A36", "#00FFFF"), labels = c("Cairns (north)","Mackay (south)"),
-                     name = "Regions");g2
-
-ggsave('mt_figure2.png',g2,bg='transparent', 
-       width = 6, height = 3.2, units = "in", dpi=300, device = 'png')
-
-#--- final figure for paper ---# 
-resp.plot2 <- plot_grid(rmr.g2, mmr.g2, nas.g2, 
-                        ncol = 1, 
-                        align = "h", 
-                        axis="bt", 
-                        rel_widths = c(1,1,1), 
-                        labels = c("A","B","C")); resp.plot2
-
-ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/figures/figure2.pdf", width = 18, height = 32, units = 'cm', dpi = 360)
-resp.plot2 
-dev.off()
-
+  theme_classic() + ylab("ABSOLUTE AEROBIC SCOPE (AAS: MgO2/hr)") +
+  scale_color_manual(values=c("#DA3A36",  "orange","#0D47A1"), labels = c("Cairns (north)","Mackay (Inshore)", "Mackay (Outshore)"),
+                     name = "Regions") +
+  scale_fill_manual(values=c("#DA3A36",  "orange", "#0D47A1"))+
+  theme(legend.position = "none"); nas.1.p2.g2_location
