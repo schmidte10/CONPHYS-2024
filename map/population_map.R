@@ -168,11 +168,11 @@ mt_figure <- ggplot() +
                                        colour = NA_character_), 
         panel.grid.major = element_line(colour = "NA")) + 
   geom_point(data = myreefs.core, aes(x = X_COORD, y = Y_COORD), size = 3, 
-             shape = 21, fill = "#DA3A36")+ 
+             shape = 21,fill = "#26CDD1" )+ 
   geom_point(data = myreefs.leading, aes(x = X_COORD, y = Y_COORD), size = 3, 
-             shape = 21, fill = "#00FFFF") + 
-  geom_rect(aes(xmin=145, xmax=147, ymin=-17.5, ymax=-16),fill="transparent", linetype = "dotted", color="#DA3A36") + 
-  geom_rect(aes(xmin=148.5, xmax=151, ymin=-21.7, ymax=-20.2),fill="transparent", linetype = "dotted", color="#00FFFF") + 
+             shape = 21, fill = "#FEC162") + 
+  geom_rect(aes(xmin=145, xmax=147, ymin=-17.5, ymax=-16),fill="transparent", linetype = "dotted", color="#26CDD1") + 
+  geom_rect(aes(xmin=148.5, xmax=151, ymin=-21.7, ymax=-20.2),fill="transparent", linetype = "dotted", color="#FEC162") + 
   #annotate("text", x = 149.3, y = -17.5, label = "Coral \nSea", size = 7, fontface = "italic", color = "black", alpha = 0.3) + 
   annotate("text", x = 144.8, y = -21, label = "AUSTRALIA", size = 9, fontface = "italic", color = "black", alpha = 0.3) 
   #annotate("text", x = 146, y = -19.2589, label = "Townsville", fontface = "italic", size = 4) + 
@@ -180,6 +180,6 @@ mt_figure <- ggplot() +
  # annotate("text", x = 148.3, y = -21.15345, label = "Mackay", fontface = "italic", size = 4);mt_figure 
 
 
-ggsave('mt_figure.png',mt_figure,bg='transparent', 
+ggsave('mt_figure2.png',mt_figure,bg='transparent', 
        width = 8, height = 10, units = "in", dpi=300, device = 'png')
 

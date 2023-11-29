@@ -19,13 +19,10 @@ library(emmeans)
 library(ggeffects)
 library(vtable)
 #--- set working directory ---#
-setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/")
 # uni computer
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation")
 #--- load data ---# 
 resp <- read.delim("./import_files/SummaryData_2022_resp_updated.txt")
-# personal computer
-setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/RMR/")
 # uni computer
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/respirometry/RMR/")
 
@@ -161,29 +158,37 @@ rmr.3 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED
                  REML = FALSE)
 
 AIC(rmr.1, rmr.2, rmr.3, k=2)
-#followed by random effects
-rmr.3 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
+
+#--- polynomials ---# 
+rmr.3.p2 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
                  family=gaussian(),
                  data = resp3,
-                 REML = TRUE) 
+                 REML = FALSE) 
 
-rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
+rmr.3.p3 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
+                 family=gaussian(),
+                 data = resp3,
+                 REML = FALSE)
+
+AIC(rmr.3, rmr.3.p2, rmr.3.p3, k=2)
+#followed by random effects
+rmr.3.p2a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
                   family=gaussian(),
                   data = resp3,
                   REML = TRUE) 
 
 
-rmr.3b <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|POPULATION/FISH_ID), 
+rmr.3.p2b <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|POPULATION/FISH_ID), 
                   family=gaussian(),
                   data = resp3,
                   REML = TRUE)
 
-rmr.3c <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID) + (1|POPULATION), 
+rmr.3.p2c <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID) + (1|POPULATION), 
                   family=gaussian(),
                   data = resp3,
                   REML = TRUE)
 
-AIC(rmr.3, rmr.3a, rmr.3b, rmr.3c,  k=2)
+AIC(rmr.3.p2, rmr.3.p2a, rmr.3.p2b, rmr.3.p2c,  k=2)
 
 #--- Final model ---# 
 rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
@@ -192,55 +197,84 @@ rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERE
                   REML = TRUE)
 
 #--- saving model ---#
-saveRDS(rmr.3a, file = "rmr_3a.RDS") 
+saveRDS(rmr.3.p2a, file = "rmr_3_p2a.RDS") 
 
 
 #--- load model ---#
-rmr.3a <- readRDS("rmr_3a.RDS")
+rmr.3.p2 <- readRDS("rmr_3_p2a.RDS")
 
 #--- investigate model ---#
+check_model(rmr.3.p2)
+pha.resid <-  rmr.3.p2 %>% 
+  DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+rmr.3.p2a %>% DHARMa::testResiduals() 
 
-rmr.3a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-rmr.3a %>% plot_model(type='est')
+rmr.3.p2a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+rmr.3.p2a %>% plot_model(type='est')
 
-rmr.3a %>% summary()
-rmr.3a %>% confint()
-rmr.3a  %>% performance::r2_nakagawa()
+rmr.3.p2a %>% summary()
+rmr.3.p2a %>% Anova()
+rmr.3.p2a %>% confint()
+rmr.3.p2a %>% performance::r2_nakagawa()
 
-rmr.3a %>% emmeans(~ TEMPERATURE*REGION)
-rmr.3a %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
-rmr.3a %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "REGION") %>% summary(infer=TRUE)
+rmr.3.p2a %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
+rmr.3.p2a %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+rmr.3.p2a %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 #--- plot ---#
-rmr.newdata <- rmr.3a %>% 
-  ggemmeans(~TEMPERATURE|REGION) %>% 
-  as.data.frame() %>% 
+rmr.emm <- emmeans(rmr.3.p2a, ~ TEMPERATURE*REGION, 
+                  at = list(TEMPERATURE = seq(from=27, to = 31.5, by=.1)))
+rmr.emm.df=as.data.frame(rmr.emm)
+
+rmr.newdata <- rmr.3.p2a %>% 
+  ggemmeans(terms = c("TEMPERATURE[all]","REGION")) %>%
+  as.data.frame %>% 
   dplyr::rename(TEMPERATURE = x)
 
-rmr.g1 <- ggplot(newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
-  geom_point()+
+rmr.g1 <- ggplot(rmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
+  geom_pointrange(aes(ymin=conf.low, ymax=conf.high), shape=21,
+                  position=position_dodge(0.2))+
   theme_classic(); rmr.g1
 
 predict(rmr.3a, re.form=NA) 
 #data points based on month and situation - to get the group means
 residuals(rmr.3a, type='response') 
 #data points based on month/situation/random effects - to get the data points
-obs <-  resp3 %>% 
-  mutate(Pred=predict(rmr.3a, re.form=NA),
-         Resid = residuals(rmr.3a, type='response'),
+rmr.obs <-  resp3 %>% 
+  mutate(Pred=predict(rmr.3.p2a, re.form=NA),
+         Resid = residuals(rmr.3.p2a, type='response'),
          Fit = Pred + Resid)
-obs %>% head() 
+
 rmr.g2 <- ggplot(rmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
-  geom_pointrange(aes(ymin=conf.low, 
-                      ymax=conf.high), 
-                  shape=19,
-                  size=1,
-                  position=position_dodge(0.2)) + 
-  #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
-  #scale_y_continuous(limits = c(11,18), breaks = seq(11, 18, by = 2)) +
+  geom_jitter(data=rmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  stat_smooth(method = "lm", 
+              formula =y ~ poly(x, 2, raw=TRUE)) + 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= conf.low, ymax= conf.high, fill = group), 
+              alpha = 0.2, color=NA)+ 
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
+  scale_y_continuous(limits = c(2,12), breaks = seq(2, 12, by = 2)) +
   theme_classic() + ylab("RESTING METABOLIC RATE (MMR: MgO2/hr)")+ xlab("")+
-  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low","High"),
-                     name = "Latitude") + 
-  theme(legend.position = c(0.2,0.8)); rmr.g2
+  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+                     name = "Regions") +
+  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+                    name = "Regions") + 
+  theme(legend.position = "top") + 
+  annotate("text", x=31, y= 11.5, label="P =0.62", fontface="italic", size=4); rmr.g2
+
+rmr.g2 <- ggplot(rmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION))+
+  geom_jitter(data=rmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  stat_smooth(method = "lm", 
+              formula =y ~ poly(x, 2, raw=TRUE)) + 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA)+ 
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
+  scale_y_continuous(limits = c(2,12), breaks = seq(2, 12, by = 2)) +
+  theme_classic() + ylab("RESTING METABOLIC RATE (MMR: MgO2/hr)")+ xlab("")+
+  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+                     name = "Regions") +
+  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+                    name = "Regions") + 
+  theme(legend.position = "top") + 
+  annotate("text", x=31, y= 11.5, label="P =0.62", fontface="italic", size=4); rmr.g2
 
 pdf("rmr_3a.pdf")
 print(g2)

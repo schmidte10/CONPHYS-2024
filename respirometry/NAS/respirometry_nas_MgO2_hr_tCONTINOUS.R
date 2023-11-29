@@ -21,14 +21,10 @@ library(ggeffects)
 library(moments)
 library(ggsignif)
 #--- set working directory ---#
-# personal computer
-setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/")
 # uni computer
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/import_files/")
 #--- load data ---# 
 resp <- read.delim("./SummaryData_2022_resp_updated.txt")
-# personal computer
-setwd("C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/respirometry/NAS/")
 # uni computer
 setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/respirometry/NAS")
 
@@ -199,10 +195,10 @@ nas.1.p2 <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * poly(TEMPERATURE,2) + MASS_CENTERE
                   REML = TRUE)
 
 #--- saving model ---#
-saveRDS(nas.1a, file = "nas_1a.RDS") 
+saveRDS(nas.1.p2, file = "nas_1_p2.RDS") 
 
 #--- load model ---# 
-nas.1 <- readRDS("nas_1a.RDS") 
+nas.1.p2 <- readRDS("./nas_1_p2.RDS") 
 
 #--- investigate model ---#
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
@@ -227,37 +223,61 @@ nas.1.p2 %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer
 nas.1.p2 %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 nas.1.p2 %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 #--- plot ---#
-nas.newdata <- nas.1.p2 %>% ggemmeans(~TEMPERATURE|REGION) %>%
+nas.emm <- emmeans(nas.1.p2, ~ TEMPERATURE*REGION, 
+                  at = list(TEMPERATURE = seq(from=27, to = 31.5, by=.1)))
+nas.emm.df=as.data.frame(nas.emm)
+
+nas.newdata <- nas.1.p2 %>% ggemmeans(terms = c("TEMPERATURE[all]","REGION")) %>%
   as.data.frame %>% 
   dplyr::rename(TEMPERATURE = x)
 
 nas.g1 <- ggplot(nas.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
-  geom_point()+
+  geom_pointrange(aes(ymin=conf.low, ymax=conf.high), shape=21,
+                  position=position_dodge(0.2))+
   theme_classic(); nas.g1
 
 predict(nas.1b, re.form=NA) 
 #data points based on month and situation - to get the group means
 residuals(nas.1b, type='response')
 #data points based on month/situation/random effects - to get the data points
-obs <-  resp4 %>% 
-  mutate(Pred=predict(nas.1b, re.form=NA),
-         Resid = residuals(nas.1b, type='response'),
+
+nas.obs <-  resp4 %>% 
+  mutate(Pred=predict(nas.1.p2, re.form=NA),
+         Resid = residuals(nas.1.p2, type='response'),
          Fit = Pred + Resid)
-obs %>% head() 
+
 
 nas.1.p2.g2 <- ggplot(nas.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) + 
+  geom_jitter(data=nas.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
   stat_smooth(method = "lm", 
               formula =y ~ poly(x, 2, raw=TRUE)) + 
   geom_ribbon(aes(x=TEMPERATURE, ymin= conf.low, ymax= conf.high, fill = group), 
-              alpha = 0.4, color=NA)+
-  scale_y_continuous(limits = c(6,13), breaks = seq(6, 13, by = 2)) + 
-  #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
+              alpha = 0.2, color=NA)+
+  scale_y_continuous(limits = c(4,20), breaks = seq(4, 20, by = 2)) + 
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
   theme_classic() + ylab("ABSOLUTE AEROBIC SCOPE (AAS: MgO2/hr)") +
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
+                     name = "Regions") +
+  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
                      name = "Regions") + 
-  theme(legend.position = "none"); nas.1.p2.g2
+  theme(legend.position = "none") + 
+  annotate("text", x=31, y= 19, label="P =0.0039", fontface="italic", size=4); nas.1.p2.g2
 
-
+nas.1.p2.g2 <- ggplot(nas.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION)) + 
+  geom_jitter(data=nas.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  stat_smooth(method = "lm", 
+              formula =y ~ poly(x, 2, raw=TRUE)) + 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA)+
+  scale_y_continuous(limits = c(4,20), breaks = seq(4, 20, by = 2)) + 
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
+  theme_classic() + ylab("ABSOLUTE AEROBIC SCOPE (AAS: MgO2/hr)") +
+  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
+                     name = "Regions") +
+  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Cairns (north)","Mackay (south)"),
+                    name = "Regions") + 
+  theme(legend.position = "none") + 
+  annotate("text", x=31, y= 19, label="P =0.0039", fontface="italic", size=4); nas.1.p2.g2
 
 #geom_signif(
 #y_position = c(4.11+1.5, 5.18+1.5,5.15+1.5,4.66+1.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
@@ -270,6 +290,29 @@ dev.off()
 jpeg("nas_1_p2.jpeg", units="in", width=7, height=5, res=300) 
 print(nas.1.p2.g2)
 dev.off()
+
+
+#--- figure 2 ---# 
+ resp.plot <- ggarrange(rmr.g2, mmr.g2, nas.1.p2.g2, labels =c("A", "B", "C")); resp.plot 
+ resp.plot2 <- plot_grid(rmr.g2, mmr.g2, nas.1.p2.g2, nrow=3, align = "h", axis="bt", rel_widths = c(1,1,1), labels=c("A","B","C")); resp.plot2
+
+ ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/figures/figure2.pdf", width = 12, height = 29, units = 'cm', dpi = 360)
+ resp.plot2
+ dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #---mackay, core, cahuvel ---# 
 resp7 <- resp4 |> 

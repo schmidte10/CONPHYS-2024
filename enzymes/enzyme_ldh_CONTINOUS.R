@@ -13,7 +13,7 @@ library(emmeans)
 library(ggeffects)
 #--- set working directory ---# 
 # uni computer
-setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/enzymes") 
+setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/enzymes/") 
 
 #--- import data ---# 
 ldh <- read_delim("LDH_LocalAdapt.txt", delim = "\t", 
@@ -137,8 +137,7 @@ ldh.data <- final_table %>%
   inner_join(tissue.mass, by = "fish_id") %>% 
   mutate(TISSUE_MASS_CENTERED = scale(TISSUE_MASS, center = TRUE, scale = FALSE)) %>%
   distinct(UNIQUE_SAMPLE_ID, REGION, POPULATION, .keep_all = TRUE) %>% 
-  mutate(temperature = factor(temperature), 
-         PATH_LENGTH = 1, 
+  mutate(PATH_LENGTH = 1, 
          EXTINCTION_COEFFICIENT = 6.22, 
          TISSUE_CONCENTRATION = 0.005, 
          ASSAY_VOL = 2.975, 
@@ -179,24 +178,32 @@ ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature,
 
 AIC(ldh.model.1, ldh.model.2, k=2)
 
+#--- polynomial models ---# 
+ldh.model.1.p2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 2) + TISSUE_MASS_CENTERED, 
+                       family=gaussian(), 
+                       data = ldh.data, 
+                       REML = TRUE)  
+
+ldh.model.1.p3 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED, 
+                          family=gaussian(), 
+                          data = ldh.data, 
+                          REML = TRUE)  
+
+AIC(ldh.model.1, ldh.model.1.p2, ldh.model.1.p3, k=2)
 #--- models ---# 
-ldh.model.1 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|fish_id), 
+ldh.model.1.p3 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id), 
                        family=gaussian(), 
                        data = ldh.data, 
                        REML = TRUE) 
 
-ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
+ldh.model.2.p3 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
                   family=gaussian(), 
-                  data = ldh.data,
-                  control=glmmTMBControl(optimizer=optim, 
-                                         optArgs = list(method='BFGS')), 
+                  data = ldh.data, 
                   REML = TRUE) 
 
-ldh.model.3 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
+ldh.model.3.p3 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
                        family=gaussian(), 
-                       data = ldh.data,
-                       control=glmmTMBControl(optimizer=optim, 
-                                              optArgs = list(method='BFGS')), 
+                       data = ldh.data, 
                        REML = TRUE)
 
 #control=glmmTMBControl(optimizer=optim,
@@ -204,56 +211,81 @@ ldh.model.3 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTE
 
 
 #--- Model comparison ---# 
-AIC(ldh.model.1, ldh.model.2, ldh.model.3, k=2)
+AIC(ldh.model.1.p3, ldh.model.2.p3, ldh.model.3.p3, k=2)
 
 #--- save model ---# 
-saveRDS(ldh.model.2, "ldh_model_2.RDS")
-
+saveRDS(ldh.model.1.p3, "ldh_model_1_p3.RDS")
+ldh.model.1.p3<- readRDS("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/enzymes/ldh_model_1_p3.RDS")
 #--- model investigation ---# 
-ldh.model.2 %>% check_model()
-ldh.model.2 %>% simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-ldh.model.2 %>% testResiduals()
+ldh.model.1.p3 %>% check_model()
+ldh.model.1.p3 %>% simulateResiduals(plot = TRUE, integerResponse = TRUE) 
+ldh.model.1.p3 %>% testResiduals()
 
 #--- partial plots ---# 
-ldh.model.2 %>% ggemmeans(~temperature*REGION) %>% plot()
-ldh.model.2 %>% summary()
-;dh.model.2 %>% Anova()
-ldh.model.2 %>% confint()
-ldh.model.2 %>% performance::r2()
+ldh.model.1.p3 %>% ggemmeans(~temperature*REGION) %>% plot()
+ldh.model.1.p3 %>% summary()
+ldh.model.1.p3 %>% Anova()
+ldh.model.1.p3 %>% confint()
+ldh.model.1.p3 %>% performance::r2()
 
 #--- results ---# 
-ldh.model.2 %>% emmeans(~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(infer = TRUE) 
-ldh.model.2 %>% emmeans(~ temperature*REGION, type = "response") %>% pairs(by = "REGIONS") %>% summary(infer = TRUE) 
-ldh.model.2 %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer = TRUE) 
+ldh.model.1.p3 %>% emmeans(~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(infer = TRUE) 
+ldh.model.1.p3 %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer = TRUE) 
+
+ldh.model.1.p3 %>% emtrends(var = "temperature", type = "response") %>% pairs(by = "temperature") %>% summary(infer = TRUE) 
 #--- plot ---# 
-ldh.newdata <- ldh.model.2 %>% ggemmeans(~temperature|REGION) %>% 
+ldh.emm <- emmeans(ldh.model.1.p3, ~ temperature*REGION, 
+                   at = list(temperature = seq(from=20, to = 50, by=1)))
+ldh.emm.df=as.data.frame(ldh.emm)
+
+ldh.newdata <- ldh.model.1.p3 %>% ggemmeans(~temperature|REGION) %>% 
   as.data.frame() %>% 
-  rename(TEMPERATURE = x)
+  dplyr::rename(TEMPERATURE = x)
   
 ldh.obs <- ldh.data %>% 
-  mutate(Pred = predict(ldh.model.2, re.form=NA), 
-         Resid = residuals(ldh.model.2, type = 'response'), 
+  mutate(Pred = predict(ldh.model.1.p3, re.form=NA), 
+         Resid = residuals(ldh.model.1.p3, type = 'response'), 
          Fit = Pred - Resid)
 
-ldh2 <- ggplot(ldh.newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
-  geom_pointrange(aes(ymin=conf.low, 
-                      ymax=conf.high), 
-                  shape=19, 
-                  size=1, 
-                  position = position_dodge(0.2)) + 
+cldh2 <- ggplot(ldh.newdata, aes(y=predicted, x=TEMPERATURE, color=group, fill=group)) + 
+  stat_smooth(method = "lm", se=TRUE, 
+              formula =y ~ poly(x, 3, raw=TRUE)) + 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= conf.low, ymax= conf.high, fill = group), 
+              alpha = 0.2, color=NA) +
   #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
-  theme_classic() + ylab("LDH ACTIVITY SLOPE") + 
+  theme_classic() + ylab("LDH ACTIVITY SLOPE") + xlab("TEMPERATURE") +
   scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
                      name = "Regions") +
-  scale_y_continuous(limits=c(0,7), breaks = seq(0,6,1.5))+
-  theme(legend.position = 'none'); ldh2
+  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+                    name = "Regions")+
+  #scale_y_continuous(limits=c(0,7), breaks = seq(0,6,1.5))+
+  theme(legend.position = 'none') + 
+  annotate("text", x=45, y=-50, label="p =0.85", fontface = 'italic', size = 6); cldh2
 
-pdf("LDH.pdf", width= 7, height = 5)
-print(ldh2)
+
+
+
+cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGION)) + 
+  stat_smooth(method = "lm", se=TRUE, 
+              formula =y ~ poly(x, 3, raw=TRUE)) + 
+  geom_ribbon(aes(x=temperature, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA) +
+  scale_y_continuous(limits = c(0,250), breaks = seq(0, 250, by =50)) + 
+  theme_classic() + ylab("LDH ACTIVITY SLOPE") + xlab("TEMPERATURE") +
+  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+                     name = "Regions") +
+  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+                    name = "Regions")+
+  #scale_y_continuous(limits=c(0,7), breaks = seq(0,6,1.5))+
+  theme(legend.position = 'none') + 
+  annotate("text", x=25, y=240, label="p =0.85", fontface = 'italic', size = 6); cldh2
+
+pdf("cLDH.pdf", width= 7, height = 5)
+print(cldh2)
 dev.off()
 
-jpeg("LDH.jpeg", units="in", width=7, height=5, res=300) 
-print(ldh2)
+jpeg("cLDH.jpeg", units="in", width=7, height=5, res=300) 
+print(cldh2)
 dev.off()
 
 save(ldh2, file="lda.plot.RData")

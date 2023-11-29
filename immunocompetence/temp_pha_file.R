@@ -44,7 +44,7 @@ pha2 <- pha %>%
   separate(col = PHA, 
            into = c('TEST','TEMPERATURE'), sep = '_') %>% 
   filter(IMMUNE_RESPONSE >= 0.01) %>% # removing negative values greater than -0.05
-  mutate(TEMPERATURE = factor(TEMPERATURE))
+  mutate(TEMPERATURE = as.numeric(TEMPERATURE))
 
 #--- initial look at data ---# 
 
@@ -112,7 +112,7 @@ plot(pha3$TEMPERATURE, resid(pha.model))
 plot(pha3$REGION, resid(pha.model))
 
 #--- model validation to elminate heterogenity ---# 
-pha.modelb <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+pha.modelb <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + (1|FISH_ID), 
                       family=gaussian(), 
                       data = pha2,
                       dispformula = ~TEMPERATURE,
@@ -133,6 +133,7 @@ pha.model.gamma <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CEN
                      family=Gamma(link="log"), 
                      data = pha2, 
                      REML = TRUE) 
+AIC(pha.modelb,pha.modelc, pha.model.gamma)
 
 pha.model.gamma %>% check_model() 
 pha.resid <-  pha.model.gamma %>% 
@@ -170,7 +171,18 @@ pha.model.gamma %>% confint()
 pha.model.gamma %>% performance::r2()
 pha.model.gamma %>% performance::r2_nakagawa()
 
+#--- polynomiL ---# 
+pha.glmm.gamma.p2 <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|FISH_ID), 
+                          family=Gamma('log'), 
+                          data = pha2, 
+                          REML = TRUE) 
 
+pha.glmm.gamma.p3 <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + (1|FISH_ID), 
+                           family=Gamma('log'), 
+                           data = pha2, 
+                           REML = TRUE)  
+
+AIC(pha.glmm.gamma,pha.glmm.gamma.p2,pha.glmm.gamma.p3, k=2)
 #--- investigation on which random factors to include ---#
 pha.glmm.gamma <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
                                 family=Gamma('log'), 
@@ -195,55 +207,60 @@ pha.glmm.gamma.c <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE + MASS_CE
 AIC(pha.glmm.gamma, pha.glmm.gamma.b, pha.glmm.gamma.c, k=2)
 
 #--- save model ---# 
-saveRDS(pha.glmm.gamma.b, "pha_gamma_b.RDS")
-pha.glmm.gamma.b = readRDS(file = "./pha_gamma_b.RDS")
+saveRDS(pha.glmm.gamma, "pha_gamma.RDS")
+pha.glmm.gamma = readRDS(file = "./pha_gamma.RDS")
 #--- model validation ---#
-pha.glmm.gamma.b %>% check_model() 
-pha.resid <-  pha.glmm.gamma.b %>% 
+pha.modelb %>% check_model() 
+pha.resid <-  pha.glmm.gamma %>% 
   DHARMa::simulateResiduals(plot = TRUE, integerResponse = TRUE) 
-pha.glmm.gamma.b %>% DHARMa::testResiduals()
+pha.glmm.gamma %>% DHARMa::testResiduals()
 
 #--- partial plots ---# 
-pha.glmm.gamma.b %>% ggemmeans(~TEMPERATURE*REGION) %>% plot()
-pha.glmm.gamma.b %>% summary()
-pha.glmm.gamma.b %>% confint()
-pha.glmm.gamma.b %>% performance::r2_nakagawa()
+pha.glmm.gamma %>% ggemmeans(~TEMPERATURE*REGION) %>% plot()
+pha.glmm.gamma %>% summary()
+pha.glmm.gamma %>% Anova()
+pha.glmm.gamma %>% confint()
+pha.glmm.gamma %>% performance::r2_nakagawa()
 
 #--- Results ---#
-pha.glmm.gamma.b %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% regrid() %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE) 
-pha.glmm.gamma.b %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% regrid() %>% pairs(by = "REGION") %>% summary(infer=TRUE) 
+pha.glmm.gamma %>% emmeans(~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer = TRUE)  
+pha.glmm.gamma %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer = TRUE)  
 
-pha.glmm.gamma.b %>% emmeans("TEMPERATURE") %>% pairs() %>% summary(infer=TRUE)
-pha.glmm.gamma.b %>% emmeans(~ TEMPERATURE, type = "response") %>% summary(infer =TRUE)
-
+pha.glmm.gamma %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(infer = TRUE) 
 #--- plot ---# 
-pha.newdata <- pha.glmm.gamma.b %>% ggemmeans(~TEMPERATURE|REGION) %>% 
+pha.emm <- emmeans(pha.modelb, ~ TEMPERATURE*REGION, 
+               at = list(TEMPERATURE = seq(from=27, to = 31.5, by=.1)))
+dat=as.data.frame(pha.emm)
+
+pha.newdata <- pha.modelb %>% ggemmeans(terms = c("TEMPERATURE[all]","REGION")) %>% 
   as.data.frame() %>% 
   dplyr::rename(TEMPERATURE = x) 
 
 pha.g1 <- ggplot(pha.newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
   geom_point() + 
-  theme_classic(); g1
+  theme_classic(); pha.g1
 
 # predict(pha.glmm.gamma, re.form=NA)
 # residuals(pha.glmm.gamma, type = "response") 
 
 pha.obs <- pha2 %>% 
-  mutate(Pred = predict(pha.glmm.gamma.b, re.form=NA), 
-         Resid = residuals(pha.glmm.gamma.b, type = 'response'), 
+  mutate(Pred = predict(pha.modelb, re.form=NA), 
+         Resid = residuals(pha.modelb, type = 'response'), 
          Fit = Pred - Resid)
 
-pha.g2 <- ggplot(pha.newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
-  geom_pointrange(aes(ymin=conf.low, 
-                      ymax=conf.high), 
-                  shape=19, 
-                  size=1, 
-                  position = position_dodge(0.2)) + 
-  scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
+pha.g0 <- ggplot(pha.newdata, aes(y=predicted, x=TEMPERATURE, color = group)) + 
+  stat_smooth(method = "lm", se=TRUE,
+              formula =y ~ poly(x, 3, raw=TRUE)) +  
+  geom_ribbon(aes(x=TEMPERATURE, ymin= conf.low, ymax= conf.high, fill = group), 
+              alpha = 0.2, color=NA) + 
+  #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
   theme_classic() + ylab("PHA SWELLING RESPONSE (mm)") + 
   scale_color_manual(values=c("#DA3A36","#0D47A1"), labels = c("Low","High"),
                      name = "Latitude") + 
-  theme(legend.position = c(0.8,0.8)); pha.g2
+  scale_fill_manual(values=c("#DA3A36","#0D47A1"), labels = c("Low","High"),
+                     name = "Latitude") +
+  theme(legend.position = c(0.855,0.8)) + 
+  annotate("text", x=31, y=0.495, fontface="italic", size=4, label="P =0.63"); pha.g0
   #geom_signif( 
     #y_position = c(0.305+0.05, 0.55+0.05, 0.267+0.05, 0.125+0.05), 
     #xmin = c(0.8, 1.8, 2.8, 3.8), 
@@ -251,6 +268,22 @@ pha.g2 <- ggplot(pha.newdata, aes(y=predicted, x=TEMPERATURE, color = group)) +
     #annotation = c("ns", "ns", "ns", "ns"), 
     #tip_length = 0.025, 
     #color = "black")
+
+
+pha.g2 <- ggplot(pha.emm.df, aes(y=emmean, x=TEMPERATURE, color = REGION)) + 
+  stat_smooth(method = "lm", se=TRUE,
+              formula =y ~ poly(x, 3, raw=TRUE)) +  
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA) + 
+  #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
+  theme_classic() + ylab("PHA SWELLING RESPONSE (mm)") + 
+  scale_color_manual(values=c("#DA3A36","#0D47A1"), labels = c("Low","High"),
+                     name = "Latitude") + 
+  scale_fill_manual(values=c("#DA3A36","#0D47A1"), labels = c("Low","High"),
+                    name = "Latitude") +
+  theme(legend.position = c(0.855,0.8)) + 
+  annotate("text", x=31, y=0.495, fontface="italic", size=4, label="P =0.63"); pha.g2
+
 
 pdf("pha_figure.pdf", width  = 7, height = 5)
 print(g2)

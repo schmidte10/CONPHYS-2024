@@ -41,7 +41,7 @@ resp2 = resp %>%
   mutate(FISH_ID = factor(FISH_ID), 
          POPULATION = factor(POPULATION), 
          REGION = factor(REGION), 
-         TEMPERATURE = factor(TEMPERATURE), #run with temperature as a factor
+         TEMPERATURE = numeric(TEMPERATURE), #run with temperature as a factor
          RESTING_DATE = factor(RESTING_DATE), 
          RESTING_CHAMBER = factor(RESTING_CHAMBER), 
          RESTING_SYSTEM = factor(RESTING_SYSTEM), 
@@ -76,7 +76,7 @@ resp4 <- resp3 %>%
   subset(
     EXP_FISH_ID !="CSUD008_27" &  # poor swim
       EXP_FISH_ID !="CSUD008_30" &  # poor swim 
-      EXP_FISH_ID !="CSUD008_31.5" & # poor swim
+      EXP_FISH_ID !="CSUD008_28.5" & # poor swim
       EXP_FISH_ID !="CSUD018_31.5" & # poor swim 
       EXP_FISH_ID !="CSUD026_30" & # max. value low 
       EXP_FISH_ID !="CSUD074_28.5" & # fas value low 
@@ -119,87 +119,109 @@ mmr.3 <-  glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + steepest_slope,
               data = resp4,
               REML = FALSE)  
 
-AIC(mmr.1, mmr.2, mmr.3, k=2)
-#followed by random effects
+AICc(mmr.1, mmr.2, mmr.3, k=2)
+
+#--- polynomials ---# 
 mmr.1 <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
                  family=gaussian(),
                  data = resp4,
-                 REML = TRUE) 
+                 REML = FALSE)
 
-mmr.1a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+mmr.1.p2 <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp4,
+                 REML = FALSE)
+
+mmr.1.p3 <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp4,
+                 REML = FALSE)
+
+AICc(mmr.1, mmr.1.p2, mmr.1.p3, k=2)
+#followed by random effects
+mmr.1.p2a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|FISH_ID), 
                   family=gaussian(),
                   data = resp4,
                   REML = TRUE) 
 
-mmr.1b <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|POPULATION/FISH_ID), 
+mmr.1.p2b <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|POPULATION/FISH_ID), 
                   family=gaussian(),
                   data = resp4,
                   REML = TRUE)
 
-mmr.1c <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (REGION|POPULATION), 
+mmr.1.p2c <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|FISH_ID) + (REGION|POPULATION), 
                   family=gaussian(),
                   data = resp4,
                   REML = TRUE)
 
-AIC(mmr.1, mmr.1a, mmr.1b, mmr.1c,  k=2)
+AIC(mmr.1.p2, mmr.1.p2a, mmr.1.p2b, mmr.1.p2c,  k=2)
 
 #--- Final model ---# 
-mmr.1b <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|POPULATION/FISH_ID), 
+mmr.1.p2a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|FISH_ID), 
                   family=gaussian(),
                   data = resp4,
                   REML = TRUE)
 
 #--- saving model ---#
-saveRDS(mmr.1b, file = "mmr_1b.RDS") 
+saveRDS(mmr.1.p2a, file = "mmr_1_p2a.RDS") 
 
 #--- load model ---# 
-mmr.1b <- readRDS("mmr_1b.RDS")
+mmr.1.p2a <- readRDS("mmr_1_p2a.RDS")
 
 #--- investigate model ---#
 #rest.poly3 <- readRDS("glmmTMB_restpoly3.RDS")
-check_model(mmr.1b)
+check_model(mmr.1a)
 
-mmr.1b %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-mmr.1b %>% plot_model(type='est')
+mmr.1.p2a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+mmr.1.p2a %>% plot_model(type='est')
 
-mmr.1b %>% summary()
-mmr.1b %>% confint()
-mmr.1b  %>% performance::r2_nakagawa()
+mmr.1.p2a %>% summary()
+mmr.1.p2a %>% Anova()
+mmr.1.p2a %>% confint()
+mmr.1.p2a  %>% performance::r2_nakagawa()
 
-mmr.1b %>% emmeans(~ TEMPERATURE*REGION)
-mmr.1b %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "TEMPERATURE") %>% summary(infer=TRUE)
-mmr.1b %>% emmeans(~ TEMPERATURE*REGION) %>% pairs(by = "REGION") %>% summary(infer=TRUE)
+mmr.1.p2a %>% emmeans(~ TEMPERATURE*REGION, type = 'response') %>% summary(infer=TRUE)
+mmr.1.p2a %>% emmeans(~ TEMPERATURE*REGION, type = 'response') %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+mmr.1.p2a %>% emtrends(var = "TEMPERATURE", type = 'response') %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 
 #--- plot ---#
-mmr.newdata <- mmr.1b %>% ggemmeans(~TEMPERATURE|REGION) %>%
+mmr.emm <- emmeans(mmr.1.p2a, ~ TEMPERATURE*REGION, 
+                  at = list(TEMPERATURE = seq(from=27, to = 31.5, by=.1)))
+mmr.emm.df=as.data.frame(mmr.emm)
+
+mmr.newdata <- mmr.1.p2a %>% ggemmeans(terms = c("TEMPERATURE[all]","REGION")) %>%
   as.data.frame %>% 
   dplyr::rename(TEMPERATURE = x)
 
 mmr.g1 <- ggplot(mmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group)) +
-  geom_point()+
+  geom_pointrange(aes(ymin=conf.low, ymax=conf.high), shape=21,
+                  position=position_dodge(0.2))+
   theme_classic(); mmr.g1
 
 predict(mmr.1b, re.form=NA) 
 #data points based on month and situation - to get the group means
 residuals(mmr.1b, type='response') 
 #data points based on month/situation/random effects - to get the data points
-obs <-  resp4 %>% 
-  mutate(Pred=predict(mmr.1b, re.form=NA),
-         Resid = residuals(mmr.1b, type='response'),
+mmr.obs <-  resp4 %>% 
+  mutate(Pred=predict(mmr.1.p2a, re.form=NA),
+         Resid = residuals(mmr.1.p2a, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
 mmr.g2 <- ggplot(mmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
-  geom_pointrange(aes(ymin=conf.low, 
-                      ymax=conf.high), 
-                  shape=19,
-                  size=1,
-                  position=position_dodge(0.2)) + 
-  #scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
-  scale_y_continuous(limits = c(11,18), breaks = seq(11, 18, by = 2)) +
+  geom_jitter(data=mmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) + 
+  stat_smooth(method = "lm", 
+              formula =y ~ poly(x, 2, raw=TRUE)) + 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= conf.low, ymax= conf.high, fill = group), 
+              alpha = 0.2, color=NA) +
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
+  scale_y_continuous(limits = c(6,27), breaks = seq(6, 27, by = 2)) +
   theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR: MgO2/hr)")+ xlab("")+
   scale_color_manual(values=c("#DA3A36", "#0D47A1")) + 
-  theme(legend.position = 'none')+ 
-  geom_signif( 
+  scale_fill_manual(values=c("#DA3A36", "#0D47A1")) + 
+  theme(legend.position = 'none')+
+  annotate("text", x=31, y= 27, label="P =0.0018", fontface="italic", size=4); mmr.g2
+  
+  mmr.g2geom_signif( 
     y_position = c(17.5,17.7), 
     xmin = c(2.75,3.75), 
     xmax = c(3.15,4.15), 
@@ -209,6 +231,20 @@ mmr.g2 <- ggplot(mmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
 #+ geom_signif(
   #y_position = c(13.91+0.5, 15.10+0.5,15.80+0.5,16.06+0.5), xmin = c(0.8, 1.8,2.8,3.8), xmax = c(1.2,2.2,3.2,4.2),
   #annotation = c("ns", "ns", "**\np =0.020", "**\np =0.010"), tip_length = 0.025, color = "black"); g2
+  
+  mmr.g2 <- ggplot(mmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION))+
+    geom_jitter(data=mmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) + 
+    stat_smooth(method = "lm", 
+                formula =y ~ poly(x, 2, raw=TRUE)) + 
+    geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+                alpha = 0.2, color=NA) +
+    scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
+    scale_y_continuous(limits = c(6,27), breaks = seq(6, 27, by = 2)) +
+    theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR: MgO2/hr)")+ xlab("")+
+    scale_color_manual(values=c("#DA3A36", "#0D47A1")) + 
+    scale_fill_manual(values=c("#DA3A36", "#0D47A1")) + 
+    theme(legend.position = 'none')+
+    annotate("text", x=31, y= 27, label="P =0.0018", fontface="italic", size=4); mmr.g2
 
 pdf("mmr_1b.pdf", width= 7, height = 5)
 print(g2)
