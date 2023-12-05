@@ -154,7 +154,7 @@ ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR)) +
   theme_classic()
 ```
 
-![](aerobic_physiology_files/figure-html/eda-1-1.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/eda-1-1.png)<!-- -->
 
 ## Mass v REST (LATITUDE)
 
@@ -165,7 +165,7 @@ ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR, color = REGION)) +
   geom_smooth(method = "lm")
 ```
 
-![](aerobic_physiology_files/figure-html/eda-2-1.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/eda-2-1.png)<!-- -->
 
 ## TEMPERTURE v REST (LATITUDE)
 
@@ -175,7 +175,7 @@ ggplot(resp3, aes(TEMPERATURE, RESTING_MgO2.hr_RESPR, color = REGION)) +
   theme_classic()
 ```
 
-![](aerobic_physiology_files/figure-html/eda-3-1.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/eda-3-1.png)<!-- -->
 
 ## {-}
 
@@ -523,7 +523,7 @@ Model _rmr.3a_ appears to be the best model, however, there seems to be no diffe
 ## performance {.tabset .tabset-faded}
 
 ### rmr.3a (linear)
-![](aerobic_physiology_files/figure-html/model-valid-1-1.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/model-valid-1-1.png)<!-- -->
 
 The _rmr.3a_ model performs well, however, in the model validation performed by the **performance** model it looks like there are two variables that are highly correlated. If we expand the figure we can see that the highly correlated variables are REGION and REGION:TEMPERATURE. Perhaps this is unsurprising  but lets see what happens when we run the quadratic (2^nd polynomial) model to see if this helps deal with the high correlation between these two variables, as it performed very similarly to _rmr.3a_, and even had a higher r2 value. 
 
@@ -538,7 +538,7 @@ rmr.3.p2a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + 
                  REML = TRUE) 
 ```
 
-![](aerobic_physiology_files/figure-html/model-valid-1.2-1.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/model-valid-1.2-1.png)<!-- -->
 
 ## DHARMa residuals {.tabset .tabset-faded}
 
@@ -548,7 +548,7 @@ rmr.3.p2a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + 
 rmr.3a %>% simulateResiduals(plot=TRUE)
 ```
 
-![](aerobic_physiology_files/figure-html/model-valid-2-1.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/model-valid-2-1.png)<!-- -->
 
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
@@ -560,7 +560,7 @@ rmr.3a %>% simulateResiduals(plot=TRUE)
 rmr.3a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
-![](aerobic_physiology_files/figure-html/model-valid-2-2.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/model-valid-2-2.png)<!-- -->
 
 ```
 ## $uniformity
@@ -648,7 +648,7 @@ rmr.3.p2a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + 
 rmr.3.p2a %>% simulateResiduals(plot=TRUE) 
 ```
 
-![](aerobic_physiology_files/figure-html/model-valid-2.2-1.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/model-valid-2.2-1.png)<!-- -->
 
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
@@ -660,7 +660,7 @@ rmr.3.p2a %>% simulateResiduals(plot=TRUE)
 rmr.3.p2a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
-![](aerobic_physiology_files/figure-html/model-valid-2.2-2.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/model-valid-2.2-2.png)<!-- -->
 
 ```
 ## $uniformity
@@ -745,11 +745,11 @@ It looks like the model that treats temperature as a second order polynomial doe
 
 ## ggemmeans 
 
-![](aerobic_physiology_files/figure-html/partial-plots-1-1.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/partial-plots-1-1.png)<!-- -->
 
 ## plot_model 
 
-![](aerobic_physiology_files/figure-html/partial-plots-2-1.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/partial-plots-2-1.png)<!-- -->
 
 # {-} 
 
@@ -1031,7 +1031,7 @@ rmr.3.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + REST
 
 # Summary figure 
 
-![](aerobic_physiology_files/figure-html/sum-fig-1.png)<!-- -->
+![](aerobic_physiology_resting_files/figure-html/sum-fig-1.png)<!-- -->
 
 # Conclusion 
 
