@@ -209,7 +209,7 @@ pha.resid <-  rmr.3.p2 %>%
 rmr.3.p2a %>% DHARMa::testResiduals() 
 
 rmr.3.p2a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
-rmr.3.p2a %>% plot_model(type='est')
+rmr.3.p2a %>% plot_model(type='std', vline.color = "grey12", show.values=TRUE, sort.est = TRUE, transform = NULL, value.offset = 0.3)
 
 rmr.3.p2a %>% summary()
 rmr.3.p2a %>% Anova()
@@ -252,12 +252,12 @@ rmr.g2 <- ggplot(rmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
   scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
   scale_y_continuous(limits = c(2,12), breaks = seq(2, 12, by = 2)) +
   theme_classic() + ylab("RESTING METABOLIC RATE (MMR: MgO2/hr)")+ xlab("")+
-  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
                      name = "Regions") +
-  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
                     name = "Regions") + 
   theme(legend.position = "top") + 
-  annotate("text", x=31, y= 11.5, label="P =0.62", fontface="italic", size=4); rmr.g2
+  annotate("text", x=31, y= 11.5, label="P =0.51", fontface="italic", size=4); rmr.g2
 
 rmr.g2 <- ggplot(rmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION))+
   geom_jitter(data=rmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
