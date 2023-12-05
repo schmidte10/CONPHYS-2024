@@ -1,0 +1,257 @@
+---
+title: "Resting Oxygen Consumption"
+author: "Elliott Schmidt"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    keep_md: yes
+    code_folding: show
+    collapse: no
+    df_print: paged
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    highlight: monochrome
+    theme: flatly
+    latex_engine: xelatex
+    toc: yes
+    toc_float: yes
+    css: styles.css
+  pdf_document:
+    df_print: default
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 4
+    highlight: tango
+    latex_engine: xelatex
+    number_sections: yes
+    toc_depth: 2
+documentclass: article
+fontsize: 12pt
+mainfont: Arial
+mathfont: LiberationMono
+classoption: a4paper
+--- 
+
+# Scenario 
+
+For initial details on the experiment performed please read the **ReadMe** file. In breif, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Individuals were tested at each temperature, resting oxygen consumption, maximum oxygen consumption. Absolute aerboic scope was calulated by using the following formula: 
+
+Absolute aerobic scope = (maximum oxygen consumption - resting oxygen consumption)
+
+Individuals were first tested at 27$^\circ$C. Water temperature was then increased at a rate of 0.5$^\circ$C Day^-1 until the next temperature was reached. Fish were then provided with an additional 5 day to adjust to the new temperature before aerobic physiology was tested again. 
+
+Three traits are included within the aerobic physiology analysis, resting oxygen consumption, maximum oxygen consumption, and absoulte aerboic scope. Data for each metric was collect from respiratory experiments that had data recorded via a combination of programs including, AquaResp and PyroScience. Slopes (i.e., resting and maximum oxygen consumption values) were then calculated via the **RespR** [https://januarharianto.github.io/respR/articles/respR.html] package.  
+
+
+# Read in the data
+
+Before beginning always make sure that you are working in the correct directory 
+
+```{r set-dir-hide, include=FALSE}
+working.dir = "C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/respirometry/RMR/"
+```
+
+```{r set_dir}
+knitr::opts_knit$set(root.dir=working.dir)
+```
+
+Lets start by loading the packages that are needed 
+
+## Load packages 
+
+```{r load-packages, warning=FALSE, message=FALSE}
+library(tidyverse) # data manipulation
+library(plyr) # data manipulation
+library(dplyr) # data manipulation
+library(lubridate) # data manipulation - specifically time data
+library(ggplot2) # plotting figures
+library(glmmTMB) # running models
+library(performance) # model validation
+library(car) # dependent
+library(DHARMa) # model validation
+library(MuMIn) # model validation
+library(kableExtra) # creating tables
+library(broom) # dependent
+library(emmeans) # post-hoc analysis
+library(ggeffects) # plotting models/model validation
+library(vtable) # creating tables
+library(modelr) # model validation
+library(kableExtra) # formatting output tables
+```
+
+
+
+Now we can import that data. Replace import data with the PATH to your data file. I have secretly labelled my PATH import.data (i.e. import.data = "PATH TO MY FILE")
+
+## Load data 
+```{r import-data-hide, include=FALSE}
+import.data = read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/import_files/SummaryData_2022_resp_updated.txt")
+```
+
+```{r load-data}
+resp <- import.data
+``` 
+
+# Data manipulation 
+
+Before the data can be analysed it is important to clean up the data file. Below a number of adjustments are made, primarily making sure that columns are being treated appropriately as either factors, numeric, or as time, as well as the renaming of some columns. Once these changes are made the data is being saved into a new dataframe called **resp2** 
+
+```{r data-manipulation-1, warning=FALSE, message=FALSE, class.source="style"}
+resp2 = resp %>% 
+  dplyr::rename(EXP_FISH_ID = FISH_ID) %>%
+  separate(EXP_FISH_ID, c("FISH_ID"), remove = FALSE) %>%
+  mutate(FISH_ID = factor(FISH_ID), 
+         POPULATION = factor(POPULATION), 
+         REGION = factor(REGION), 
+         TEMPERATURE = as.numeric(TEMPERATURE), #run with temperature as a factor
+         RESTING_DATE = factor(RESTING_DATE), 
+         RESTING_CHAMBER = factor(RESTING_CHAMBER), 
+         RESTING_SYSTEM = factor(RESTING_SYSTEM), 
+         RESTING_SUMP = factor(RESTING_SUMP), 
+         RESTING_AM_PM = factor(RESTING_AM_PM), 
+         RESTING_START_TIME = hms(RESTING_START_TIME),
+         RESTING_END_TIME = hms(RESTING_ENDTIME),
+         MAX_DATE = factor(MAX_DATE), 
+         MAX_CHAMBER = factor(MAX_CHAMBER), 
+         MAX_SYSTEM = factor(MAX_SYSTEM), 
+         MAX_SUMP = factor(MAX_SUMP), 
+         MAX_AM_PM = factor(MAX_AM_PM), 
+         MAX_START_TIME = hms(MAX_START_TIME), 
+         Swim.performance = factor(Swim.performance), 
+         NAS = as.numeric(NAS), 
+         FAS = as.numeric(FAS), 
+         MgO2.hr_Net = as.numeric(MgO2.hr_Net), 
+         RESTING_RUNTIME_SECONDS = as.numeric(hms(RESTING_RUNTIME))) %>% 
+  dplyr::rename(MASS = WEIGHT) %>% 
+  mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE))
+```
+
+Next select data points will be removed. Beside the removed data points I have provided reasoning for their exclusion, such as fish died during the experiment, or data quailty was poor - which likely indicated that there was an issue with the equipment during the trial. 
+
+```{r data-manipulation-2, warning=FALSE, message=FALSE} 
+resp3 <- resp2 %>% 
+  subset(  
+    EXP_FISH_ID !="LCHA127_27" & # deceased during experiment
+      EXP_FISH_ID !="LCHA132_27" & # deceased during experiment
+      EXP_FISH_ID !="LKES168_27" # poor data quality
+  ) 
+```
+
+Great! That is everything for data manipulation 
+
+# Exploratory data analysis {.tabset}
+
+## Mass v Rest
+
+```{r eda-1, warning=FALSE, message=FALSE}
+ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  theme_classic()
+```
+
+## Mass v REST (LATITUDE)
+```{r eda-2, warning=FALSE, message=FALSE}
+ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR, color = REGION)) + 
+  geom_point() +
+  theme_classic() + 
+  geom_smooth(method = "lm")
+```
+
+## TEMPERTURE v REST (LATITUDE)
+```{r eda-3, warning=FALSE, message=FALSE}
+ggplot(resp3, aes(TEMPERATURE, RESTING_MgO2.hr_RESPR, color = REGION)) + 
+  geom_point() +
+  theme_classic()
+``` 
+
+## {-}
+
+# Fit the model 
+
+The model was fit using the **glmmTMB** package in R. A number of different models were tested to determine which hypothesis and associated variables best predicted resting oxygen consumption. Model fit was examined using AICc, BIC, and r-squared values. Additional model were examined via the validation diagonistics provided by the **performance** and **dHARMA** packages in R. 
+
+The first set of models tested looked at three different hypotheses including 1) that mass has a major impact of resting oxygen consumption of fish (this has been documented in the literature), 2) if variables related to time have an important impact on the resting oxygen consumption of fish. 
+
+## Fixed factors (linear regression models)
+
+### model 1
+```{r model-fit-1, warning=FALSE}
+#--- base model ---#
+rmr.1 <- lm(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp3,
+                 REML = FALSE) 
+```
+#### summary
+```{r model-fit-1.2, warning=FALSE, echo=FALSE}
+as.data.frame(summary(rmr.1)[4]) %>% 
+  dplyr::rename(Estimate = coefficients.Estimate, 
+         Std.Error = coefficients.Std..Error, 
+         t.value = coefficients.t.value, 
+         Pvalue = coefficients.Pr...t..) %>%
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+
+```
+
+### model 2
+```{r model-fit-2, warning=FALSE}
+#--- experimental rmr equipment hypothesis ---#
+rmr.2 <- lm(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + RESTING_SUMP + 
+                   RESTING_AM_PM + RESTING_RUNTIME_SECONDS, 
+                 family=gaussian(),
+                 data = resp3,
+                 REML = FALSE) 
+```
+
+#### summary
+```{r model-fit-2.2, warning=FALSE, echo=FALSE}
+as.data.frame(summary(rmr.2)[4]) %>% 
+  dplyr::rename(Estimate = coefficients.Estimate, 
+         Std.Error = coefficients.Std..Error, 
+         t.value = coefficients.t.value, 
+         Pvalue = coefficients.Pr...t..) %>%
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+
+```
+
+### model comparison table
+```{r model-fit-3, warning=FALSE, echo=FALSE}
+aic.c=AICc(rmr.1, rmr.2, k=2) 
+bic=BIC(rmr.1, rmr.2)
+
+model.fit.table <- as.data.frame(aic.c) %>% 
+  tibble::rownames_to_column("model") %>%
+  mutate(BIC = bic$BIC, 
+         r2 = c(r.squaredGLMM(rmr.1)[1], r.squaredGLMM(rmr.2)[1]))
+model.fit.table
+```
+The model that contains **MASS_CENTERED** seems to do better than the model that incorporates variables that are associated with the time that experiments are performed.This is demonstrated by the lower AIC and BIC scores, as well as higher r-squared value. However, **RESTING_RUNTIME_SECONDS** was a significant variable in model 2. Let's see what a third model looks like if we both **MASS_CENTERED** and **RESTING_RUNTIME_SECONDS**. 
+
+### model 3
+```{r model-fit-4, warning=FALSE}
+rmr.3 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
+                 family=gaussian(),
+                 data = resp3,
+                 REML = FALSE)
+```
+
+### model comparison table 2
+```{r model-fit-4.2, warning=FALSE, echo=FALSE}
+aic.c=AICc(rmr.1, rmr.2, rmr.3, k=2)
+bic=BIC(rmr.1, rmr.2, rmr.3)
+
+model.fit.table <- as.data.frame(aic.c) %>% 
+  tibble::rownames_to_column("model") %>%
+  mutate(BIC = bic$BIC, 
+         r2 = c(r.squaredGLMM(rmr.1)[1], r.squaredGLMM(rmr.2)[1], r.squaredGLMM(rmr.3)[1]))
+model.fit.table
+```
+
+It looks like the third model is better than the previous two. Next we will test to see if the variable temperature performs best as a 1^st (linear), 2^nd (quadratic), or 3^rd (cubic) order polynomial. As the relationship between temperature and resting oxygen consumption is predicted to be non-linear. 
+
+## Polynomials 
+

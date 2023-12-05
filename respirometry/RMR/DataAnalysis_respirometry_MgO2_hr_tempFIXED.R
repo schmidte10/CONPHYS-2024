@@ -35,14 +35,14 @@ resp2 = resp %>%
   mutate(FISH_ID = factor(FISH_ID), 
          POPULATION = factor(POPULATION), 
          REGION = factor(REGION), 
-         TEMPERATURE = factor(TEMPERATURE), #run with temperature as a factor
+         TEMPERATURE = as.numeric(TEMPERATURE), 
          RESTING_DATE = factor(RESTING_DATE), 
          RESTING_CHAMBER = factor(RESTING_CHAMBER), 
          RESTING_SYSTEM = factor(RESTING_SYSTEM), 
          RESTING_SUMP = factor(RESTING_SUMP), 
          RESTING_AM_PM = factor(RESTING_AM_PM), 
          RESTING_START_TIME = hms(RESTING_START_TIME),
-        RESTING_END_TIME = hms(RESTING_ENDTIME),
+         RESTING_END_TIME = hms(RESTING_ENDTIME),
          MAX_DATE = factor(MAX_DATE), 
          MAX_CHAMBER = factor(MAX_CHAMBER), 
          MAX_SYSTEM = factor(MAX_SYSTEM), 
@@ -107,10 +107,9 @@ ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR, color = REGION)) +
   theme_classic() + 
   geom_smooth(method = "lm")
 
-ggplot(resp3, aes(REGION, RESTING_MgO2.hr_RESPR)) + 
-  geom_boxplot() +
-  theme_classic() + 
-  facet_grid(~TEMPERATURE)
+ggplot(resp3, aes(TEMPERATURE, RESTING_MgO2.hr_RESPR, color = REGION)) + 
+  geom_point() +
+  theme_classic() 
 
 ggplot(resp3, aes(REGION, MAX_MgO2.hr)) + 
   geom_boxplot() +
@@ -152,7 +151,7 @@ rmr.2 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + RESTING_SUMP 
                  REML = FALSE) 
 
 #--- base model and resting runtime ---#
-rmr.3 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
+rmr.3 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + RESTING_AM_PM, 
                  family=gaussian(),
                  data = resp3,
                  REML = FALSE)
