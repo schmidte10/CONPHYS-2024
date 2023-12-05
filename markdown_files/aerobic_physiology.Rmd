@@ -227,7 +227,8 @@ model.fit.table <- as.data.frame(aic.c) %>%
   tibble::rownames_to_column("model") %>%
   mutate(BIC = bic$BIC, 
          r2 = c(r.squaredGLMM(rmr.1)[1], r.squaredGLMM(rmr.2)[1]))
-model.fit.table
+model.fit.table %>% knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
 ```
 The model that contains **MASS_CENTERED** seems to do better than the model that incorporates variables that are associated with the time that experiments are performed.This is demonstrated by the lower AIC and BIC scores, as well as higher r-squared value. However, **RESTING_RUNTIME_SECONDS** was a significant variable in model 2. Let's see what a third model looks like if we both **MASS_CENTERED** and **RESTING_RUNTIME_SECONDS**. 
 
@@ -248,7 +249,8 @@ model.fit.table <- as.data.frame(aic.c) %>%
   tibble::rownames_to_column("model") %>%
   mutate(BIC = bic$BIC, 
          r2 = c(r.squaredGLMM(rmr.1)[1], r.squaredGLMM(rmr.2)[1], r.squaredGLMM(rmr.3)[1]))
-model.fit.table
+model.fit.table %>% knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
 ```
 
 It looks like the third model is better than the previous two. Next we will test to see if the variable temperature performs best as a 1^st (linear), 2^nd (quadratic), or 3^rd (cubic) order polynomial. As the relationship between temperature and resting oxygen consumption is predicted to be non-linear. 

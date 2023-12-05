@@ -77,7 +77,7 @@ library(emmeans) # post-hoc analysis
 library(ggeffects) # plotting models/model validation
 library(vtable) # creating tables
 library(modelr) # model validation
-library(kableExtra)
+library(kableExtra) # formatting output tables
 ```
 
 
@@ -321,12 +321,34 @@ rmr.2 <- lm(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + RESTING_SUMP +
 </table>
 
 ### model comparison table
-<div data-pagedtable="false">
-  <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["model"],"name":[1],"type":["chr"],"align":["left"]},{"label":["df"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["AICc"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["r2"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmr.1","2":"6","3":"561.9094","4":"580.8294","5":"0.6058512"},{"1":"rmr.2","2":"8","3":"680.4894","4":"705.5293","5":"0.2768734"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-The model that contains just **MASS_CENTERED** seems to do better than the model that incorporates variables that are associated with the time that experiments are performed.This is demonstrated by the lower AIC and BIC scores, as well as higher r-squared value. However, **RESTING_RUNTIME_SECONDS** was a significant variable in model 2. Let's see what a third model looks like if we both **MASS_CENTERED** and **RESTING_RUNTIME_SECONDS**. 
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> model </th>
+   <th style="text-align:right;"> df </th>
+   <th style="text-align:right;"> AICc </th>
+   <th style="text-align:right;"> BIC </th>
+   <th style="text-align:right;"> r2 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> rmr.1 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 561.9094 </td>
+   <td style="text-align:right;"> 580.8294 </td>
+   <td style="text-align:right;"> 0.6058512 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rmr.2 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 680.4894 </td>
+   <td style="text-align:right;"> 705.5293 </td>
+   <td style="text-align:right;"> 0.2768734 </td>
+  </tr>
+</tbody>
+</table>
+The model that contains **MASS_CENTERED** seems to do better than the model that incorporates variables that are associated with the time that experiments are performed.This is demonstrated by the lower AIC and BIC scores, as well as higher r-squared value. However, **RESTING_RUNTIME_SECONDS** was a significant variable in model 2. Let's see what a third model looks like if we both **MASS_CENTERED** and **RESTING_RUNTIME_SECONDS**. 
 
 ### model 3
 
@@ -338,12 +360,42 @@ rmr.3 <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED
 ```
 
 ### model comparison table 2
-<div data-pagedtable="false">
-  <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["model"],"name":[1],"type":["chr"],"align":["left"]},{"label":["df"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["AICc"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["r2"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmr.1","2":"6","3":"561.9094","4":"580.8294","5":"0.6058512"},{"1":"rmr.2","2":"8","3":"680.4894","4":"705.5293","5":"0.2768734"},{"1":"rmr.3","2":"7","3":"544.9015","4":"566.8936","5":"0.6501441"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> model </th>
+   <th style="text-align:right;"> df </th>
+   <th style="text-align:right;"> AICc </th>
+   <th style="text-align:right;"> BIC </th>
+   <th style="text-align:right;"> r2 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> rmr.1 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 561.9094 </td>
+   <td style="text-align:right;"> 580.8294 </td>
+   <td style="text-align:right;"> 0.6058512 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rmr.2 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 680.4894 </td>
+   <td style="text-align:right;"> 705.5293 </td>
+   <td style="text-align:right;"> 0.2768734 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> rmr.3 </td>
+   <td style="text-align:right;"> 7 </td>
+   <td style="text-align:right;"> 544.9015 </td>
+   <td style="text-align:right;"> 566.8936 </td>
+   <td style="text-align:right;"> 0.6501441 </td>
+  </tr>
+</tbody>
+</table>
 
 It looks like the third model is better than the previous two. Next we will test to see if the variable temperature performs best as a 1^st (linear), 2^nd (quadratic), or 3^rd (cubic) order polynomial. As the relationship between temperature and resting oxygen consumption is predicted to be non-linear. 
 
 ## Polynomials 
+

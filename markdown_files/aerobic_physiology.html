@@ -3199,7 +3199,7 @@ directory</p>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="fu">library</span>(ggeffects) <span class="co"># plotting models/model validation</span></span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="fu">library</span>(vtable) <span class="co"># creating tables</span></span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="fu">library</span>(modelr) <span class="co"># model validation</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span></code></pre></div>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="fu">library</span>(kableExtra) <span class="co"># formatting output tables</span></span></code></pre></div>
 <p>Now we can import that data. Replace import data with the PATH to
 your data file. I have secretly labelled my PATH import.data
 (i.e. import.data = “PATH TO MY FILE”)</p>
@@ -3574,13 +3574,65 @@ REGIONLeading:TEMPERATURE
 </div>
 <div id="model-comparison-table" class="section level3">
 <h3>model comparison table</h3>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["model"],"name":[1],"type":["chr"],"align":["left"]},{"label":["df"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["AICc"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["r2"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmr.1","2":"6","3":"561.9094","4":"580.8294","5":"0.6058512"},{"1":"rmr.2","2":"8","3":"680.4894","4":"705.5293","5":"0.2768734"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
-<p>The model that contains just <strong>MASS_CENTERED</strong> seems to
-do better than the model that incorporates variables that are associated
+<table class=" lightable-paper" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+model
+</th>
+<th style="text-align:right;">
+df
+</th>
+<th style="text-align:right;">
+AICc
+</th>
+<th style="text-align:right;">
+BIC
+</th>
+<th style="text-align:right;">
+r2
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+rmr.1
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+561.9094
+</td>
+<td style="text-align:right;">
+580.8294
+</td>
+<td style="text-align:right;">
+0.6058512
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rmr.2
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+680.4894
+</td>
+<td style="text-align:right;">
+705.5293
+</td>
+<td style="text-align:right;">
+0.2768734
+</td>
+</tr>
+</tbody>
+</table>
+<p>The model that contains <strong>MASS_CENTERED</strong> seems to do
+better than the model that incorporates variables that are associated
 with the time that experiments are performed.This is demonstrated by the
 lower AIC and BIC scores, as well as higher r-squared value. However,
 <strong>RESTING_RUNTIME_SECONDS</strong> was a significant variable in
@@ -3597,11 +3649,80 @@ model 2. Let’s see what a third model looks like if we both
 </div>
 <div id="model-comparison-table-2" class="section level3">
 <h3>model comparison table 2</h3>
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["model"],"name":[1],"type":["chr"],"align":["left"]},{"label":["df"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["AICc"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["r2"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"rmr.1","2":"6","3":"561.9094","4":"580.8294","5":"0.6058512"},{"1":"rmr.2","2":"8","3":"680.4894","4":"705.5293","5":"0.2768734"},{"1":"rmr.3","2":"7","3":"544.9015","4":"566.8936","5":"0.6501441"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
-</div>
+<table class=" lightable-paper" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+model
+</th>
+<th style="text-align:right;">
+df
+</th>
+<th style="text-align:right;">
+AICc
+</th>
+<th style="text-align:right;">
+BIC
+</th>
+<th style="text-align:right;">
+r2
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+rmr.1
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+561.9094
+</td>
+<td style="text-align:right;">
+580.8294
+</td>
+<td style="text-align:right;">
+0.6058512
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rmr.2
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+680.4894
+</td>
+<td style="text-align:right;">
+705.5293
+</td>
+<td style="text-align:right;">
+0.2768734
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rmr.3
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+544.9015
+</td>
+<td style="text-align:right;">
+566.8936
+</td>
+<td style="text-align:right;">
+0.6501441
+</td>
+</tr>
+</tbody>
+</table>
 <p>It looks like the third model is better than the previous two. Next
 we will test to see if the variable temperature performs best as a 1^st
 (linear), 2^nd (quadratic), or 3^rd (cubic) order polynomial. As the
