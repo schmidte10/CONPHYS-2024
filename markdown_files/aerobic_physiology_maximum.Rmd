@@ -1,5 +1,5 @@
 ---
-title: "Resting Oxygen Consumption"
+title: "Maximum Oxygen Consumption"
 author: "Elliott Schmidt"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -49,7 +49,7 @@ Three traits are included within the aerobic physiology analysis, resting oxygen
 Before beginning always make sure that you are working in the correct directory 
 
 ```{r set-dir-hide, include=FALSE}
-working.dir = "C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/respirometry/RMR/"
+working.dir = "C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/respirometry/MMR/"
 ```
 
 ```{r set_dir}
@@ -139,14 +139,32 @@ resp3 <- resp2 %>%
   ) 
 ```
 
-Great! That is everything for data manipulation 
+So far the analysis has been the same as the protocol outlined in the **aerobic physiology resting** data. One additional data removal step will take place in the maximum oxygen consumption analysis for samples where fish swam poorly and therefore their maximum oxygen consumption data is thought to be unreliable. This step is done before any data analysis has taken place. 
+
+```{r data-manipulation-3, warning=FALSE, message=FALSE}
+resp4 <- resp3 %>% 
+  subset(
+    EXP_FISH_ID !="CSUD008_27" &  # poor swim
+      EXP_FISH_ID !="CSUD008_30" &  # poor swim 
+      EXP_FISH_ID !="CSUD008_28.5" & # poor swim
+      EXP_FISH_ID !="CSUD018_31.5" & # poor swim 
+      EXP_FISH_ID !="CSUD026_30" & # max. value low 
+      EXP_FISH_ID !="CSUD074_28.5" & # fas value low 
+      EXP_FISH_ID !="CSUD079_30" &
+      EXP_FISH_ID !="CVLA052_27" & #nas value low 
+      EXP_FISH_ID !="CVLA054_28.5" & # low max value? 
+      EXP_FISH_ID !="LCHA113_27" & # poor data quality 
+      EXP_FISH_ID !="LCHA113_30" & # poor swim 
+      EXP_FISH_ID !="LCHA127_27" # deceased during experiment
+  ) 
+```
 
 # Exploratory data analysis {.tabset}
 
 ## Mass v Rest
 
 ```{r eda-1, warning=FALSE, message=FALSE}
-ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR)) + 
+ggplot(resp4, aes(MASS, MAX_MgO2.hr_RESPR)) + 
   geom_point() + 
   geom_smooth(method = "lm") + 
   theme_classic()
@@ -154,7 +172,7 @@ ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR)) +
 
 ## Mass v REST (LATITUDE)
 ```{r eda-2, warning=FALSE, message=FALSE}
-ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR, color = REGION)) + 
+ggplot(resp4, aes(MASS, MAX_MgO2.hr_RESPR, color = REGION)) + 
   geom_point() +
   theme_classic() + 
   geom_smooth(method = "lm")
@@ -162,7 +180,7 @@ ggplot(resp3, aes(MASS, RESTING_MgO2.hr_RESPR, color = REGION)) +
 
 ## TEMPERTURE v REST (LATITUDE)
 ```{r eda-3, warning=FALSE, message=FALSE}
-ggplot(resp3, aes(TEMPERATURE, RESTING_MgO2.hr_RESPR, color = REGION)) + 
+ggplot(resp4, aes(TEMPERATURE, MAX_MgO2.hr_RESPR, color = REGION)) + 
   geom_point() +
   theme_classic()
 ``` 
@@ -180,13 +198,13 @@ The first set of models tested looked at three different hypotheses including 1)
 ### model 1
 ```{r model-fit-1, warning=FALSE}
 #--- base model ---#
-rmr.1 <- glm(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
+mmr.1 <- glm(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
                  family=gaussian(),
-                 data = resp3) 
+                 data = resp4)  
 ```
 #### summary
 ```{r model-fit-1.2, warning=FALSE, echo=FALSE}
-as.data.frame(summary(rmr.1)$coefficients) %>% 
+as.data.frame(summary(mmr.1)$coefficients) %>% 
   knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
 
@@ -195,15 +213,15 @@ as.data.frame(summary(rmr.1)$coefficients) %>%
 ### model 2
 ```{r model-fit-2, warning=FALSE}
 #--- experimental rmr equipment hypothesis ---#
-rmr.2 <- glm(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + RESTING_SUMP + 
-                   RESTING_AM_PM + RESTING_RUNTIME_SECONDS, 
+mmr.2 <- glm(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MAX_SUMP + MAX_CHAMBER + 
+                   MAX_AM_PM, 
                  family=gaussian(),
-                 data = resp3) 
+                 data = resp4) 
 ```
 
 #### summary
 ```{r model-fit-2.2, warning=FALSE, echo=FALSE}
-as.data.frame(summary(rmr.2)$coefficients) %>% 
+as.data.frame(summary(mmr.2)$coefficients) %>% 
   knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
 
@@ -211,39 +229,18 @@ as.data.frame(summary(rmr.2)$coefficients) %>%
 
 ### model comparison table
 ```{r model-fit-3, warning=FALSE, echo=FALSE}
-aic.c=AICc(rmr.1, rmr.2, k=2) 
-bic=BIC(rmr.1, rmr.2)
+aic.c=AICc(mmr.1, mmr.2, k=2) 
+bic=BIC(mmr.1, mmr.2)
 
 model.fit.table <- as.data.frame(aic.c) %>% 
   tibble::rownames_to_column("model") %>%
   mutate(BIC = bic$BIC, 
-         r2 = c(r.squaredGLMM(rmr.1)[1], r.squaredGLMM(rmr.2)[1]))
-model.fit.table %>% knitr::kable(format = "html")  %>%
-  kable_paper(full_width = TRUE)
-```
-The model that contains **MASS_CENTERED** seems to do better than the model that incorporates variables that are associated with the time that experiments are performed.This is demonstrated by the lower AIC and BIC scores, as well as higher r-squared value. However, **RESTING_RUNTIME_SECONDS** was a significant variable in model 2. Let's see what a third model looks like if we both **MASS_CENTERED** and **RESTING_RUNTIME_SECONDS**. 
-
-### model 3
-```{r model-fit-4, warning=FALSE}
-rmr.3 <- glm(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
-                 family=gaussian(),
-                 data = resp3)
-```
-
-### model comparison table 2
-```{r model-fit-4.2, warning=FALSE, echo=FALSE}
-aic.c=AICc(rmr.1, rmr.2, rmr.3, k=2)
-bic=BIC(rmr.1, rmr.2, rmr.3)
-
-model.fit.table <- as.data.frame(aic.c) %>% 
-  tibble::rownames_to_column("model") %>%
-  mutate(BIC = bic$BIC, 
-         r2 = c(r.squaredGLMM(rmr.1)[1], r.squaredGLMM(rmr.2)[1], r.squaredGLMM(rmr.3)[1]))
+         r2 = c(r.squaredGLMM(mmr.1)[1], r.squaredGLMM(mmr.2)[1]))
 model.fit.table %>% knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
 ```
 
-It looks like the third model is better than the previous two. Next we will test to see if the variable temperature performs best as a 1^st (linear), 2^nd (quadratic), or 3^rd (cubic) order polynomial. As the relationship between temperature and resting oxygen consumption is predicted to be non-linear. 
+The model that contains **MASS_CENTERED** seems to do better than the model that incorporates variables that are associated with the time that experiments are performed.This is demonstrated by the lower AIC and BIC scores, as well as higher r-squared value.  
 
 ## Polynomials 
 
@@ -252,29 +249,29 @@ It looks like the third model is better than the previous two. Next we will test
 Note that the linear model has already been created via model _rmr.3_ in the previous section.
 
 ```{r poly-model-1}
-rmr.3.p2 <- glm(RESTING_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
+mmr.1.p2 <- glm(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED, 
                  family=gaussian(),
-                 data = resp3)  
+                 data = resp4)
 
-rmr.3.p3 <- glm(RESTING_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED + RESTING_RUNTIME_SECONDS, 
+mmr.1.p3 <- glm(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED, 
                  family=gaussian(),
-                 data = resp3)
+                 data = resp4)
 ```
 
 #### polynomial model comparisons
 ```{r poly-model-1.2, warning=FALSE, echo=FALSE}
-aic.c=AICc(rmr.3, rmr.3.p2, rmr.3.p3, k=2)
-bic=BIC(rmr.3, rmr.3.p2, rmr.3.p3)
+aic.c=AICc(mmr.1, mmr.1.p2, mmr.1.p3, k=2)
+bic=BIC(mmr.1, mmr.1.p2, mmr.1.p3)
 
 model.fit.table <- as.data.frame(aic.c) %>% 
   tibble::rownames_to_column("model") %>%
   mutate(BIC = bic$BIC, 
-         r2 = c(r.squaredLR(rmr.3)[1], r.squaredLR(rmr.3.p2)[1], r.squaredLR(rmr.3.p3)[1]))
+         r2 = c(r.squaredLR(mmr.1)[1], r.squaredLR(mmr.1.p2)[1], r.squaredLR(mmr.1.p3)[1]))
 model.fit.table %>% knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
 ```
 
-From our model comparison we can see the there is no additional benefit to the model by including temperature as a 2^nd or 3^rd order polynomial. However, the linear and quadratic model both perform well. 
+From our model comparison we can see the there is no additional benefit to the model by including temperature as a 2^nd^ or 3^rd^ order polynomial. However, the linear and quadratic model both perform well. 
 
 ## Random factors 
 
@@ -282,42 +279,41 @@ Fish were repeatedly sampled over four different temperatures, therefore repeate
 
 ### random factor models
 
-```{r random-factors-1}
-rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + RESTING_AM_PM + (1|FISH_ID), 
+```{r random-factors-1, warning=FALSE}
+mmr.1a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
                   family=gaussian(),
-                  data = resp3,
+                  data = resp4,
                   REML = TRUE) 
 
-
-rmr.3b <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + RESTING_AM_PM + (1|POPULATION/FISH_ID), 
+mmr.1b <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|POPULATION/FISH_ID), 
                   family=gaussian(),
-                  data = resp3,
+                  data = resp4,
                   REML = TRUE)
 
-rmr.3c <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + RESTING_AM_PM + (1|FISH_ID) + (1|POPULATION), 
+mmr.1c <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (REGION|POPULATION), 
                   family=gaussian(),
-                  data = resp3,
-                  REML = TRUE)
+                  data = resp4,
+                  REML = TRUE) # Convergence problem
 
 ```
 
 #### random factor model comparisons 
 
 ```{r random-factors-1.2, warning=FALSE, echo=FALSE}
-aic.c=AICc(rmr.3a, rmr.3b, rmr.3c, k=2)
-bic=BIC(rmr.3a, rmr.3b, rmr.3c)
+aic.c=AICc(mmr.1a, mmr.1b, mmr.1c, k=2)
+bic=BIC(mmr.1a, mmr.1b, mmr.1c)
 
 model.fit.table <- as.data.frame(aic.c) %>% 
   tibble::rownames_to_column("model") %>%
   mutate(BIC = bic$BIC, 
-         r2m = c(r.squaredGLMM(rmr.3a)[1], r.squaredGLMM(rmr.3b)[1], r.squaredGLMM(rmr.3c)[1]), 
-         r2c = c(r.squaredGLMM(rmr.3a)[2], r.squaredGLMM(rmr.3b)[2], r.squaredGLMM(rmr.3c)[2]))
+         r2m = c(r.squaredGLMM(mmr.1a)[1], r.squaredGLMM(mmr.1b)[1], r.squaredGLMM(mmr.1c)[1]), 
+         r2c = c(r.squaredGLMM(mmr.1a)[2], r.squaredGLMM(mmr.1b)[2], r.squaredGLMM(mmr.1c)[2]))
 model.fit.table %>% knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
 
 ```
 
-Model _rmr.3a_ appears to be the best model, however, there seems to be no difference in how the models change depending on how the random factors are arranged.
+Model _rmr.3a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
 
 # Model validation {.tabset .tabset-faded}
 
@@ -325,46 +321,46 @@ Model _rmr.3a_ appears to be the best model, however, there seems to be no diffe
 
 ### rmr.3a (linear)
 ```{r model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-rmr.3a %>% performance::check_model()
+mmr.1a %>% performance::check_model()
 ```
 
-The _rmr.3a_ model performs well, however, in the model validation performed by the **performance** model it looks like there are two variables that are highly correlated. If we expand the figure we can see that the highly correlated variables are REGION and REGION:TEMPERATURE. Perhaps this is unsurprising  but lets see what happens when we run the quadratic (2^nd polynomial) model to see if this helps deal with the high correlation between these two variables, as it performed very similarly to _rmr.3a_, and even had a higher r2 value. 
+The _mmr.3a_ model performs well, however, in the model validation performed by the **performance** model it looks like there are two variables that are highly correlated. If we expand the figure we can see that the highly correlated variables are REGION and REGION:TEMPERATURE. Perhaps this is unsurprising  but lets see what happens when we run the quadratic (2^nd^ polynomial) model to see if this helps deal with the high correlation between these two variables, as it performed very similarly to _mmr.3a_, and even had a higher r2 value. 
 
-### rmr.3.p2a (quadratic)
+### mmr.1.p2a (quadratic)
 
 First we need to update the model by adding in the missing random factor
 ```{r model-valid-1.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE}
-rmr.3.p2a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
+mmr.1.p2a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|FISH_ID), 
                  family=gaussian(),
-                 data = resp3, 
+                 data = resp4, 
                  REML = TRUE) 
 ```
 
 ```{r model-valid-1.2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-rmr.3.p2a %>% performance::check_model()
+mmr.1.p2a %>% performance::check_model()
 ```
 
 ## DHARMa residuals {.tabset .tabset-faded}
 
-### rmr.3a (linear)
+### mmr.1a (linear)
 ```{r model-valid-2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
-rmr.3a %>% simulateResiduals(plot=TRUE)
-rmr.3a %>% DHARMa::testResiduals(plot=TRUE)
+mmr.1a %>% simulateResiduals(plot=TRUE)
+mmr.1a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
-### rmr.3.p2 (quadratic)
+### mmr.1.p2 (quadratic)
 
 First we need to update the model by adding in the missing random factor
 ```{r model-valid-2.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE}
-rmr.3.p2a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
+mmr.1.p2a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|FISH_ID), 
                  family=gaussian(),
-                 data = resp3, 
+                 data = resp4, 
                  REML = TRUE) 
 ```
 
 ```{r model-valid-2.2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
-rmr.3.p2a %>% simulateResiduals(plot=TRUE) 
-rmr.3.p2a %>% DHARMa::testResiduals(plot=TRUE)
+mmr.1.p2a %>% simulateResiduals(plot=TRUE) 
+mmr.1.p2a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
 ## {-}
@@ -381,13 +377,13 @@ It looks like the model that treats temperature as a second order polynomial doe
 ## ggemmeans 
 
 ```{r partial-plots-1, message=FALSE, echo=FALSE, fig.width=8, fig.height=6}
-rmr.3.p2a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+mmr.1.p2a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
 ```
 
 ## plot_model 
 
 ```{r partial-plots-2, echo=FALSE, fig.width=8, fig.height=6}
-rmr.3.p2a %>% plot_model(type='std', vline.color = "grey12", show.values=TRUE, sort.est = TRUE, transform = NULL, value.offset = 0.3)
+mmr.1.p2a %>% plot_model(type='std', vline.color = "grey12", show.values=TRUE, sort.est = TRUE, transform = NULL, value.offset = 0.3)
 ```
 
 # {-} 
@@ -396,7 +392,7 @@ rmr.3.p2a %>% plot_model(type='std', vline.color = "grey12", show.values=TRUE, s
 
 ## summary 
 ```{r model-inv-1, echo=FALSE}
-as.data.frame(summary(rmr.3.p2a)$coefficients[1]) %>% 
+as.data.frame(summary(mmr.1.p2a)$coefficients[1]) %>% 
   dplyr::rename( 
     Estimate = cond.Estimate,
     StdError = cond.Std..Error,
@@ -409,7 +405,7 @@ as.data.frame(summary(rmr.3.p2a)$coefficients[1]) %>%
 
 ## Anova 
 ```{r model-inv-2, echo=FALSE}
-rmr.3.p2a %>% Anova() %>% 
+mmr.1.p2a %>% Anova() %>% 
   as.data.frame() %>%
   knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
@@ -417,7 +413,7 @@ rmr.3.p2a %>% Anova() %>%
 
 ## confint 
 ```{r model-inv-3, echo=FALSE}
-rmr.3.p2a %>% confint() %>% 
+mmr.1.p2a %>% confint() %>% 
   as.data.frame() %>%
   knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
@@ -425,7 +421,7 @@ rmr.3.p2a %>% confint() %>%
 
 ## r-squared
 ```{r model-inv-4, echo=FALSE}
-rmr.3.p2a %>% performance::r2_nakagawa() %>% 
+mmr.1.p2a %>% performance::r2_nakagawa() %>% 
   as.data.frame() %>%
   knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
@@ -439,32 +435,32 @@ rmr.3.p2a %>% performance::r2_nakagawa() %>%
 
 
 ```{r pairwise-1}
-rmr.3.p2a %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+mmr.1.p2a %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 ```
 SCROLL TO THE RIGHT -->
 
-The numbers in the left most column in the table just mention that the slopes are assuming mean **MASS_CENTERED** and **RESTING_TIME_SEONDS** values when looking at differences between latitudinal slopes.
+The numbers in the left most column in the table just mention that the slopes are assuming mean **MASS_CENTERED** values when looking at differences between latitudinal slopes.
 
 ## emmeans [latitudes]
 ```{r pairwise-2}
-rmr.3.p2a %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+mmr.1.p2a %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 ```
 
 ## temperature 
 ```{r pairwise-3}
-rmr.3.p2a %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
+mmr.1.p2a %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
 ```
 
 
 ## Means - f(temperature)
 ```{r pairwise-4}
-rmr.3.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID)) %>% 
+mmr.1.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID)) %>% 
   emmeans(~REGION*TEMPERATURE, type = "response") %>% summary(infer=TRUE)
 ```
 
 ## Abs. diff - f(temperature)
 ```{r pairwise-5}
-rmr.3.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID)) %>% 
+mmr.1.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID)) %>% 
   emmeans(~REGION*TEMPERATURE, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
 ```
 # {-}
@@ -472,32 +468,30 @@ rmr.3.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + REST
 # Summary figure 
 
 ```{r sum-fig, fig.width=8, fig.height=6, echo=FALSE}
-rmr.emm <- emmeans(rmr.3.p2a, ~ TEMPERATURE*REGION, 
+mmr.emm <- emmeans(mmr.1.p2a, ~ TEMPERATURE*REGION, 
                   at = list(TEMPERATURE = seq(from=27, to = 31.5, by=.1)))
-rmr.emm.df=as.data.frame(rmr.emm)
+mmr.emm.df=as.data.frame(mmr.emm)
 
-rmr.obs <-  resp3 %>% 
-  mutate(Pred=predict(rmr.3.p2a, re.form=NA),
-         Resid = residuals(rmr.3.p2a, type='response'),
+mmr.obs <-  resp4 %>% 
+  mutate(Pred=predict(mmr.1.p2a, re.form=NA),
+         Resid = residuals(mmr.1.p2a, type='response'),
          Fit = Pred + Resid)
 
-rmr.g2 <- ggplot(rmr.emm.df, aes(y=predicted, x=TEMPERATURE, color=group))+
-  geom_jitter(data=rmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+mmr.g2 <- ggplot(mmr.emm.df, aes(y=predicted, x=TEMPERATURE, color=group))+
+  geom_jitter(data=mmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) + 
   stat_smooth(method = "lm", 
               formula =y ~ poly(x, 2, raw=TRUE)) + 
   geom_ribbon(aes(x=TEMPERATURE, ymin= conf.low, ymax= conf.high, fill = group), 
-              alpha = 0.2, color=NA)+ 
+              alpha = 0.2, color=NA) +
   scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
-  scale_y_continuous(limits = c(2,12), breaks = seq(2, 12, by = 2)) +
-  theme_classic() + ylab("RESTING METABOLIC RATE (MMR: MgO2/hr)")+ xlab("")+
-  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
-                     name = "Regions") +
-  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
-                    name = "Regions") + 
-  theme(legend.position = "top") + 
-  annotate("text", x=31, y= 11.5, label="P =0.51", fontface="italic", size=4); rmr.g2
+  scale_y_continuous(limits = c(6,27), breaks = seq(6, 27, by = 2)) +
+  theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR: MgO2/hr)")+ xlab("")+
+  scale_color_manual(values=c("#B2182B", "#4393C3")) + 
+  scale_fill_manual(values=c("#B2182B", "#4393C3")) + 
+  theme(legend.position = 'none')+
+  annotate("text", x=31, y= 27, label="P =0.0010", fontface="italic", size=5); mmr.g2
 ```
 
 # Conclusion 
 
-* In conclusion while resting oxygen consumption is **significantly** positively correlated with temperature. However, there is no significant difference in the resting oxygen consumption between the low- and high-latitude regions. 
+* In conclusion while maximum oxygen consumption is **significantly** positively correlated with temperature and fish from low latitudes have **significantly** higher maximum consumption at elevated temperatures compared to fish from high latitudes.

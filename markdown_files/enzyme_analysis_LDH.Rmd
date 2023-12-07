@@ -1,0 +1,561 @@
+---
+title: "Lactate dehydrogenase (LDH)"
+author: "Elliott Schmidt"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    keep_md: yes
+    code_folding: show
+    collapse: no
+    df_print: paged
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    highlight: monochrome
+    theme: flatly
+    latex_engine: xelatex
+    toc: yes
+    toc_float: yes
+    css: styles.css
+  pdf_document:
+    df_print: default
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 4
+    highlight: tango
+    latex_engine: xelatex
+    number_sections: yes
+    toc_depth: 2
+documentclass: article
+fontsize: 12pt
+mainfont: Arial
+mathfont: LiberationMono
+classoption: a4paper
+--- 
+
+# Scenario 
+
+For initial details on the experiment performed please read the **ReadMe** file. In brief, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. After metabolic performance was tested blood and tissue samples were collected. White muscle tissue samples were used to look at the relationship between activity and temperature in two different enzymes, Lactate Dehydrogenase (LDH; anaerobic) and Citrate Synthase (CS: aerobic). Enzyme activity was measured over four different temperatures including 20$^\circ$C, 30$^\circ$C, 40$^\circ$C, and 50$^\circ$C. Enzyme activity was measured using a spectophotometer and wavelength absoprtion levels were recorded using the software program LabX. 
+
+# Load packages 
+
+Lets start by loading the packages that are needed 
+```{r load-packages, warning=FALSE, message=FALSE}
+library(tidyverse) # data manipulation
+library(janitor) # data manipulation
+library(plyr) # data manipulation
+library(dplyr) # data manipulation
+library(lubridate) # data manipulation - specifically time data
+library(ggplot2) # plotting figures
+library(glmmTMB) # running models
+library(performance) # model validation
+library(chron) # data manipulation - specifically time data
+library(DHARMa) # model validation
+library(MuMIn) # model validation
+library(kableExtra) # creating tables
+library(broom) # dependent
+library(emmeans) # post-hoc analysis
+library(ggeffects) # plotting models/model validation
+library(vtable) # creating tables
+library(modelr) # model validation
+library(kableExtra) # formatting output tables
+library(sjPlot) # plotting models 
+library(car) # used for Anova function
+```
+
+## Read in the data
+
+Before beginning always make sure that you are working in the correct directory 
+
+```{r set-dir-hide, include=FALSE}
+working.dir = "C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/"
+```
+
+```{r set_dir}
+knitr::opts_knit$set(root.dir=working.dir)
+```
+
+Now we can import that data. Two different data frames are being imported. The first has all the enzyme wave length absorption data for each sample and the tissue.mass data file contained information pertaining to the tissue samples that was used for each sample. Later on these two data frames will be merged. 
+
+## Load data 
+```{r import-data-hide}
+ldh <- read_delim("./enzymes/LDH_LocalAdapt.txt", delim = "\t", 
+                  escape_double = FALSE, col_types = cols(`Creation time` = col_datetime(format = "%d/%m/%Y %H:%M")), 
+                  trim_ws = TRUE)
+tissue.mass <- read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/enzymes/tissue_mass.txt")
+```
+
+# Data manipulation 
+
+Before the data can be analysed it is important to clean up the data file. I won't explain step, that can be figured out by examining the different functions. The main steps that are occurring below are columns being broken up to make new columns (this is the _separate_ function), or columns being combined to make a unique_sample_Id value. Time data can also be tricky to deal with in R, so there are a number of data manipulation steps being used to make sure that time is being read properly.
+
+```{r data-manipulation-1, warning=FALSE, message=FALSE}
+#--- data preparation/manipulation ---# 
+ldh2 <- ldh %>%
+  clean_names() %>%
+  mutate(muscle_type = str_replace(muscle_type, " ", ".")) %>%
+  unite("UNIQUE_SAMPLE_ID", c(fish_id,temperature,sample_index), sep="_", remove = FALSE) %>% 
+  separate(creation_time, into=c('DATE','TIME'), sep = " ", remove = FALSE) %>% 
+  arrange(sample_id_1, DATE, TIME) 
+
+ldh3 <- ldh2 %>% 
+  mutate(TIME = hms(ldh2$TIME)) %>% 
+  mutate(TIME = chron(times=ldh2$TIME)) %>% 
+  arrange(TIME) %>%
+  group_by(UNIQUE_SAMPLE_ID, sample_id_1) %>% 
+  mutate(TIME_DIFF = TIME - first(TIME)) %>% 
+  filter(TIME != first(TIME)) %>%
+  ungroup() %>% 
+  mutate(TIME_DIFF_SECS = period_to_seconds(hms(TIME_DIFF))) %>% 
+  mutate(MINUTES = TIME_DIFF_SECS/60) %>% 
+  mutate(MINUTES = round(MINUTES, digits = 2)) %>% 
+  dplyr::rename(CUVETTE = sample_id_1) %>% 
+  mutate(REGION = substr(fish_id, 1, 1 ), 
+         POPULATION = substr(fish_id, 2, 4), 
+         SAMPLE_NO = substr(fish_id, 5, 7)) %>% 
+  mutate(REGION = case_when( REGION =="L"~ "Leading", 
+                             REGION == "C" ~ "Core", 
+                             TRUE ~ "na"))   
+```
+
+## Data cleaning
+
+Next select data points will be removed. Data points have been checked using previously written app script that allows the user to look at the plotted points of samples that were run. Because we are interested in the slope, points that plateaued were removed from the analysis, as it signifies that the reaction ran out of 'fuel' to use. For LDH 'fuel' would refer to NADH, for CS 'fuel' would refer to Oxaloacetic acid. Samples that were removed were placed into one of five different groups, that can be found below: 
+
+* **grp1**: removed last data point which was causing a plateau
+* **grp2**: removed last 2 data points which was causing a plateau
+* **grp3**: removed last 3 data points which was causing a plateau
+* **grp4**: removed last 4 data points which was causing a plateau
+* **grp5**: removed last 5 data points which was causing a plateau
+
+```{r data-manipulation-2, warning=FALSE, message=FALSE} 
+grp1 <- c("CSUD008_20_1","CSUD008_20_2","CSUD008_20_3","CSUD008_20_4","CSUD008_20_5","CSUD008_20_6", 
+          "CVLA047_50_1","CVLA047_50_2","CVLA047_50_3","CVLA047_50_4","CVLA047_50_5","CVLA047_50_6", 
+          "CVLA046_50_1","CVLA046_50_2","CVLA046_50_3","CVLA046_50_4","CVLA046_50_5","CVLA046_50_6") 
+grp2 <- c("LCKM180_30_1","LCKM180_30_2","LCKM180_30_3","LCKM180_30_4","LCKM180_30_5","LCKM180_30_6", 
+          "LKES172_50_1","LKES172_50_2","CLKES172_50_3","LKES172_50_4","LKES172_50_5","LKES172_50_6", 
+          "LCHA114_50_1","LCHA114_50_2","LCHA114_50_3","LCHA114_50_4","LCHA114_50_5","LCHA114_50_6", 
+          "CSUD074_50_1","CSUD074_50_2","CSUD074_50_3","CSUD074_50_4","CSUD074_50_5","CSUD074_50_6")
+grp3 <- c("LCKM165_50_1","LCKM165_50_2","LCKM165_50_3","LCKM165_50_4","LCKM165_50_5","LCKM165_50_6", 
+          "LCKM163_50_1","LCKM163_50_2","CLCKM163_50_3","LCKM163_50_4","LCKM163_50_5","LCKM163_50_6", 
+          "CTON068_50_1","CTON068_50_2","CTON068_50_3","CTON068_50_4","CTON068_50_5","CTON068_50_6", 
+          "CVLA104_50_1","CVLA104_50_2","CVLA104_50_3","CVLA104_50_4","CVLA104_50_5","CVLA104_50_6") 
+grp4 <- c("LCHA135_50_1","LCHA135_50_2","LCHA135_50_3","LCHA135_50_4","LCHA135_50_5","LCHA135_50_6", 
+          "CTON069_50_1","CTON069_50_2","CCTON069_50_3","CTON069_50_4","CTON069_50_5","CTON069_50_6", 
+          "CVLA045_50_1","CVLA045_50_2","CVLA045_50_3","CVLA045_50_4","CVLA045_50_5","CVLA045_50_6") 
+grp5 <- c("CSUD014_50_1","CSUD014_50_2","CSUD014_50_3","CSUD014_50_4","CSUD014_50_5","CSUD014_50_6", 
+          "CTON110_50_1","CTON110_50_2","CCTON110_50_3","CTON110_50_4","CTON110_50_5","CTON110_50_6")  
+```
+
+For some samples entire runs on certain cuvettes were poor. These samples were removed below, as well as samples from each grp outlined above: 
+
+```{r data-manipulation-3, warning=FALSE, message=FALSE}
+ldh3.filtered <- ldh3 %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% c("LCKM154_20_1", 
+                                   "LKES143_30_3", 
+                                   "LKES143_20_2", 
+                                   "CSUD010_40_2"))) %>% 
+  group_by(UNIQUE_SAMPLE_ID) %>% 
+  arrange(UNIQUE_SAMPLE_ID, TIME) %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% grp1 & row_number() > (n() - 1))) %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% grp2 & row_number() > (n() - 2))) %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% grp3 & row_number() > (n() - 3))) %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% grp4 & row_number() > (n() - 4))) %>% 
+  filter(!(UNIQUE_SAMPLE_ID %in% grp5 & row_number() > (n() - 5))) %>% 
+  ungroup() %>% 
+  mutate(UNIQUE_SAMPLE_ID = str_sub(UNIQUE_SAMPLE_ID, end = -3)) 
+```
+
+Great! Now we have all the data points that we want to keep. However, the data needs to manipulated in a way that we can obtain and pull out slopes from the absorption readings, and the calculate enzyme activity based on these slopes. This will involve a number of steps. 
+
+## Data calculations
+
+### Step1: Extract slopes 
+
+Step1 will produce a data frame that provides you with the slope that was obtained for cuvettes 1-3 for each sample run at each experimental temperature
+```{r data-calc-1, warning=FALSE, message=FALSE}
+LDH_activity <- ldh3.filtered %>% 
+  group_by(UNIQUE_SAMPLE_ID, CUVETTE) %>% 
+  do({
+    mod = lm(result ~ MINUTES, data = .)
+    data.frame(Intercept = coef(mod)[1],
+               Slope = coef(mod)[2], 
+               r2 = summary(mod)$adj.r.squared)
+  }) %>%
+  ungroup() %>%
+  filter(CUVETTE != ("6"))%>% 
+  filter(CUVETTE != ("4"))%>% 
+  filter(CUVETTE != ("5")) %>% 
+  filter(Slope <= 0)
+
+```
+
+### Step2: Slope means
+
+Step2 will calculate the mean slope for cuvette 1-3. 
+```{r data-calc-2, warning=FALSE, message=FALSE}
+LDH_activity_means <- LDH_activity %>% 
+  group_by(UNIQUE_SAMPLE_ID) %>% 
+  dplyr::mutate(Mean = mean(Slope)) %>% 
+  ungroup()
+```
+
+### Step3: Background activity level
+
+Step3 will calculate background activity level by measuring the slope from cuvette 5 (postive control)
+```{r data-calc-3, warning=FALSE, message=FALSE}
+LDH_background <- ldh3 %>% 
+  group_by(UNIQUE_SAMPLE_ID, CUVETTE) %>% 
+  do({
+    mod = lm(result ~ MINUTES, data = .)
+    data.frame(Intercept = coef(mod)[1],
+               Slope = coef(mod)[2])
+  }) %>%
+  ungroup() %>%
+  filter(CUVETTE == ("5")) %>% 
+  dplyr::rename(Background = Slope) %>% 
+  mutate(UNIQUE_SAMPLE_ID = str_sub(UNIQUE_SAMPLE_ID, end = -3)) 
+```
+
+### Step4: Merging dataframes
+
+Step4 will merge the data frames that you created with the mean slopes and the background slopes.
+```{r data-calc-4, warning=FALSE, message=FALSE}
+final_table <- LDH_activity %>% 
+  full_join(distinct(LDH_activity_means[,c(1,6)]), by = "UNIQUE_SAMPLE_ID") %>% 
+  full_join(LDH_background[,c(1,4)], by = "UNIQUE_SAMPLE_ID") 
+final_table$Mean[duplicated(final_table$Mean)] <- ""
+final_table$Background[duplicated(final_table$Background)] <- ""
+final_table <- final_table %>% 
+  mutate(Mean = as.numeric(Mean), 
+         Background = as.numeric(Background), 
+         Background_perc = Background/Mean) 
+```
+
+### Step5: Enzyme activity levels 
+
+Step5 is where enzyme activity levels are calculated. See further details in manuscript (doi: xxx). Within this step background activity level is taken into account and subtracted from slopes where background activity was >5% or more of the sample slope. 
+```{r data-calc-5, warning=FALSE, message=FALSE}
+ldh.data <- final_table %>% 
+  select(c(UNIQUE_SAMPLE_ID, Mean, Background, Background_perc)) %>% 
+  mutate(Mean = as.numeric(Mean), 
+         Background = as.numeric(Background), 
+         Background_perc = as.numeric(Background_perc)) %>% 
+  mutate(Background2 = case_when(Background_perc <= 0.05 ~ 0, 
+                                    TRUE ~ Background), 
+         LDH_ABSORBANCE = Mean - Background2) %>%
+  drop_na() %>% 
+  inner_join(select(ldh3.filtered, c(UNIQUE_SAMPLE_ID, REGION, POPULATION, temperature, fish_id)), by ="UNIQUE_SAMPLE_ID") %>% 
+  inner_join(tissue.mass, by = "fish_id") %>% 
+  mutate(TISSUE_MASS_CENTERED = scale(TISSUE_MASS, center = TRUE, scale = FALSE)) %>%
+  distinct(UNIQUE_SAMPLE_ID, REGION, POPULATION, .keep_all = TRUE) %>% 
+  mutate(PATH_LENGTH = 1, 
+         EXTINCTION_COEFFICIENT = 6.22, 
+         TISSUE_CONCENTRATION = 0.005, 
+         ASSAY_VOL = 2.975, 
+         SAMPLE_VOL = 0.025, 
+         LDH_ACTIVITY = ((LDH_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))*-1) %>% 
+  filter(LDH_ACTIVITY >=0)
+```
+
+By the end of this stage you should have a data frame that included a column called **LDH_ACTIVITY** along with necessary metadata - this data frame will be used to perform the statistical analysis. 
+
+# Exploratory data analysis {.tabset}
+
+## LDH v TEMPERATURE [LATITUDE]
+```{r eda-1, warning=FALSE, message=FALSE, fig.width=7, fig.height=6}
+ggplot(ldh.data, aes(x =as.numeric(temperature), y= LDH_ACTIVITY, color = REGION)) + 
+  geom_point() + geom_smooth(method = "lm", se=FALSE)
+```
+
+## LDH V TEMPERATURE [DENSITY]
+```{r eda-2, warning=FALSE, message=FALSE}
+ggplot(ldh.data, aes(x = LDH_ACTIVITY, fill = temperature, color = temperature)) + 
+  geom_density(alpha =0.5, position = "identity") 
+```
+
+## LDH v TISSUE MASS (LATITUDE)
+```{r eda-3, warning=FALSE, message=FALSE}
+ggplot(ldh.data, aes(x =TISSUE_MASS_CENTERED, y= LDH_ACTIVITY, color = REGION)) + 
+  geom_point() + geom_smooth(method = "lm", se=FALSE)
+```
+
+
+## {-}
+
+# Fit the model 
+
+The model was fit using the **glm** and later **glmmTMB** package in R. A number of different models were tested to determine which hypothesis and associated variables best predicted resting oxygen consumption. Model fit was examined using AICc, BIC, and r-squared values. Additional model were examined via the validation diagonistics provided by the **performance** and **dHARMA** packages in R. 
+
+## Fixed factors (linear regression models)
+
+### model 1
+```{r model-fit-1, warning=FALSE}
+#--- base model ---#
+ldh.model.1 <- glm(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED, 
+                       family=gaussian(), 
+                       data = ldh.data)  
+```
+#### summary
+```{r model-fit-1.2, warning=FALSE, echo=FALSE}
+as.data.frame(summary(ldh.model.1)$coefficients) %>% 
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+```
+
+### model 2
+```{r model-fit-2, warning=FALSE}
+ldh.model.2 <- glm(LDH_ACTIVITY ~ 1 + REGION*temperature, 
+                       family=gaussian(), 
+                       data = ldh.data)
+```
+
+#### summary
+```{r model-fit-2.2, warning=FALSE, echo=FALSE}
+as.data.frame(summary(ldh.model.2)$coefficients) %>% 
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+
+```
+
+### model comparison table
+```{r model-fit-3, warning=FALSE, echo=FALSE}
+aic.c=AICc(ldh.model.1, ldh.model.2, k=2) 
+bic=BIC(ldh.model.1, ldh.model.2)
+
+model.fit.table <- as.data.frame(aic.c) %>% 
+  tibble::rownames_to_column("model") %>%
+  mutate(BIC = bic$BIC, 
+         r2 = c(r.squaredGLMM(ldh.model.1)[1], r.squaredGLMM(ldh.model.2)[1]))
+model.fit.table %>% knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+```
+
+The model that contains **TISSUE_MASS_CENTERED** seems to do better than the model that leaves TISSUE_MASS_CENTERED out. Therefore we will move ahead with the model that contains **TISSUE_MASS_CENTERED** as a co-variate.  
+
+## Polynomials 
+
+### polynomial models 
+
+Note that the linear model has already been created via model _ldh.model.1_ in the previous section.
+
+```{r poly-model-1}
+#--- second order polynomial ---# 
+ldh.model.1.p2 <- glm(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 2) + TISSUE_MASS_CENTERED, 
+                       family=gaussian(), 
+                       data = ldh.data)  
+
+#--- third order polynomial ---# 
+ldh.model.1.p3 <- glm(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED, 
+                          family=gaussian(), 
+                          data = ldh.data)  
+```
+
+#### polynomial model comparisons
+```{r poly-model-1.2, warning=FALSE, echo=FALSE}
+aic.c=AICc(ldh.model.1, ldh.model.1.p2, ldh.model.1.p3, k=2)
+bic=BIC(ldh.model.1, ldh.model.1.p2, ldh.model.1.p3)
+
+model.fit.table <- as.data.frame(aic.c) %>% 
+  tibble::rownames_to_column("model") %>%
+  mutate(BIC = bic$BIC, 
+         r2 = c(r.squaredLR(ldh.model.1)[1], r.squaredLR(ldh.model.1.p2)[1], r.squaredLR(ldh.model.1.p3)[1]))
+model.fit.table %>% knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+```
+
+From our model comparison we can see that the model that runs temperature as a third order polynomial performs the best. Therefore, moving forward we will use the third order polynomial model. 
+
+## Random factors 
+
+Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run a compaired. 
+
+### random factor models
+
+```{r random-factors-1, warning=FALSE}
+ldh.model.1.p3a <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id), 
+                       family=gaussian(), 
+                       data = ldh.data, 
+                       REML = TRUE) 
+
+ldh.model.1.p3b <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
+                  family=gaussian(), 
+                  data = ldh.data, 
+                  REML = TRUE) 
+
+ldh.model.1.p3c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
+                       family=gaussian(), 
+                       data = ldh.data, 
+                       REML = TRUE) # convergence problem
+
+```
+
+#### random factor model comparisons 
+
+```{r random-factors-1.2, warning=FALSE, echo=FALSE}
+aic.c=AICc(ldh.model.1.p3a, ldh.model.1.p3b, ldh.model.1.p3c, k=2)
+bic=BIC(ldh.model.1.p3a, ldh.model.1.p3b, ldh.model.1.p3c)
+
+model.fit.table <- as.data.frame(aic.c) %>% 
+  tibble::rownames_to_column("model") %>%
+  mutate(BIC = bic$BIC, 
+         r2m = c(r.squaredGLMM(ldh.model.1.p3a)[1], r.squaredGLMM(ldh.model.1.p3b)[1], r.squaredGLMM(ldh.model.1.p3c)[1]), 
+         r2c = c(r.squaredGLMM(ldh.model.1.p3a)[1], r.squaredGLMM(ldh.model.1.p3b)[1], r.squaredGLMM(ldh.model.1.p3c)[1]))
+model.fit.table %>% knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+```
+
+Model _ldh.model.1.p3a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
+
+# Model validation {.tabset .tabset-faded}
+
+## performance {.tabset .tabset-faded}
+
+### rmr.3a (linear)
+```{r model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
+ldh.model.1.p3a %>% performance::check_model()
+```
+
+The _ldh.model.1.p3a_ model looks like it performs well.
+
+## DHARMa residuals {.tabset .tabset-faded}
+
+### nas.1a (linear)
+```{r model-valid-2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
+ldh.model.1.p3a %>% simulateResiduals(plot=TRUE)
+ldh.model.1.p3a %>% DHARMa::testResiduals(plot=TRUE)
+```
+
+## {-}
+
+# {-}
+
+The model performs well and passes validation checks. 
+
+# Partial plots {.tabset .tabset-faded}
+
+## ggemmeans 
+
+```{r partial-plots-1, message=FALSE, echo=FALSE, fig.width=8, fig.height=6}
+ldh.model.1.p3a %>% ggemmeans(~temperature|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+```
+
+## plot_model 
+
+```{r partial-plots-2, echo=FALSE, fig.width=8, fig.height=6}
+ldh.model.1.p3a %>% plot_model(type='std', vline.color = "grey12", show.values=TRUE, sort.est = TRUE, transform = NULL, value.offset = 0.3)
+```
+
+# {-} 
+
+# Model investigation {.tabset .tabset-faded}
+
+## summary 
+```{r model-inv-1, echo=FALSE}
+as.data.frame(summary(ldh.model.1.p3a)$coefficients[1]) %>% 
+  dplyr::rename( 
+    Estimate = cond.Estimate,
+    StdError = cond.Std..Error,
+    Zvalue = cond.z.value,
+    Pvalue = cond.Pr...z..
+    ) %>%
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+```
+
+## Anova 
+```{r model-inv-2, echo=FALSE}
+ldh.model.1.p3a %>% Anova() %>% 
+  as.data.frame() %>%
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+``` 
+
+## confint 
+```{r model-inv-3, echo=FALSE}
+ldh.model.1.p3a %>% confint() %>% 
+  as.data.frame() %>%
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+``` 
+
+## r-squared
+```{r model-inv-4, echo=FALSE}
+ldh.model.1.p3a %>% performance::r2_nakagawa() %>% 
+  as.data.frame() %>%
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+```
+
+# {-} 
+
+# Pairwise comparisons {.tabset .tabset-faded} 
+
+## emtrends [latitudes]
+
+
+```{r pairwise-1}
+ldh.model.1.p3a  %>% emtrends(var = "temperature", type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+```
+SCROLL TO THE RIGHT -->
+
+The numbers in the left most column in the table just mention that the slopes are assuming mean **TISSUE_MASS_CENTERED** values when looking at differences between latitudinal slopes.
+
+## emmeans [latitudes]
+```{r pairwise-2}
+ldh.model.1.p3a  %>% emmeans(pairwise ~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+```
+
+## temperature 
+```{r pairwise-3}
+ldh.model.1.p3a  %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer=TRUE)
+```
+
+
+## Means - f(temperature)
+```{r pairwise-4}
+ldh.model.1.p3a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
+  emmeans(~REGION*temperature, type = "response") %>% summary(infer=TRUE)
+```
+
+## Abs. diff - f(temperature)
+```{r pairwise-5}
+ldh.model.1.p3a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
+  emmeans(~REGION*temperature, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
+```
+# {-}
+
+# Summary figure 
+
+```{r sum-fig, fig.width=8, fig.height=6, echo=FALSE}
+ldh.emm <- emmeans(ldh.model.1.p3a, ~ temperature*REGION, 
+                   at = list(temperature = seq(from=20, to = 50, by=1)))
+ldh.emm.df=as.data.frame(ldh.emm)
+
+ldh.obs <- ldh.data %>% 
+  mutate(Pred = predict(ldh.model.1.p3a, re.form=NA), 
+         Resid = residuals(ldh.model.1.p3a, type = 'response'), 
+         Fit = Pred - Resid)
+
+cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGION)) + 
+  stat_smooth(method = "lm", se=TRUE, 
+              formula =y ~ poly(x, 3, raw=TRUE)) + 
+  geom_ribbon(aes(x=temperature, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA) +
+  geom_jitter(data=ldh.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  scale_y_continuous(limits = c(0,250), breaks = seq(0, 250, by =50)) + 
+  theme_classic() + ylab("LDH ACTIVITY SLOPE") + xlab("TEMPERATURE") +
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
+                     name = "Regions") +
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
+                    name = "Regions")+
+  #scale_y_continuous(limits=c(0,7), breaks = seq(0,6,1.5))+
+  theme(legend.position = 'none') + 
+  annotate("text", x=25, y=240, label="p =0.98", fontface = 'italic', size = 6); cldh2
+```
+
+# Conclusion 
+
+* In conclusion while LDH enzyme activity has a **significantly** positively correlated with temperature, however, there is no significant difference in the relationship between temperature and LDH activity when comparing fish from low- and high-latitudes.
+
+

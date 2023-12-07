@@ -203,7 +203,7 @@ predict(mmr.1b, re.form=NA)
 residuals(mmr.1b, type='response') 
 #data points based on month/situation/random effects - to get the data points
 mmr.obs <-  resp4 %>% 
-  mutate(Pred=predict(mmr.1.p2a, re.form=NA),
+  mutate(Pred=predict(mmr.1.p2a, re.form=NA)) ,
          Resid = residuals(mmr.1.p2a, type='response'),
          Fit = Pred + Resid)
 obs %>% head() 
@@ -216,8 +216,8 @@ mmr.g2 <- ggplot(mmr.newdata, aes(y=predicted, x=TEMPERATURE, color=group))+
   scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
   scale_y_continuous(limits = c(6,27), breaks = seq(6, 27, by = 2)) +
   theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR: MgO2/hr)")+ xlab("")+
-  scale_color_manual(values=c("#DA3A36", "#0D47A1")) + 
-  scale_fill_manual(values=c("#DA3A36", "#0D47A1")) + 
+  scale_color_manual(values=c("#B2182B", "#4393C3")) + 
+  scale_fill_manual(values=c("#B2182B", "#4393C3")) + 
   theme(legend.position = 'none')+
   annotate("text", x=31, y= 27, label="P =0.0018", fontface="italic", size=4); mmr.g2
   

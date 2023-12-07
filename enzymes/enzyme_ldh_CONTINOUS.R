@@ -147,10 +147,7 @@ ldh.data <- final_table %>%
 
 #--- quailty check ---# 
 # use app to compelte quailty check 
-
-
-  
-ggplot(ldh.data, aes(x =as.numeric(temperature), y= LDH_ACTIVITY, color = POPULATION)) + 
+ggplot(ldh.data, aes(x =as.numeric(temperature), y= LDH_ACTIVITY, color = REGION)) + 
   geom_point() + geom_smooth(method = "lm", se=FALSE)
 #--- begin data analysis ---# 
 ggplot(ldh.data, aes(x = LDH_ACTIVITY, fill = temperature, color = temperature)) + 
@@ -166,10 +163,9 @@ ldh.data %>%
             Mean = mean(LDH_ACTIVITY)) 
 
 #--- models - fixed factor ---# 
-ldh.model.1 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED, 
+ldh.model.1 <- glm(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED, 
                        family=gaussian(), 
-                       data = ldh.data, 
-                       REML = TRUE)  
+                       data = ldh.data)  
 
 ldh.model.2 <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*temperature, 
                        family=gaussian(), 
@@ -272,9 +268,9 @@ cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGI
               alpha = 0.2, color=NA) +
   scale_y_continuous(limits = c(0,250), breaks = seq(0, 250, by =50)) + 
   theme_classic() + ylab("LDH ACTIVITY SLOPE") + xlab("TEMPERATURE") +
-  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
                      name = "Regions") +
-  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
                     name = "Regions")+
   #scale_y_continuous(limits=c(0,7), breaks = seq(0,6,1.5))+
   theme(legend.position = 'none') + 
