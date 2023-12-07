@@ -258,6 +258,10 @@ ldh.data <- final_table %>%
   filter(LDH_ACTIVITY >=0)
 ```
 
+```{r save-data-frame, echo=FALSE}
+saveRDS(ldh.data, file="./enzymes/ldh_data.RDS")
+```
+
 By the end of this stage you should have a data frame that included a column called **LDH_ACTIVITY** along with necessary metadata - this data frame will be used to perform the statistical analysis. 
 
 # Exploratory data analysis {.tabset}

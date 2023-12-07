@@ -233,6 +233,10 @@ CS.data <- final_table %>%
          CS_ACTIVITY = ((CS_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL)))
 ```
 
+```{r save-data-frame, echo=FALSE}
+saveRDS(CS.data, file="./enzymes/cs_data.RDS")
+```
+
 By the end of this stage you should have a data frame that included a column called **LDH_ACTIVITY** along with necessary metadata - this data frame will be used to perform the statistical analysis. 
 
 # Exploratory data analysis {.tabset}
@@ -312,7 +316,7 @@ The model that contains **TISSUE_MASS_CENTERED** seems to do better than the mod
 
 ### polynomial models 
 
-Note that the linear model has already been created via model _ldh.model.1_ in the previous section.
+Note that the linear model has already been created via model _cs.model.1_ in the previous section.
 
 ```{r poly-model-1}
 #--- second order polynomial ---# 
