@@ -481,11 +481,11 @@ rmr.obs <-  resp3 %>%
          Resid = residuals(rmr.3.p2a, type='response'),
          Fit = Pred + Resid)
 
-rmr.g2 <- ggplot(rmr.emm.df, aes(y=predicted, x=TEMPERATURE, color=group))+
+rmr.g2 <- ggplot(rmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION))+
   geom_jitter(data=rmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
   stat_smooth(method = "lm", 
               formula =y ~ poly(x, 2, raw=TRUE)) + 
-  geom_ribbon(aes(x=TEMPERATURE, ymin= conf.low, ymax= conf.high, fill = group), 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
               alpha = 0.2, color=NA)+ 
   scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
   scale_y_continuous(limits = c(2,12), breaks = seq(2, 12, by = 2)) +

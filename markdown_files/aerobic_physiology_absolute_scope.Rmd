@@ -161,7 +161,7 @@ resp4 <- resp3 %>%
 
 # Exploratory data analysis {.tabset}
 
-## Mass v Rest
+## Mass v AAS
 
 ```{r eda-1, warning=FALSE, message=FALSE}
 ggplot(resp4, aes(MASS, MgO2.hr_Net)) + 
@@ -170,7 +170,7 @@ ggplot(resp4, aes(MASS, MgO2.hr_Net)) +
   theme_classic()
 ```
 
-## Mass v REST (LATITUDE)
+## Mass v AAS (LATITUDE)
 ```{r eda-2, warning=FALSE, message=FALSE}
 ggplot(resp4, aes(MASS, MgO2.hr_Net, color = REGION)) + 
   geom_point() +
@@ -178,7 +178,7 @@ ggplot(resp4, aes(MASS, MgO2.hr_Net, color = REGION)) +
   geom_smooth(method = "lm")
 ```
 
-## TEMPERTURE v REST (LATITUDE)
+## TEMPERTURE v AAS (LATITUDE)
 ```{r eda-3, warning=FALSE, message=FALSE}
 ggplot(resp4, aes(TEMPERATURE, MgO2.hr_Net, color = REGION)) + 
   geom_point() +
@@ -478,11 +478,11 @@ nas.obs <-  resp4 %>%
          Resid = residuals(nas.1.p2a, type='response'),
          Fit = Pred + Resid)
 
-nas.1.p2.g2 <- ggplot(nas.emm.df, aes(y=predicted, x=TEMPERATURE, color=group)) + 
+nas.1.p2.g2 <- ggplot(nas.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION)) + 
   geom_jitter(data=nas.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
   stat_smooth(method = "lm", 
               formula =y ~ poly(x, 2, raw=TRUE)) + 
-  geom_ribbon(aes(x=TEMPERATURE, ymin= conf.low, ymax= conf.high, fill = group), 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
               alpha = 0.2, color=NA)+
   scale_y_continuous(limits = c(4,20), breaks = seq(4, 20, by = 2)) + 
   scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+

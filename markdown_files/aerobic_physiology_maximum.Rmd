@@ -161,7 +161,7 @@ resp4 <- resp3 %>%
 
 # Exploratory data analysis {.tabset}
 
-## Mass v Rest
+## MASS v MAX
 
 ```{r eda-1, warning=FALSE, message=FALSE}
 ggplot(resp4, aes(MASS, MAX_MgO2.hr_RESPR)) + 
@@ -170,7 +170,7 @@ ggplot(resp4, aes(MASS, MAX_MgO2.hr_RESPR)) +
   theme_classic()
 ```
 
-## Mass v REST (LATITUDE)
+## MASS v MAX (LATITUDE)
 ```{r eda-2, warning=FALSE, message=FALSE}
 ggplot(resp4, aes(MASS, MAX_MgO2.hr_RESPR, color = REGION)) + 
   geom_point() +
@@ -178,7 +178,7 @@ ggplot(resp4, aes(MASS, MAX_MgO2.hr_RESPR, color = REGION)) +
   geom_smooth(method = "lm")
 ```
 
-## TEMPERTURE v REST (LATITUDE)
+## TEMPERTURE v MAX (LATITUDE)
 ```{r eda-3, warning=FALSE, message=FALSE}
 ggplot(resp4, aes(TEMPERATURE, MAX_MgO2.hr_RESPR, color = REGION)) + 
   geom_point() +
@@ -477,11 +477,11 @@ mmr.obs <-  resp4 %>%
          Resid = residuals(mmr.1.p2a, type='response'),
          Fit = Pred + Resid)
 
-mmr.g2 <- ggplot(mmr.emm.df, aes(y=predicted, x=TEMPERATURE, color=group))+
+mmr.g2 <- ggplot(mmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION))+
   geom_jitter(data=mmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) + 
   stat_smooth(method = "lm", 
               formula =y ~ poly(x, 2, raw=TRUE)) + 
-  geom_ribbon(aes(x=TEMPERATURE, ymin= conf.low, ymax= conf.high, fill = group), 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
               alpha = 0.2, color=NA) +
   scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
   scale_y_continuous(limits = c(6,27), breaks = seq(6, 27, by = 2)) +

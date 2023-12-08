@@ -37,7 +37,7 @@ classoption: a4paper
 
 For initial details on the experiment performed please read the **ReadMe** file. In breif, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. 
 
-Immunocompetence was tested via phytohaemaglutinin (PHA) swelling assays at the same four experimental temperatures metabolic performance was tested at. To perform the assyu fish were injected with 0.03 mL of PHA subcutaneously in the caudal peduncle. Thickness of injection site was measured pre-injection as well as 18-24hour post-injection. PHA produces a localized, cell-mediated response (e.g., inflammation, T-cell proliferation, etc).  The change in thickness between measurement periods was used as an proxy for immunocompetence.
+Immunocompetence was tested via phytohaemaglutinin (PHA) swelling assays at the same four experimental temperatures metabolic performance was tested at. To perform the assay fish were injected with 0.03 mL of PHA subcutaneously in the caudal peduncle. Thickness of injection site was measured pre-injection as well as 18-24hour post-injection. PHA produces a localized, cell-mediated response (e.g., inflammation, T-cell proliferation, etc).  The change in thickness between measurement periods was used as an proxy for immunocompetence.
 
 
 # Read in the data
