@@ -1,7 +1,7 @@
 ---
 title: "Citrate Synthase (CS)"
 author: "Elliott Schmidt"
-date: "07 December, 2023"
+date: "08 December, 2023"
 output:
   html_document:
     keep_md: yes
@@ -250,6 +250,8 @@ CS.data <- final_table %>%
          CS_ACTIVITY = ((CS_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL)))
 ```
 
+
+
 By the end of this stage you should have a data frame that included a column called **LDH_ACTIVITY** along with necessary metadata - this data frame will be used to perform the statistical analysis. 
 
 # Exploratory data analysis {.tabset}
@@ -434,7 +436,7 @@ The model that contains **TISSUE_MASS_CENTERED** seems to do better than the mod
 
 ### polynomial models 
 
-Note that the linear model has already been created via model _ldh.model.1_ in the previous section.
+Note that the linear model has already been created via model _cs.model.1_ in the previous section.
 
 
 ```r
@@ -974,17 +976,24 @@ From looking at the different models it looks like the model with the log-link f
 cs.model.1a.log <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CENTERED + (1|FISH_ID), 
                        family=gaussian(link="log"), 
                        data = CS.data, 
-                       REML = TRUE) 
+                       REML = FALSE) 
+```
 
+```
+## Warning in (function (start, objective, gradient = NULL, hessian = NULL, :
+## NA/NaN function evaluation
+```
+
+```r
 cs.model.1a.log.p2 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*poly(TEMPERATURE, 2) + TISSUE_MASS_CENTERED + (1|FISH_ID), 
                        family=gaussian(link="log"), 
                        data = CS.data, 
-                       REML = TRUE)
+                       REML = FALSE)
 
 cs.model.1a.log.p3 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*poly(TEMPERATURE, 3) + TISSUE_MASS_CENTERED + (1|FISH_ID), 
                        family=gaussian(link="log"), 
                        data = CS.data, 
-                       REML = TRUE)
+                       REML = FALSE)
 ```
 
 <table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
@@ -1002,37 +1011,42 @@ cs.model.1a.log.p3 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*poly(TEMPERATURE, 3) + TI
   <tr>
    <td style="text-align:left;"> cs.model.1a.log </td>
    <td style="text-align:right;"> 7 </td>
-   <td style="text-align:right;"> 381.7131 </td>
-   <td style="text-align:right;"> 401.1091 </td>
-   <td style="text-align:right;"> 0.3191810 </td>
-   <td style="text-align:right;"> 0.3191810 </td>
+   <td style="text-align:right;"> 344.8578 </td>
+   <td style="text-align:right;"> 364.2538 </td>
+   <td style="text-align:right;"> 0.3265071 </td>
+   <td style="text-align:right;"> 0.3265071 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> cs.model.1a.log.p2 </td>
    <td style="text-align:right;"> 9 </td>
-   <td style="text-align:right;"> 336.8235 </td>
-   <td style="text-align:right;"> 361.4524 </td>
-   <td style="text-align:right;"> 0.4330873 </td>
-   <td style="text-align:right;"> 0.4330873 </td>
+   <td style="text-align:right;"> 316.0803 </td>
+   <td style="text-align:right;"> 340.7092 </td>
+   <td style="text-align:right;"> 0.4460296 </td>
+   <td style="text-align:right;"> 0.4460296 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> cs.model.1a.log.p3 </td>
    <td style="text-align:right;"> 11 </td>
-   <td style="text-align:right;"> 343.1807 </td>
-   <td style="text-align:right;"> 372.8930 </td>
-   <td style="text-align:right;"> 0.4330877 </td>
-   <td style="text-align:right;"> 0.4330877 </td>
+   <td style="text-align:right;"> 319.3325 </td>
+   <td style="text-align:right;"> 349.0448 </td>
+   <td style="text-align:right;"> 0.4500823 </td>
+   <td style="text-align:right;"> 0.4500823 </td>
   </tr>
 </tbody>
 </table>
 
 From this model comparison we can see that the 2^nd^ order polynomial with the log-link seems to be the best model. Let's look at our model validations 
 
-# Model re-re-validation 
+# Model re-re-validation {.tabset .tabset-faded}
 
+## performance {.tabset .tabset-faded}
+
+### Gaussian (quadratic-log)
 ![](enzyme_analysis_CS_files/figure-html/model-valid-3.2a-1.png)<!-- -->
 
-## DHARMa 
+## DHARMa {.tabset .tabset-faded}
+
+### Gaussian (quadratic-log)
 
 
 ```r
@@ -1044,7 +1058,7 @@ cs.model.1a.log.p2 %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.756 0.704 0.592 0.564 0.024 0.096 0.06 0.152 0.108 0.36 0.64 0.796 0.548 0.388 0.088 0.4 0.844 0.652 0.032 0.096 ...
+## Scaled residual values: 0.788 0.72 0.596 0.572 0.02 0.092 0.052 0.144 0.104 0.364 0.656 0.808 0.564 0.384 0.088 0.404 0.852 0.664 0.032 0.092 ...
 ```
 
 ```r
@@ -1059,7 +1073,7 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.071522, p-value = 0.4994
+## D = 0.067522, p-value = 0.5743
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -1069,7 +1083,7 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.0848, p-value = 0.696
+## dispersion = 1.2148, p-value = 0.336
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -1079,13 +1093,13 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 1, observations = 134, p-value = 1
+## outliers at both margin(s) = 2, observations = 134, p-value = 0.2892
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.000188921 0.040877038
+##  0.001812671 0.052874653
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                            0.007462687
+##                                             0.01492537
 ```
 
 ```
@@ -1094,7 +1108,7 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.071522, p-value = 0.4994
+## D = 0.067522, p-value = 0.5743
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -1104,7 +1118,7 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.0848, p-value = 0.696
+## dispersion = 1.2148, p-value = 0.336
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -1114,13 +1128,13 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 1, observations = 134, p-value = 1
+## outliers at both margin(s) = 2, observations = 134, p-value = 0.2892
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.000188921 0.040877038
+##  0.001812671 0.052874653
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                            0.007462687
+##                                             0.01492537
 ```
 
 Validations look great! Moving ahead with the quadratic log-link model. 
@@ -1153,52 +1167,52 @@ Validations look great! Moving ahead with the quadratic log-link model.
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 1.2606077 </td>
-   <td style="text-align:right;"> 0.0644433 </td>
-   <td style="text-align:right;"> 19.5614886 </td>
+   <td style="text-align:right;"> 1.2550605 </td>
+   <td style="text-align:right;"> 0.0617052 </td>
+   <td style="text-align:right;"> 20.3396103 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> 0.0672739 </td>
-   <td style="text-align:right;"> 0.0956223 </td>
-   <td style="text-align:right;"> 0.7035383 </td>
-   <td style="text-align:right;"> 0.4817204 </td>
+   <td style="text-align:right;"> 0.0686784 </td>
+   <td style="text-align:right;"> 0.0915289 </td>
+   <td style="text-align:right;"> 0.7503465 </td>
+   <td style="text-align:right;"> 0.4530460 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 2)1 </td>
-   <td style="text-align:right;"> 5.3478569 </td>
-   <td style="text-align:right;"> 0.2433255 </td>
-   <td style="text-align:right;"> 21.9781996 </td>
+   <td style="text-align:right;"> 5.3475059 </td>
+   <td style="text-align:right;"> 0.2387058 </td>
+   <td style="text-align:right;"> 22.4020750 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 2)2 </td>
-   <td style="text-align:right;"> -0.8924033 </td>
-   <td style="text-align:right;"> 0.1895792 </td>
-   <td style="text-align:right;"> -4.7072860 </td>
-   <td style="text-align:right;"> 0.0000025 </td>
+   <td style="text-align:right;"> -0.8913448 </td>
+   <td style="text-align:right;"> 0.1859820 </td>
+   <td style="text-align:right;"> -4.7926410 </td>
+   <td style="text-align:right;"> 0.0000016 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -0.0081022 </td>
-   <td style="text-align:right;"> 0.0092873 </td>
-   <td style="text-align:right;"> -0.8723992 </td>
-   <td style="text-align:right;"> 0.3829906 </td>
+   <td style="text-align:right;"> -0.0081689 </td>
+   <td style="text-align:right;"> 0.0088767 </td>
+   <td style="text-align:right;"> -0.9202628 </td>
+   <td style="text-align:right;"> 0.3574355 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 2)1 </td>
-   <td style="text-align:right;"> 0.5404937 </td>
-   <td style="text-align:right;"> 0.3578765 </td>
-   <td style="text-align:right;"> 1.5102800 </td>
-   <td style="text-align:right;"> 0.1309720 </td>
+   <td style="text-align:right;"> 0.5406838 </td>
+   <td style="text-align:right;"> 0.3510468 </td>
+   <td style="text-align:right;"> 1.5402045 </td>
+   <td style="text-align:right;"> 0.1235105 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 2)2 </td>
-   <td style="text-align:right;"> 0.1512415 </td>
-   <td style="text-align:right;"> 0.2733172 </td>
-   <td style="text-align:right;"> 0.5533553 </td>
-   <td style="text-align:right;"> 0.5800201 </td>
+   <td style="text-align:right;"> 0.1505725 </td>
+   <td style="text-align:right;"> 0.2681068 </td>
+   <td style="text-align:right;"> 0.5616137 </td>
+   <td style="text-align:right;"> 0.5743792 </td>
   </tr>
 </tbody>
 </table>
@@ -1216,27 +1230,27 @@ Validations look great! Moving ahead with the quadratic log-link model.
 <tbody>
   <tr>
    <td style="text-align:left;"> REGION </td>
-   <td style="text-align:right;"> 1.2058605 </td>
+   <td style="text-align:right;"> 1.3564800 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.2721535 </td>
+   <td style="text-align:right;"> 0.2441485 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 2) </td>
-   <td style="text-align:right;"> 1312.4238850 </td>
+   <td style="text-align:right;"> 1364.1985000 </td>
    <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> 0.7610803 </td>
+   <td style="text-align:right;"> 0.8468835 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.3829906 </td>
+   <td style="text-align:right;"> 0.3574355 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGION:poly(TEMPERATURE, 2) </td>
-   <td style="text-align:right;"> 6.0796922 </td>
+   <td style="text-align:right;"> 6.3098824 </td>
    <td style="text-align:right;"> 2 </td>
-   <td style="text-align:right;"> 0.0478423 </td>
+   <td style="text-align:right;"> 0.0426409 </td>
   </tr>
 </tbody>
 </table>
@@ -1254,51 +1268,51 @@ Validations look great! Moving ahead with the quadratic log-link model.
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 1.1343011 </td>
-   <td style="text-align:right;"> 1.3869144 </td>
-   <td style="text-align:right;"> 1.2606077 </td>
+   <td style="text-align:right;"> 1.1341205 </td>
+   <td style="text-align:right;"> 1.3760006 </td>
+   <td style="text-align:right;"> 1.2550605 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -0.1201423 </td>
-   <td style="text-align:right;"> 0.2546901 </td>
-   <td style="text-align:right;"> 0.0672739 </td>
+   <td style="text-align:right;"> -0.1107149 </td>
+   <td style="text-align:right;"> 0.2480717 </td>
+   <td style="text-align:right;"> 0.0686784 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 2)1 </td>
-   <td style="text-align:right;"> 4.8709476 </td>
-   <td style="text-align:right;"> 5.8247661 </td>
-   <td style="text-align:right;"> 5.3478569 </td>
+   <td style="text-align:right;"> 4.8796511 </td>
+   <td style="text-align:right;"> 5.8153608 </td>
+   <td style="text-align:right;"> 5.3475059 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 2)2 </td>
-   <td style="text-align:right;"> -1.2639717 </td>
-   <td style="text-align:right;"> -0.5208350 </td>
-   <td style="text-align:right;"> -0.8924033 </td>
+   <td style="text-align:right;"> -1.2558627 </td>
+   <td style="text-align:right;"> -0.5268268 </td>
+   <td style="text-align:right;"> -0.8913448 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -0.0263050 </td>
-   <td style="text-align:right;"> 0.0101005 </td>
-   <td style="text-align:right;"> -0.0081022 </td>
+   <td style="text-align:right;"> -0.0255670 </td>
+   <td style="text-align:right;"> 0.0092291 </td>
+   <td style="text-align:right;"> -0.0081689 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 2)1 </td>
-   <td style="text-align:right;"> -0.1609313 </td>
-   <td style="text-align:right;"> 1.2419187 </td>
-   <td style="text-align:right;"> 0.5404937 </td>
+   <td style="text-align:right;"> -0.1473552 </td>
+   <td style="text-align:right;"> 1.2287228 </td>
+   <td style="text-align:right;"> 0.5406838 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 2)2 </td>
-   <td style="text-align:right;"> -0.3844504 </td>
-   <td style="text-align:right;"> 0.6869335 </td>
-   <td style="text-align:right;"> 0.1512415 </td>
+   <td style="text-align:right;"> -0.3749073 </td>
+   <td style="text-align:right;"> 0.6760522 </td>
+   <td style="text-align:right;"> 0.1505725 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Std.Dev.(Intercept)|FISH_ID </td>
-   <td style="text-align:right;"> 0.2053835 </td>
-   <td style="text-align:right;"> 0.3437883 </td>
-   <td style="text-align:right;"> 0.2657225 </td>
+   <td style="text-align:right;"> 0.1981084 </td>
+   <td style="text-align:right;"> 0.3245595 </td>
+   <td style="text-align:right;"> 0.2535704 </td>
   </tr>
 </tbody>
 </table>
@@ -1314,8 +1328,8 @@ Validations look great! Moving ahead with the quadratic log-link model.
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:right;"> 0.5570967 </td>
-   <td style="text-align:right;"> 0.4330873 </td>
+   <td style="text-align:right;"> 0.5622968 </td>
+   <td style="text-align:right;"> 0.4460296 </td>
    <td style="text-align:left;"> FALSE </td>
   </tr>
 </tbody>
@@ -1335,7 +1349,7 @@ cs.model.1a.log.p2  %>% emtrends(var = "TEMPERATURE", type = "response") %>% pai
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Core TISSUE_MASS_CENTERED-0.117338329414431) - (Leading TISSUE_MASS_CENTERED-0.117338329414431)","2":"34.62687","3":"-0.00416897","4":"0.002870779","5":"132","6":"-0.009847655","7":"0.001509715","8":"-1.452209","9":"0.1488165","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Core TISSUE_MASS_CENTERED-0.117338329414431) - (Leading TISSUE_MASS_CENTERED-0.117338329414431)","2":"34.62687","3":"-0.004170725","4":"0.002816","5":"125","6":"-0.009743938","7":"0.001402488","8":"-1.481082","9":"0.1411012","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 SCROLL TO THE RIGHT -->
@@ -1350,7 +1364,7 @@ cs.model.1a.log.p2  %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response"
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core / Leading","2":"34.6268656716418","3":"0.9499583","4":"0.091741","5":"132","6":"0.7847662","7":"1.149923","8":"1","9":"-0.5315852","10":"0.5959068","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core / Leading","2":"34.6268656716418","3":"0.9485582","4":"0.08773017","5":"125","6":"0.7898935","7":"1.139094","8":"1","9":"-0.5710164","10":"0.5690137","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -1362,7 +1376,7 @@ cs.model.1a.log.p2  %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% su
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["TEMPERATURE"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["response"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"34.62687","2":"Core","3":"3.879063","4":"0.2534753","5":"132","6":"3.408716","7":"4.414310","8":"1","9":"20.74535","10":"2.261412e-43","_rn_":"1"},{"1":"34.62687","2":"Leading","3":"4.083403","4":"0.2883748","5":"132","6":"3.551021","7":"4.695603","8":"1","9":"19.92222","10":"1.311044e-41","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["TEMPERATURE"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["response"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"34.62687","2":"Core","3":"3.857205","4":"0.2414972","5":"125","6":"3.407677","7":"4.366031","8":"1","9":"21.56135","10":"6.123751e-44","_rn_":"1"},{"1":"34.62687","2":"Leading","3":"4.066387","4":"0.2749330","5":"125","6":"3.557094","7":"4.648598","8":"1","9":"20.74740","10":"2.650541e-42","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -1376,7 +1390,7 @@ cs.model.1a.log.p2  %>% update(.~1+ REGION * as.factor(TEMPERATURE) + TISSUE_MAS
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["REGION"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["response"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core","2":"20","3":"1.729170","4":"0.1518268","5":"132","6":"1.453476","7":"2.057157","8":"1","9":"6.237139","10":"5.602971e-09","_rn_":"1"},{"1":"Leading","2":"20","3":"1.844954","4":"0.1716901","5":"132","6":"1.534760","7":"2.217843","8":"1","9":"6.581338","10":"1.002373e-09","_rn_":"2"},{"1":"Core","2":"30","3":"3.210342","4":"0.2244893","5":"132","6":"2.795624","7":"3.686582","8":"1","9":"16.679954","10":"2.644407e-34","_rn_":"3"},{"1":"Leading","2":"30","3":"3.185232","4":"0.2445628","5":"132","6":"2.736408","7":"3.707671","8":"1","9":"15.088848","10":"1.607698e-30","_rn_":"4"},{"1":"Core","2":"40","3":"4.708608","4":"0.3108166","5":"132","6":"4.132231","7":"5.365380","8":"1","9":"23.471980","10":"5.964682e-49","_rn_":"5"},{"1":"Leading","2":"40","3":"5.184144","4":"0.3675634","5":"132","6":"4.505751","7":"5.964677","8":"1","9":"23.209744","10":"1.972310e-48","_rn_":"6"},{"1":"Core","2":"50","3":"6.202633","4":"0.4019846","5":"132","6":"5.456327","7":"7.051017","8":"1","9":"28.159393","10":"1.168851e-57","_rn_":"7"},{"1":"Leading","2":"50","3":"7.150521","4":"0.4960251","5":"132","6":"6.233676","7":"8.202214","8":"1","9":"28.358238","10":"5.262215e-58","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["REGION"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["response"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core","2":"20","3":"1.719640","4":"0.1454369","5":"123","6":"1.454564","7":"2.033024","8":"1","9":"6.409946","10":"2.811727e-09","_rn_":"1"},{"1":"Leading","2":"20","3":"1.837398","4":"0.1645794","5":"123","6":"1.538869","7":"2.193838","8":"1","9":"6.791745","10":"4.200971e-10","_rn_":"2"},{"1":"Core","2":"30","3":"3.192346","4":"0.2140517","5":"123","6":"2.795558","7":"3.645452","8":"1","9":"17.311397","10":"9.089262e-35","_rn_":"3"},{"1":"Leading","2":"30","3":"3.171996","4":"0.2335000","5":"123","6":"2.741893","7":"3.669565","8":"1","9":"15.681493","10":"4.037101e-31","_rn_":"4"},{"1":"Core","2":"40","3":"4.681630","4":"0.2958853","5":"123","6":"4.131098","7":"5.305530","8":"1","9":"24.424272","10":"5.202300e-49","_rn_":"5"},{"1":"Leading","2":"40","3":"5.162431","4":"0.3501717","5":"123","6":"4.513806","7":"5.904262","8":"1","9":"24.198568","10":"1.340842e-48","_rn_":"6"},{"1":"Core","2":"50","3":"6.168133","4":"0.3824976","5":"123","6":"5.455626","7":"6.973693","8":"1","9":"29.339470","10":"2.238128e-57","_rn_":"7"},{"1":"Leading","2":"50","3":"7.121004","4":"0.4722601","5":"123","6":"6.244954","7":"8.119948","8":"1","9":"29.599957","10":"8.626247e-58","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -1389,7 +1403,7 @@ cs.model.1a.log.p2  %>% update(.~1+ REGION * as.factor(TEMPERATURE) + TISSUE_MAS
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"TEMPERATURE20 / TEMPERATURE30","2":"Core","3":"0.5386247","4":"0.03811747","5":"132","6":"0.4480371","7":"0.6475280","8":"1","9":"-8.743147","10":"6.894485e-14","_rn_":"1"},{"1":"TEMPERATURE20 / TEMPERATURE40","2":"Core","3":"0.3672359","4":"0.02454860","5":"132","6":"0.3086057","7":"0.4370048","8":"1","9":"-14.985739","10":"0.000000e+00","_rn_":"2"},{"1":"TEMPERATURE20 / TEMPERATURE50","2":"Core","3":"0.2787799","4":"0.01831343","5":"132","6":"0.2349775","7":"0.3307476","8":"1","9":"-19.444461","10":"0.000000e+00","_rn_":"3"},{"1":"TEMPERATURE30 / TEMPERATURE40","2":"Core","3":"0.6818028","4":"0.02762984","5":"132","6":"0.6135691","7":"0.7576247","8":"1","9":"-9.451396","10":"1.487699e-14","_rn_":"4"},{"1":"TEMPERATURE30 / TEMPERATURE50","2":"Core","3":"0.5175773","4":"0.01990454","5":"132","6":"0.4682916","7":"0.5720502","8":"1","9":"-17.125471","10":"0.000000e+00","_rn_":"5"},{"1":"TEMPERATURE40 / TEMPERATURE50","2":"Core","3":"0.7591305","4":"0.02312775","5":"132","6":"0.7012742","7":"0.8217599","8":"1","9":"-9.045515","10":"2.320366e-14","_rn_":"6"},{"1":"TEMPERATURE20 / TEMPERATURE30","2":"Leading","3":"0.5792214","4":"0.04324379","5":"132","6":"0.4769535","7":"0.7034176","8":"1","9":"-7.314245","10":"1.344181e-10","_rn_":"7"},{"1":"TEMPERATURE20 / TEMPERATURE40","2":"Leading","3":"0.3558841","4":"0.02441492","5":"132","6":"0.2977025","7":"0.4254365","8":"1","9":"-15.059715","10":"0.000000e+00","_rn_":"8"},{"1":"TEMPERATURE20 / TEMPERATURE50","2":"Leading","3":"0.2580168","4":"0.01729113","5":"132","6":"0.2167287","7":"0.3071705","8":"1","9":"-20.215181","10":"0.000000e+00","_rn_":"9"},{"1":"TEMPERATURE30 / TEMPERATURE40","2":"Leading","3":"0.6144180","4":"0.02698986","5":"132","6":"0.5480538","7":"0.6888183","8":"1","9":"-11.088261","10":"0.000000e+00","_rn_":"10"},{"1":"TEMPERATURE30 / TEMPERATURE50","2":"Leading","3":"0.4454545","4":"0.01843643","5":"132","6":"0.3999747","7":"0.4961057","8":"1","9":"-19.538566","10":"0.000000e+00","_rn_":"11"},{"1":"TEMPERATURE40 / TEMPERATURE50","2":"Leading","3":"0.7250023","4":"0.02098010","5":"132","6":"0.6724155","7":"0.7817017","8":"1","9":"-11.112749","10":"0.000000e+00","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"TEMPERATURE20 / TEMPERATURE30","2":"Core","3":"0.5386760","4":"0.03700837","5":"123","6":"0.4504191","7":"0.6442262","8":"1","9":"-9.004640","10":"1.255662e-13","_rn_":"1"},{"1":"TEMPERATURE20 / TEMPERATURE40","2":"Core","3":"0.3673165","4":"0.02383724","5":"123","6":"0.3101956","7":"0.4349559","8":"1","9":"-15.432956","10":"6.716849e-14","_rn_":"2"},{"1":"TEMPERATURE20 / TEMPERATURE50","2":"Core","3":"0.2787943","4":"0.01777875","5":"123","6":"0.2361305","7":"0.3291665","8":"1","9":"-20.029456","10":"6.716849e-14","_rn_":"3"},{"1":"TEMPERATURE30 / TEMPERATURE40","2":"Core","3":"0.6818876","4":"0.02682931","5":"123","6":"0.6154718","7":"0.7554705","8":"1","9":"-9.731455","10":"1.046940e-13","_rn_":"4"},{"1":"TEMPERATURE30 / TEMPERATURE50","2":"Core","3":"0.5175547","4":"0.01932232","5":"123","6":"0.4695989","7":"0.5704077","8":"1","9":"-17.641888","10":"6.716849e-14","_rn_":"5"},{"1":"TEMPERATURE40 / TEMPERATURE50","2":"Core","3":"0.7590029","4":"0.02244774","5":"123","6":"0.7027327","7":"0.8197787","8":"1","9":"-9.323647","10":"1.073586e-13","_rn_":"6"},{"1":"TEMPERATURE20 / TEMPERATURE30","2":"Leading","3":"0.5792560","4":"0.04197460","5":"123","6":"0.4796298","7":"0.6995760","8":"1","9":"-7.535034","10":"5.506073e-11","_rn_":"7"},{"1":"TEMPERATURE20 / TEMPERATURE40","2":"Leading","3":"0.3559171","4":"0.02369906","5":"123","6":"0.2992486","7":"0.4233168","8":"1","9":"-15.514656","10":"6.716849e-14","_rn_":"8"},{"1":"TEMPERATURE20 / TEMPERATURE50","2":"Leading","3":"0.2580251","4":"0.01678272","5":"123","6":"0.2178163","7":"0.3056563","8":"1","9":"-20.827746","10":"6.716849e-14","_rn_":"9"},{"1":"TEMPERATURE30 / TEMPERATURE40","2":"Leading","3":"0.6144383","4":"0.02619843","5":"123","6":"0.5498568","7":"0.6866051","8":"1","9":"-11.422829","10":"8.071321e-14","_rn_":"10"},{"1":"TEMPERATURE30 / TEMPERATURE50","2":"Leading","3":"0.4454422","4":"0.01789387","5":"123","6":"0.4011927","7":"0.4945721","8":"1","9":"-20.131118","10":"6.716849e-14","_rn_":"11"},{"1":"TEMPERATURE40 / TEMPERATURE50","2":"Leading","3":"0.7249584","4":"0.02036179","5":"123","6":"0.6738193","7":"0.7799785","8":"1","9":"-11.451667","10":"8.026912e-14","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 # {-}

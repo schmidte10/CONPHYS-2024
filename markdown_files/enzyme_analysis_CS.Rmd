@@ -415,17 +415,17 @@ The _cs.model.1a_ model looks okay....lets play around with a link transformatio
 cs.model.1a <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CENTERED + (1|FISH_ID), #deafult
                        family=gaussian(link = "identity"), 
                        data = CS.data, 
-                       REML = FALSE) 
+                       REML = TRUE) 
 
 cs.model.1a.log <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CENTERED + (1|FISH_ID), 
                        family=gaussian(link="log"), 
                        data = CS.data, 
-                       REML = FALSE)  
+                       REML = TRUE)  
 
 cs.model.1a.inv <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CENTERED + (1|FISH_ID), 
                        family=gaussian(link="inverse"), 
                        data = CS.data, 
-                       REML = FALSE) 
+                       REML = TRUE) 
 ```
 
 # Model re-validation {.tabset .tabset-faded}
@@ -504,13 +504,18 @@ model.fit.table %>% knitr::kable(format = "html")  %>%
 
 From this model comparison we can see that the 2^nd^ order polynomial with the log-link seems to be the best model. Let's look at our model validations 
 
-# Model re-re-validation 
+# Model re-re-validation {.tabset .tabset-faded}
 
+## performance {.tabset .tabset-faded}
+
+### Gaussian (quadratic-log)
 ```{r model-valid-3.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
 cs.model.1a.log.p2 %>% performance::check_model()
 ```
 
-## DHARMa 
+## DHARMa {.tabset .tabset-faded}
+
+### Gaussian (quadratic-log)
 
 ```{r model-valid-3.2b, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
 cs.model.1a.log.p2 %>% simulateResiduals(plot=TRUE)
