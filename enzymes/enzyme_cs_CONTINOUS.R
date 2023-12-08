@@ -267,9 +267,9 @@ cs.plot2 <- ggplot(cs.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, fill=RE
   #alpha = 0.4, color = NA) + 
   #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
   theme_classic() + ylab("CS ACTIVITY SLOPE") + xlab("TEMPERATURE") +
-  scale_color_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
                      name = "Regions") +
-  scale_fill_manual(values=c("#DA3A36", "#0D47A1"), labels = c("Low-latitude","High-latitude"),
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
                     name = "Regions")+
   #scale_y_continuous(limits=c(0,7), breaks = seq(0,6,1.5))+
   theme(legend.position = c(0.80,0.2))+

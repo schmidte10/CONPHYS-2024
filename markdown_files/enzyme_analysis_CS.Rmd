@@ -415,17 +415,17 @@ The _cs.model.1a_ model looks okay....lets play around with a link transformatio
 cs.model.1a <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CENTERED + (1|FISH_ID), #deafult
                        family=gaussian(link = "identity"), 
                        data = CS.data, 
-                       REML = TRUE) 
+                       REML = FALSE) 
 
 cs.model.1a.log <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CENTERED + (1|FISH_ID), 
                        family=gaussian(link="log"), 
                        data = CS.data, 
-                       REML = TRUE)  
+                       REML = FALSE)  
 
 cs.model.1a.inv <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CENTERED + (1|FISH_ID), 
                        family=gaussian(link="inverse"), 
                        data = CS.data, 
-                       REML = TRUE) 
+                       REML = FALSE) 
 ```
 
 # Model re-validation {.tabset .tabset-faded}
@@ -476,17 +476,17 @@ From looking at the different models it looks like the model with the log-link f
 cs.model.1a.log <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CENTERED + (1|FISH_ID), 
                        family=gaussian(link="log"), 
                        data = CS.data, 
-                       REML = TRUE) 
+                       REML = FALSE) 
 
 cs.model.1a.log.p2 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*poly(TEMPERATURE, 2) + TISSUE_MASS_CENTERED + (1|FISH_ID), 
                        family=gaussian(link="log"), 
                        data = CS.data, 
-                       REML = TRUE)
+                       REML = FALSE)
 
 cs.model.1a.log.p3 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*poly(TEMPERATURE, 3) + TISSUE_MASS_CENTERED + (1|FISH_ID), 
                        family=gaussian(link="log"), 
                        data = CS.data, 
-                       REML = TRUE)
+                       REML = FALSE)
 ```
 
 ```{r model-comp-3.1, warning=FALSE, echo=FALSE}
