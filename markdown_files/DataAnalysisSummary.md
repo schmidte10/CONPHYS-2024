@@ -1,7 +1,7 @@
 ---
 title: "Data Overview"
 author: "Elliott Schmidt"
-date: "08 December, 2023"
+date: "11 December, 2023"
 output:
   html_document:
     keep_md: yes
@@ -3518,14 +3518,14 @@ Model _ldh.model.1.p3a_ appears to be the best model, however, there seems to be
 
 ##### performance {.tabset .tabset-faded}
 
-###### rmr.3a (linear)
+###### ldh.model.1.p3a (3rd order polynomial)
 ![](DataAnalysisSummary_files/figure-html/ldh-model-valid-1-1.png)<!-- -->
 
 The _ldh.model.1.p3a_ model looks like it performs well.
 
 ##### DHARMa residuals {.tabset .tabset-faded}
 
-###### nas.1a (linear)
+###### ldh.model.1.p3a (3rd order polynomial))
 
 ```r
 ldh.model.1.p3a %>% simulateResiduals(plot=TRUE)
@@ -3934,7 +3934,7 @@ ldh.model.1.p3a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_C
 
 
 
-### Citrate synthase
+### Citrate synthase 
 
 #### Scenario 
 
@@ -5285,6 +5285,693 @@ cs.model.1a.log.p2  %>% update(.~1+ REGION * as.factor(TEMPERATURE) + TISSUE_MAS
  
  
  
+### Lactate dehydrogenase: citrate synthase 
+
+Before beginning always make sure that you are working in the correct directory 
+
+
+
+
+```r
+knitr::opts_knit$set(root.dir=working.dir)
+```
+
+Now we can import that data. Two different data frames are being imported. The first has all the enzyme wave length absorption data for each sample and the tissue.mass data file contained information pertaining to the tissue samples that was used for each sample. Later on these two data frames will be merged. 
+
+#### Load data 
+
+
+#### Data manipulation 
+
+Both LDH and CS dataframes have been previously cleaned and manipulated, therefore, the only remaining step is to join the data frames together and then make another column that has the LDH:CS ratio
+
+
+```r
+#--- data preparation/manipulation ---# 
+ldh.cs.data <- ldh.data %>% 
+  inner_join(select(cs.data, c("UNIQUE_SAMPLE_ID","CS_ACTIVITY")), by = "UNIQUE_SAMPLE_ID") %>% 
+  mutate(LCr = LDH_ACTIVITY/CS_ACTIVITY)
+```
+
+#### Exploratory data analysis {.tabset}
+
+##### LDH v TEMPERATURE [LATITUDE]
+
+```r
+ggplot(ldh.cs.data, aes(x =as.numeric(temperature), y= LCr, color = REGION)) + 
+  geom_point() + geom_smooth(method = "lm", se=FALSE)
+```
+
+![](DataAnalysisSummary_files/figure-html/ldh-cs-eda-1-1.png)<!-- -->
+
+##### LDH V TEMPERATURE [DENSITY]
+
+```r
+ggplot(ldh.cs.data, aes(x = LCr)) + 
+  geom_density(alpha =0.5, position = "identity") 
+```
+
+![](DataAnalysisSummary_files/figure-html/ldh-cs-eda-2-1.png)<!-- -->
+
+##### LDH v TISSUE MASS (LATITUDE)
+
+```r
+ggplot(ldh.cs.data, aes(x =TISSUE_MASS_CENTERED, y= LCr, color = REGION)) + 
+  geom_point() + geom_smooth(method = "lm", se=FALSE)
+```
+
+![](DataAnalysisSummary_files/figure-html/ldh-cs-eda-3-1.png)<!-- -->
+
+#### Fit the model 
+
+The model was fit using the **glm** and later **glmmTMB** package in R. A number of different models were tested to determine which hypothesis and associated variables best predicted resting oxygen consumption. Model fit was examined using AICc, BIC, and r-squared values. Additional model were examined via the validation diagonistics provided by the **performance** and **dHARMA** packages in R. 
+
+##### Fixed factors (linear regression models)
+
+###### model 1
+
+```r
+#--- base model ---#
+ldh.cs.model.1 <- glm(LCr~ 1 + REGION*temperature + TISSUE_MASS_CENTERED, 
+                       family=gaussian(), 
+                       data = ldh.cs.data)  
+```
+####### summary
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Estimate </th>
+   <th style="text-align:right;"> Std. Error </th>
+   <th style="text-align:right;"> t value </th>
+   <th style="text-align:right;"> Pr(&gt;|t|) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> (Intercept) </td>
+   <td style="text-align:right;"> 15.5983207 </td>
+   <td style="text-align:right;"> 5.0802772 </td>
+   <td style="text-align:right;"> 3.0703680 </td>
+   <td style="text-align:right;"> 0.0026153 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> REGIONLeading </td>
+   <td style="text-align:right;"> -3.9718124 </td>
+   <td style="text-align:right;"> 7.4737412 </td>
+   <td style="text-align:right;"> -0.5314356 </td>
+   <td style="text-align:right;"> 0.5960452 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> temperature </td>
+   <td style="text-align:right;"> 0.4263166 </td>
+   <td style="text-align:right;"> 0.1403483 </td>
+   <td style="text-align:right;"> 3.0375611 </td>
+   <td style="text-align:right;"> 0.0028954 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
+   <td style="text-align:right;"> -0.5451098 </td>
+   <td style="text-align:right;"> 0.2308028 </td>
+   <td style="text-align:right;"> -2.3617987 </td>
+   <td style="text-align:right;"> 0.0197067 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> REGIONLeading:temperature </td>
+   <td style="text-align:right;"> -0.0072626 </td>
+   <td style="text-align:right;"> 0.2047482 </td>
+   <td style="text-align:right;"> -0.0354710 </td>
+   <td style="text-align:right;"> 0.9717599 </td>
+  </tr>
+</tbody>
+</table>
+
+###### model 2
+
+```r
+ldh.cs.model.2 <- glm(LCr ~ 1 + REGION*temperature, 
+                       family=gaussian(), 
+                       data = ldh.cs.data) 
+```
+
+####### summary
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Estimate </th>
+   <th style="text-align:right;"> Std. Error </th>
+   <th style="text-align:right;"> t value </th>
+   <th style="text-align:right;"> Pr(&gt;|t|) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> (Intercept) </td>
+   <td style="text-align:right;"> 14.9399468 </td>
+   <td style="text-align:right;"> 5.1625412 </td>
+   <td style="text-align:right;"> 2.8939133 </td>
+   <td style="text-align:right;"> 0.0044739 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> REGIONLeading </td>
+   <td style="text-align:right;"> -2.9630790 </td>
+   <td style="text-align:right;"> 7.5937909 </td>
+   <td style="text-align:right;"> -0.3901976 </td>
+   <td style="text-align:right;"> 0.6970390 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> temperature </td>
+   <td style="text-align:right;"> 0.4346143 </td>
+   <td style="text-align:right;"> 0.1427914 </td>
+   <td style="text-align:right;"> 3.0437008 </td>
+   <td style="text-align:right;"> 0.0028368 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> REGIONLeading:temperature </td>
+   <td style="text-align:right;"> -0.0116615 </td>
+   <td style="text-align:right;"> 0.2083689 </td>
+   <td style="text-align:right;"> -0.0559655 </td>
+   <td style="text-align:right;"> 0.9554565 </td>
+  </tr>
+</tbody>
+</table>
+
+###### model comparison table
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> model </th>
+   <th style="text-align:right;"> df </th>
+   <th style="text-align:right;"> AICc </th>
+   <th style="text-align:right;"> BIC </th>
+   <th style="text-align:right;"> r2 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ldh.cs.model.1 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 1058.427 </td>
+   <td style="text-align:right;"> 1075.052 </td>
+   <td style="text-align:right;"> 0.1609548 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ldh.cs.model.2 </td>
+   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> 1061.906 </td>
+   <td style="text-align:right;"> 1075.843 </td>
+   <td style="text-align:right;"> 0.1259477 </td>
+  </tr>
+</tbody>
+</table>
+
+The model that contains **TISSUE_MASS_CENTERED** seems to do better than the model that leaves TISSUE_MASS_CENTERED out. Therefore we will move ahead with the model that contains **TISSUE_MASS_CENTERED** as a co-variate.  
+
+##### Polynomials 
+
+###### polynomial models 
+
+Note that the linear model has already been created via model _ldh.cs.model.1_ in the previous section.
+
+
+```r
+#--- second order polynomial ---# 
+ldh.cs.model.1.p2 <- glm(LCr ~ 1 + REGION*poly(temperature, 2) + TISSUE_MASS_CENTERED, 
+                      family=gaussian(), 
+                      data = ldh.cs.data)  
+
+#--- third order polynomial ---# 
+ldh.cs.model.1.p3 <- glm(LCr ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED, 
+                      family=gaussian(), 
+                      data = ldh.cs.data)  
+```
+
+####### polynomial model comparisons
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> model </th>
+   <th style="text-align:right;"> df </th>
+   <th style="text-align:right;"> AICc </th>
+   <th style="text-align:right;"> BIC </th>
+   <th style="text-align:right;"> r2 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ldh.cs.model.1 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 1058.427 </td>
+   <td style="text-align:right;"> 1075.052 </td>
+   <td style="text-align:right;"> 0.1651868 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ldh.cs.model.1.p2 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 1062.050 </td>
+   <td style="text-align:right;"> 1083.942 </td>
+   <td style="text-align:right;"> 0.1707095 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ldh.cs.model.1.p3 </td>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 1064.173 </td>
+   <td style="text-align:right;"> 1091.183 </td>
+   <td style="text-align:right;"> 0.1864203 </td>
+  </tr>
+</tbody>
+</table>
+
+From our model comparison we can see that the model that runs temperature as a linear model performs the best. Therefore, moving forward we will use the linear model. 
+
+##### Random factors 
+
+Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run a compaired. 
+
+###### random factor models
+
+
+```r
+ldh.cs.model.1a <- glmmTMB(LCr ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|fish_id), 
+                       family=gaussian(), 
+                       data = ldh.cs.data, 
+                       REML = TRUE) 
+
+ldh.cs.model.1b <- glmmTMB(LCr ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
+                       family=gaussian(), 
+                       data = ldh.cs.data,
+                       REML = TRUE) 
+
+ldh.cs.model.1c <- glmmTMB(LCr ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
+                       family=gaussian(), 
+                       data = ldh.cs.data,
+                       REML = TRUE) # convergnece problem
+```
+
+####### random factor model comparisons 
+
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> model </th>
+   <th style="text-align:right;"> df </th>
+   <th style="text-align:right;"> AICc </th>
+   <th style="text-align:right;"> BIC </th>
+   <th style="text-align:right;"> r2m </th>
+   <th style="text-align:right;"> r2c </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ldh.cs.model.1a </td>
+   <td style="text-align:right;"> 7 </td>
+   <td style="text-align:right;"> 994.5411 </td>
+   <td style="text-align:right;"> 1013.818 </td>
+   <td style="text-align:right;"> 0.1483192 </td>
+   <td style="text-align:right;"> 0.1483192 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ldh.cs.model.1b </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 996.8086 </td>
+   <td style="text-align:right;"> 1018.700 </td>
+   <td style="text-align:right;"> 0.1483183 </td>
+   <td style="text-align:right;"> 0.1483183 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ldh.cs.model.1c </td>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 0.1483192 </td>
+   <td style="text-align:right;"> 0.1483192 </td>
+  </tr>
+</tbody>
+</table>
+
+Model _ldh.cs.model.1a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
+
+#### Model validation {.tabset .tabset-faded}
+
+##### performance {.tabset .tabset-faded}
+
+###### rmr.3a (linear)
+![](DataAnalysisSummary_files/figure-html/ldh-cs-model-valid-1-1.png)<!-- -->
+
+##### DHARMa residuals {.tabset .tabset-faded}
+
+###### nas.1a (linear)
+
+```r
+ldh.cs.model.1a %>% simulateResiduals(plot=TRUE)
+```
+
+![](DataAnalysisSummary_files/figure-html/ldh-cs-model-valid-2-1.png)<!-- -->
+
+```
+## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
+##  
+## Scaled residual values: 0.072 0.052 0.076 0.152 0.944 0.512 0.9 0.864 0.708 0.692 0.436 0.66 0.764 0.924 0.984 0.272 0.136 0.388 1 0.868 ...
+```
+
+```r
+ldh.cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
+```
+
+![](DataAnalysisSummary_files/figure-html/ldh-cs-model-valid-2-2.png)<!-- -->
+
+```
+## $uniformity
+## 
+## 	Asymptotic one-sample Kolmogorov-Smirnov test
+## 
+## data:  simulationOutput$scaledResiduals
+## D = 0.098, p-value = 0.1584
+## alternative hypothesis: two-sided
+## 
+## 
+## $dispersion
+## 
+## 	DHARMa nonparametric dispersion test via sd of residuals fitted vs.
+## 	simulated
+## 
+## data:  simulationOutput
+## dispersion = 0.91401, p-value = 0.624
+## alternative hypothesis: two.sided
+## 
+## 
+## $outliers
+## 
+## 	DHARMa outlier test based on exact binomial test with approximate
+## 	expectations
+## 
+## data:  simulationOutput
+## outliers at both margin(s) = 2, observations = 132, p-value = 0.2834
+## alternative hypothesis: true probability of success is not equal to 0.007968127
+## 95 percent confidence interval:
+##  0.001840215 0.053659931
+## sample estimates:
+## frequency of outliers (expected: 0.00796812749003984 ) 
+##                                             0.01515152
+```
+
+```
+## $uniformity
+## 
+## 	Asymptotic one-sample Kolmogorov-Smirnov test
+## 
+## data:  simulationOutput$scaledResiduals
+## D = 0.098, p-value = 0.1584
+## alternative hypothesis: two-sided
+## 
+## 
+## $dispersion
+## 
+## 	DHARMa nonparametric dispersion test via sd of residuals fitted vs.
+## 	simulated
+## 
+## data:  simulationOutput
+## dispersion = 0.91401, p-value = 0.624
+## alternative hypothesis: two.sided
+## 
+## 
+## $outliers
+## 
+## 	DHARMa outlier test based on exact binomial test with approximate
+## 	expectations
+## 
+## data:  simulationOutput
+## outliers at both margin(s) = 2, observations = 132, p-value = 0.2834
+## alternative hypothesis: true probability of success is not equal to 0.007968127
+## 95 percent confidence interval:
+##  0.001840215 0.053659931
+## sample estimates:
+## frequency of outliers (expected: 0.00796812749003984 ) 
+##                                             0.01515152
+```
+
+##### {-}
+
+#### {-}
+
+The _ldh.cs.model.1a_ model looks good, and there seem to be no major violations of assumptions. 
+
+#### Partial plots {.tabset .tabset-faded}
+
+##### ggemmeans 
+
+![](DataAnalysisSummary_files/figure-html/ldh-cs-partial-plots-1-1.png)<!-- -->
+
+##### plot_model 
+
+![](DataAnalysisSummary_files/figure-html/ldh-cs-partial-plots-2-1.png)<!-- -->
+
+#### {-} 
+
+#### Model investigation {.tabset .tabset-faded}
+
+##### summary 
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Estimate </th>
+   <th style="text-align:right;"> StdError </th>
+   <th style="text-align:right;"> Zvalue </th>
+   <th style="text-align:right;"> Pvalue </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> (Intercept) </td>
+   <td style="text-align:right;"> 14.7100633 </td>
+   <td style="text-align:right;"> 3.9311867 </td>
+   <td style="text-align:right;"> 3.7418888 </td>
+   <td style="text-align:right;"> 0.0001826 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> REGIONLeading </td>
+   <td style="text-align:right;"> -3.3913653 </td>
+   <td style="text-align:right;"> 5.8092603 </td>
+   <td style="text-align:right;"> -0.5837861 </td>
+   <td style="text-align:right;"> 0.5593642 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> temperature </td>
+   <td style="text-align:right;"> 0.4426002 </td>
+   <td style="text-align:right;"> 0.0835813 </td>
+   <td style="text-align:right;"> 5.2954427 </td>
+   <td style="text-align:right;"> 0.0000001 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
+   <td style="text-align:right;"> -0.4572146 </td>
+   <td style="text-align:right;"> 0.3990826 </td>
+   <td style="text-align:right;"> -1.1456642 </td>
+   <td style="text-align:right;"> 0.2519341 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> REGIONLeading:temperature </td>
+   <td style="text-align:right;"> -0.0132004 </td>
+   <td style="text-align:right;"> 0.1215385 </td>
+   <td style="text-align:right;"> -0.1086113 </td>
+   <td style="text-align:right;"> 0.9135108 </td>
+  </tr>
+</tbody>
+</table>
+
+##### Anova 
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Chisq </th>
+   <th style="text-align:right;"> Df </th>
+   <th style="text-align:right;"> Pr(&gt;Chisq) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> REGION </td>
+   <td style="text-align:right;"> 0.9281186 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.3353523 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> temperature </td>
+   <td style="text-align:right;"> 51.7028532 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
+   <td style="text-align:right;"> 1.3125463 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.2519341 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> REGION:temperature </td>
+   <td style="text-align:right;"> 0.0117964 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 0.9135108 </td>
+  </tr>
+</tbody>
+</table>
+
+##### confint 
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> 2.5 % </th>
+   <th style="text-align:right;"> 97.5 % </th>
+   <th style="text-align:right;"> Estimate </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> (Intercept) </td>
+   <td style="text-align:right;"> 7.0050790 </td>
+   <td style="text-align:right;"> 22.4150476 </td>
+   <td style="text-align:right;"> 14.7100633 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> REGIONLeading </td>
+   <td style="text-align:right;"> -14.7773062 </td>
+   <td style="text-align:right;"> 7.9945757 </td>
+   <td style="text-align:right;"> -3.3913653 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> temperature </td>
+   <td style="text-align:right;"> 0.2787838 </td>
+   <td style="text-align:right;"> 0.6064166 </td>
+   <td style="text-align:right;"> 0.4426002 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
+   <td style="text-align:right;"> -1.2394020 </td>
+   <td style="text-align:right;"> 0.3249729 </td>
+   <td style="text-align:right;"> -0.4572146 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> REGIONLeading:temperature </td>
+   <td style="text-align:right;"> -0.2514115 </td>
+   <td style="text-align:right;"> 0.2250106 </td>
+   <td style="text-align:right;"> -0.0132004 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Std.Dev.(Intercept)|fish_id </td>
+   <td style="text-align:right;"> 8.3080065 </td>
+   <td style="text-align:right;"> 14.5084898 </td>
+   <td style="text-align:right;"> 10.9789174 </td>
+  </tr>
+</tbody>
+</table>
+
+##### r-squared
+<table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
+ <thead>
+  <tr>
+   <th style="text-align:right;"> R2_conditional </th>
+   <th style="text-align:right;"> R2_marginal </th>
+   <th style="text-align:left;"> optional </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:right;"> 0.7240186 </td>
+   <td style="text-align:right;"> 0.1483192 </td>
+   <td style="text-align:left;"> FALSE </td>
+  </tr>
+</tbody>
+</table>
+
+#### {-} 
+
+#### Pairwise comparisons {.tabset .tabset-faded} 
+
+##### emtrends [latitudes]
+
+
+
+```r
+ldh.cs.model.1a  %>% emtrends(var = "temperature", type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+```
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Core TISSUE_MASS_CENTERED-0.0568949936743177) - (Leading TISSUE_MASS_CENTERED-0.0568949936743177)","2":"34.69697","3":"0.01320045","4":"0.1215385","5":"130","6":"-0.2272489","7":"0.2536498","8":"0.1086113","9":"0.9136783","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+SCROLL TO THE RIGHT -->
+
+The numbers in the left most column in the table just mention that the slopes are assuming mean **TISSUE_MASS_CENTERED** values when looking at differences between latitudinal slopes.
+
+##### emmeans [latitudes]
+
+```r
+ldh.cs.model.1a  %>% emmeans(pairwise ~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+```
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core - Leading","2":"34.69697","3":"3.849381","4":"3.995653","5":"130","6":"-4.05554","7":"11.7543","8":"0.9633923","9":"0.3371393","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+
+##### TEMPERATURE 
+
+```r
+ldh.cs.model.1a  %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer=TRUE)
+```
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["temperature"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"34.69697","2":"Core","3":"30.09296","4":"2.688071","5":"130","6":"24.77494","7":"35.41099","8":"11.195003","9":"8.713993e-21","_rn_":"1"},{"1":"34.69697","2":"Leading","3":"26.24358","4":"2.931887","5":"130","6":"20.44319","7":"32.04397","8":"8.951088","9":"3.118740e-15","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+
+
+##### Means - f(TEMPERATURE)
+
+```r
+ldh.cs.model.1a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
+  emmeans(~REGION*temperature, type = "response") %>% summary(infer=TRUE)
+```
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["REGION"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core","2":"20","3":"25.99718","4":"3.087940","5":"130","6":"19.88806","7":"32.10630","8":"8.418939","9":"6.027549e-14","_rn_":"1"},{"1":"Leading","2":"20","3":"21.05050","4":"3.380501","5":"130","6":"14.36258","7":"27.73841","8":"6.227034","9":"6.084480e-09","_rn_":"2"},{"1":"Core","2":"30","3":"24.43505","4":"3.051645","5":"130","6":"18.39773","7":"30.47236","8":"8.007171","9":"5.764411e-13","_rn_":"3"},{"1":"Leading","2":"30","3":"22.21218","4":"3.337492","5":"130","6":"15.60936","7":"28.81501","8":"6.655352","9":"7.168566e-10","_rn_":"4"},{"1":"Core","2":"40","3":"32.91604","4":"3.125105","5":"130","6":"26.73339","7":"39.09869","8":"10.532781","9":"3.900057e-19","_rn_":"5"},{"1":"Leading","2":"40","3":"29.39740","4":"3.337492","5":"130","6":"22.79457","7":"36.00023","8":"8.808230","9":"6.935583e-15","_rn_":"6"},{"1":"Core","2":"50","3":"37.99626","4":"3.165057","5":"130","6":"31.73457","7":"44.25795","8":"12.004921","9":"8.340406e-23","_rn_":"7"},{"1":"Leading","2":"50","3":"32.88610","4":"3.381830","5":"130","6":"26.19555","7":"39.57664","8":"9.724350","9":"3.952451e-17","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+
+##### Abs. diff - f(TEMPERATURE)
+
+```r
+ldh.cs.model.1a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
+  emmeans(~REGION*temperature, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
+```
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"temperature20 - temperature30","2":"Core","3":"1.562136","4":"2.454442","5":"130","6":"-4.82573","7":"7.9500011","8":"0.6364525","9":"9.200496e-01","_rn_":"1"},{"1":"temperature20 - temperature40","2":"Core","3":"-6.918859","4":"2.545822","5":"130","6":"-13.54455","7":"-0.2931708","8":"-2.7177311","9":"3.704914e-02","_rn_":"2"},{"1":"temperature20 - temperature50","2":"Core","3":"-11.999080","4":"2.598723","5":"130","6":"-18.76245","7":"-5.2357135","8":"-4.6172992","9":"5.411437e-05","_rn_":"3"},{"1":"temperature30 - temperature40","2":"Core","3":"-8.480995","4":"2.502167","5":"130","6":"-14.99307","7":"-1.9689224","8":"-3.3894605","9":"5.075801e-03","_rn_":"4"},{"1":"temperature30 - temperature50","2":"Core","3":"-13.561216","4":"2.553529","5":"130","6":"-20.20696","7":"-6.9154685","8":"-5.3107738","9":"2.727373e-06","_rn_":"5"},{"1":"temperature40 - temperature50","2":"Core","3":"-5.080221","4":"2.649322","5":"130","6":"-11.97528","7":"1.8148338","8":"-1.9175553","9":"2.257644e-01","_rn_":"6"},{"1":"temperature20 - temperature30","2":"Leading","3":"-1.161688","4":"2.683602","5":"130","6":"-8.14596","7":"5.8225846","8":"-0.4328837","9":"9.727133e-01","_rn_":"7"},{"1":"temperature20 - temperature40","2":"Leading","3":"-8.346903","4":"2.683602","5":"130","6":"-15.33118","7":"-1.3626307","8":"-3.1103352","9":"1.216030e-02","_rn_":"8"},{"1":"temperature20 - temperature50","2":"Leading","3":"-11.835599","4":"2.740470","5":"130","6":"-18.96787","7":"-4.7033247","8":"-4.3188210","9":"1.794904e-04","_rn_":"9"},{"1":"temperature30 - temperature40","2":"Leading","3":"-7.185215","4":"2.627672","5":"130","6":"-14.02393","7":"-0.3465049","8":"-2.7344411","9":"3.543500e-02","_rn_":"10"},{"1":"temperature30 - temperature50","2":"Leading","3":"-10.673911","4":"2.683569","5":"130","6":"-17.65810","7":"-3.6897258","8":"-3.9775059","9":"6.584238e-04","_rn_":"11"},{"1":"temperature40 - temperature50","2":"Leading","3":"-3.488696","4":"2.683569","5":"130","6":"-10.47288","7":"3.4954895","8":"-1.3000210","9":"5.645823e-01","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+#### {-}
+
+#### Summary figure 
+
+![](DataAnalysisSummary_files/figure-html/ldh-cs-sum-fig-1.png)<!-- -->
+
+#### Conclusion 
+
+* In conclusion the LDH:CS ratio has a **significantly** positively correlated with temperature, however, there is no significant difference in the relationship between temperature and LDH:CS when comparing fish from low- and high-latitudes.
+
+
+
+
+
 ## Immunocompetence 
 
 ### Scenario 

@@ -108,7 +108,7 @@ hematocrit.plot <- ggplot(hema.newdata, aes(y=predicted, x=REGION, color=REGION)
                   shape = 19, 
                   size = 1, 
                   position = position_dodge(0.2)) + 
-  scale_color_manual(values=c("#DA3A36","#0D47A1"), labels = c("Low","High"),
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low","High"),
                      name = "Latitude") +
   ylab("HEMATOCRIT RATIO") +
   scale_x_discrete(name = "LATITUDE", 
