@@ -523,6 +523,12 @@ rmr.3.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + REST
 rmr.3.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID)) %>% 
   emmeans(~REGION*TEMPERATURE, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
 ```
+
+##### Effect size
+```{r rmr-effect-size}
+rmr.emm <- rmr.3.p2a %>% emmeans(~REGION*TEMPERATURE)
+eff_size(rmr.emm, sigma = sigma(rmr.3.p2a), edf=df.residual(rmr.3.p2a))
+```
 #### {-}
 
 #### Summary figure 
@@ -966,6 +972,12 @@ mmr.1.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + REST
 mmr.1.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID)) %>% 
   emmeans(~REGION*TEMPERATURE, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
 ```
+
+##### Effect size
+```{r mmr-effect-size}
+mmr.emm <- mmr.1.p2a %>% emmeans(~REGION*TEMPERATURE)
+eff_size(mmr.emm, sigma = sigma(mmr.1.p2a), edf=df.residual(mmr.1.p2a))
+```
 #### {-}
 
 #### Summary figure 
@@ -1406,6 +1418,12 @@ nas.1.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + REST
 ```{r aas-pairwise-5}
 nas.1.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID)) %>% 
   emmeans(~REGION*TEMPERATURE, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
+```
+
+##### Effect size
+```{r aas-effect-size}
+aas.emm <- nas.1.p2a %>% emmeans(~REGION*TEMPERATURE)
+eff_size(aas.emm, sigma = sigma(nas.1.p2a), edf=df.residual(nas.1.p2a))
 ```
 #### {-}
 
@@ -1917,6 +1935,12 @@ ldh.model.1.p3a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_C
 ldh.model.1.p3a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
   emmeans(~REGION*temperature, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
 ```
+
+##### Effect size
+```{r ldh-effect-size}
+ldh.emm <- ldh.model.1.p3a %>% emmeans(~REGION*temperature)
+eff_size(ldh.emm, sigma = sigma(ldh.model.1.p3a), edf=df.residual(ldh.model.1.p3a))
+```
 #### {-}
 
 #### Summary figure 
@@ -2282,7 +2306,7 @@ model.fit.table %>% knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
 ```
 
-Model _ldh.model.1a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
+Model _cs.model.1a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
 
 #### Model validation {.tabset .tabset-faded}
 
@@ -2512,6 +2536,12 @@ cs.model.1a.log.p2  %>% update(.~1+ REGION * as.factor(TEMPERATURE) + TISSUE_MAS
 ```{r pairwise-5}
 cs.model.1a.log.p2  %>% update(.~1+ REGION * as.factor(TEMPERATURE) + TISSUE_MASS_CENTERED + (1|FISH_ID)) %>% 
   emmeans(~REGION*TEMPERATURE, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
+```
+
+##### Effect size
+```{r effect-size}
+cs.emm <- cs.model.1a.log.p2 %>% emmeans(~REGION*TEMPERATURE)
+eff_size(cs.emm, sigma = sigma(cs.model.1a.log.p2), edf=df.residual(cs.model.1a.log.p2))
 ```
 #### {-}
 
@@ -2843,6 +2873,11 @@ ldh.cs.model.1a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_C
 ```{r ldh-cs-pairwise-5}
 ldh.cs.model.1a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
   emmeans(~REGION*temperature, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
+```
+##### Effect size
+```{r ldh-cs-effect-size}
+ldh.cs.emm <- ldh.cs.model.1a %>% emmeans(~REGION*temperature)
+eff_size(ldh.cs.emm, sigma = sigma(ldh.cs.model.1a), edf=df.residual(ldh.cs.model.1a))
 ```
 #### {-}
 
@@ -3334,6 +3369,13 @@ pha.2.p3b.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION
 pha.2.p3b.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION/FISH_ID)) %>% 
   emmeans(~REGION*TEMPERATURE, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
 ```
+
+#### effect size [latitudes]
+```{r immuno-effect-size}
+immuno.emm <- pha.2.p3b.gamma %>% emmeans(~REGION*TEMPERATURE)
+eff_size(immuno.emm, sigma = sigma(pha.2.p3b.gamma), edf=df.residual(pha.2.p3b.gamma))
+```
+
 ### {-}
 
 ### Summary figure 
@@ -3610,7 +3652,6 @@ hema.1 %>% performance::r2(method="marginal") %>%
   kable_paper(full_width = TRUE)
 ```
 
-
 ### {-} 
 
 ### Pairwise comparisons {.tabset .tabset-faded} 
@@ -3618,6 +3659,12 @@ hema.1 %>% performance::r2(method="marginal") %>%
 #### emmeans [latitudes]
 ```{r hema-pairwise-2}
 hema.1 %>% emmeans(pairwise ~ REGION, type = "response")
+```
+
+#### effect size [latitudes]
+```{r hema-effect-size}
+hema.emm <- emmeans(hema.1, "REGION")
+eff_size(hema.emm, sigma = sigma(hema.1), edf=df.residual(hema.1))
 ```
 
 ### {-}

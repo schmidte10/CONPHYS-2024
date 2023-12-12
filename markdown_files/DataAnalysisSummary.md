@@ -1,7 +1,7 @@
 ---
 title: "Data Overview"
 author: "Elliott Schmidt"
-date: "11 December, 2023"
+date: "12 December, 2023"
 output:
   html_document:
     keep_md: yes
@@ -1083,6 +1083,23 @@ rmr.3.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + REST
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"TEMPERATURE27 - TEMPERATURE28.5","2":"Core","3":"-0.04424797","4":"0.2376907","5":"185","6":"-0.6604694","7":"0.57197349","8":"-0.1861578","9":"9.977040e-01","_rn_":"1"},{"1":"TEMPERATURE27 - TEMPERATURE30","2":"Core","3":"-0.53181439","4":"0.2609503","5":"185","6":"-1.2083371","7":"0.14470828","8":"-2.0379914","9":"1.779066e-01","_rn_":"2"},{"1":"TEMPERATURE27 - TEMPERATURE31.5","2":"Core","3":"-1.36461049","4":"0.2710400","5":"185","6":"-2.0672911","7":"-0.66192991","8":"-5.0347204","9":"6.711507e-06","_rn_":"3"},{"1":"TEMPERATURE28.5 - TEMPERATURE30","2":"Core","3":"-0.48756642","4":"0.2474277","5":"185","6":"-1.1290312","7":"0.15389840","8":"-1.9705413","9":"2.029323e-01","_rn_":"4"},{"1":"TEMPERATURE28.5 - TEMPERATURE31.5","2":"Core","3":"-1.32036252","4":"0.2575930","5":"185","6":"-1.9881814","7":"-0.65254366","8":"-5.1257700","9":"4.413068e-06","_rn_":"5"},{"1":"TEMPERATURE30 - TEMPERATURE31.5","2":"Core","3":"-0.83279610","4":"0.2571900","5":"185","6":"-1.4995700","7":"-0.16602219","8":"-3.2380585","9":"7.721839e-03","_rn_":"6"},{"1":"TEMPERATURE27 - TEMPERATURE28.5","2":"Leading","3":"-0.25300401","4":"0.2617729","5":"185","6":"-0.9316594","7":"0.42565136","8":"-0.9665019","9":"7.686398e-01","_rn_":"7"},{"1":"TEMPERATURE27 - TEMPERATURE30","2":"Leading","3":"-1.03844560","4":"0.2873344","5":"185","6":"-1.7833700","7":"-0.29352119","8":"-3.6140666","9":"2.181806e-03","_rn_":"8"},{"1":"TEMPERATURE27 - TEMPERATURE31.5","2":"Leading","3":"-1.40975145","4":"0.2911352","5":"185","6":"-2.1645295","7":"-0.65497341","8":"-4.8422578","9":"1.599379e-05","_rn_":"9"},{"1":"TEMPERATURE28.5 - TEMPERATURE30","2":"Leading","3":"-0.78544159","4":"0.2878777","5":"185","6":"-1.5317747","7":"-0.03910848","8":"-2.7283859","9":"3.489568e-02","_rn_":"10"},{"1":"TEMPERATURE28.5 - TEMPERATURE31.5","2":"Leading","3":"-1.15674744","4":"0.2918744","5":"185","6":"-1.9134421","7":"-0.40005282","8":"-3.9631682","9":"6.066498e-04","_rn_":"11"},{"1":"TEMPERATURE30 - TEMPERATURE31.5","2":"Leading","3":"-0.37130585","4":"0.2859663","5":"185","6":"-1.1126835","7":"0.37007176","8":"-1.2984252","9":"5.650944e-01","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+
+##### Effect size
+
+```r
+rmr.emm <- rmr.3.p2a %>% emmeans(~REGION*TEMPERATURE)
+eff_size(rmr.emm, sigma = sigma(rmr.3.p2a), edf=df.residual(rmr.3.p2a))
+```
+
+```
+##  contrast                                                              
+##  Core TEMPERATURE29.0855614973262 - Leading TEMPERATURE29.0855614973262
+##  effect.size    SE  df lower.CL upper.CL
+##       -0.249 0.324 185   -0.889    0.391
+## 
+## sigma used for effect sizes: 0.8731 
+## Confidence level used: 0.95
+```
 #### {-}
 
 #### Summary figure 
@@ -2032,6 +2049,23 @@ mmr.1.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + REST
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"TEMPERATURE27 - TEMPERATURE28.5","2":"Core","3":"-1.53843734","4":"0.5938799","5":"174","6":"-3.078980","7":"0.00210572","8":"-2.59048559","9":"5.045819e-02","_rn_":"1"},{"1":"TEMPERATURE27 - TEMPERATURE30","2":"Core","3":"-2.56066721","4":"0.6492325","5":"174","6":"-4.244797","7":"-0.87653775","8":"-3.94414504","9":"6.654002e-04","_rn_":"2"},{"1":"TEMPERATURE27 - TEMPERATURE31.5","2":"Core","3":"-3.21889902","4":"0.6599391","5":"174","6":"-4.930802","7":"-1.50699640","8":"-4.87756996","9":"1.427813e-05","_rn_":"3"},{"1":"TEMPERATURE28.5 - TEMPERATURE30","2":"Core","3":"-1.02222987","4":"0.6287983","5":"174","6":"-2.653352","7":"0.60889261","8":"-1.62568801","9":"3.669065e-01","_rn_":"4"},{"1":"TEMPERATURE28.5 - TEMPERATURE31.5","2":"Core","3":"-1.68046168","4":"0.6392790","5":"174","6":"-3.338772","7":"-0.02215185","8":"-2.62868259","9":"4.570512e-02","_rn_":"5"},{"1":"TEMPERATURE30 - TEMPERATURE31.5","2":"Core","3":"-0.65823181","4":"0.6452530","5":"174","6":"-2.332038","7":"1.01557474","8":"-1.02011425","9":"7.378999e-01","_rn_":"6"},{"1":"TEMPERATURE27 - TEMPERATURE28.5","2":"Leading","3":"-0.23546008","4":"0.6295418","5":"174","6":"-1.868511","7":"1.39759118","8":"-0.37401815","9":"9.821016e-01","_rn_":"7"},{"1":"TEMPERATURE27 - TEMPERATURE30","2":"Leading","3":"-0.42386353","4":"0.6960953","5":"174","6":"-2.229557","7":"1.38182947","8":"-0.60891595","9":"9.291393e-01","_rn_":"8"},{"1":"TEMPERATURE27 - TEMPERATURE31.5","2":"Leading","3":"-0.36955401","4":"0.6966401","5":"174","6":"-2.176660","7":"1.43755227","8":"-0.53048052","9":"9.515685e-01","_rn_":"9"},{"1":"TEMPERATURE28.5 - TEMPERATURE30","2":"Leading","3":"-0.18840346","4":"0.6933597","5":"174","6":"-1.987000","7":"1.61019341","8":"-0.27172541","9":"9.929633e-01","_rn_":"10"},{"1":"TEMPERATURE28.5 - TEMPERATURE31.5","2":"Leading","3":"-0.13409394","4":"0.6943276","5":"174","6":"-1.935202","7":"1.66701369","8":"-0.19312775","9":"9.974383e-01","_rn_":"11"},{"1":"TEMPERATURE30 - TEMPERATURE31.5","2":"Leading","3":"0.05430952","4":"0.6839527","5":"174","6":"-1.719885","7":"1.82850415","8":"0.07940538","9":"9.998198e-01","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+
+##### Effect size
+
+```r
+mmr.emm <- mmr.1.p2a %>% emmeans(~REGION*TEMPERATURE)
+eff_size(mmr.emm, sigma = sigma(mmr.1.p2a), edf=df.residual(mmr.1.p2a))
+```
+
+```
+##  contrast                                                              
+##  Core TEMPERATURE29.0965909090909 - Leading TEMPERATURE29.0965909090909
+##  effect.size    SE  df lower.CL upper.CL
+##        0.825 0.364 174    0.106     1.54
+## 
+## sigma used for effect sizes: 2.056 
+## Confidence level used: 0.95
+```
 #### {-}
 
 #### Summary figure 
@@ -2980,6 +3014,23 @@ nas.1.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + REST
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"TEMPERATURE27 - TEMPERATURE28.5","2":"Core","3":"-1.582216316","4":"0.6413915","5":"174","6":"-3.2460061","7":"0.081573433","8":"-2.466849333","9":"0.06880331","_rn_":"1"},{"1":"TEMPERATURE27 - TEMPERATURE30","2":"Core","3":"-2.146084736","4":"0.7011379","5":"174","6":"-3.9648585","7":"-0.327310983","8":"-3.060859522","9":"0.01351335","_rn_":"2"},{"1":"TEMPERATURE27 - TEMPERATURE31.5","2":"Core","3":"-1.851993894","4":"0.7106950","5":"174","6":"-3.6955590","7":"-0.008428825","8":"-2.605891266","9":"0.04849296","_rn_":"3"},{"1":"TEMPERATURE28.5 - TEMPERATURE30","2":"Core","3":"-0.563868420","4":"0.6790505","5":"174","6":"-2.3253466","7":"1.197609751","8":"-0.830377775","9":"0.83997841","_rn_":"4"},{"1":"TEMPERATURE28.5 - TEMPERATURE31.5","2":"Core","3":"-0.269777578","4":"0.6885327","5":"174","6":"-2.0558529","7":"1.516297771","8":"-0.391815205","9":"0.97952846","_rn_":"5"},{"1":"TEMPERATURE30 - TEMPERATURE31.5","2":"Core","3":"0.294090842","4":"0.6955968","5":"174","6":"-1.5103090","7":"2.098490676","8":"0.422789246","9":"0.97452238","_rn_":"6"},{"1":"TEMPERATURE27 - TEMPERATURE28.5","2":"Leading","3":"-0.006033198","4":"0.6806629","5":"174","6":"-1.7716941","7":"1.759627718","8":"-0.008863709","9":"0.99999975","_rn_":"7"},{"1":"TEMPERATURE27 - TEMPERATURE30","2":"Leading","3":"0.537581507","4":"0.7521353","5":"174","6":"-1.4134809","7":"2.488643910","8":"0.714740466","9":"0.89114214","_rn_":"8"},{"1":"TEMPERATURE27 - TEMPERATURE31.5","2":"Leading","3":"0.990629420","4":"0.7523973","5":"174","6":"-0.9611127","7":"2.942371519","8":"1.316630775","9":"0.55360508","_rn_":"9"},{"1":"TEMPERATURE28.5 - TEMPERATURE30","2":"Leading","3":"0.543614705","4":"0.7490150","5":"174","6":"-1.3993537","7":"2.486583068","8":"0.725772783","9":"0.88668113","_rn_":"10"},{"1":"TEMPERATURE28.5 - TEMPERATURE31.5","2":"Leading","3":"0.996662618","4":"0.7497366","5":"174","6":"-0.9481776","7":"2.941502840","8":"1.329350343","9":"0.54553766","_rn_":"11"},{"1":"TEMPERATURE30 - TEMPERATURE31.5","2":"Leading","3":"0.453047912","4":"0.7406739","5":"174","6":"-1.4682834","7":"2.374379199","8":"0.611669872","9":"0.92826253","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+
+##### Effect size
+
+```r
+aas.emm <- nas.1.p2a %>% emmeans(~REGION*TEMPERATURE)
+eff_size(aas.emm, sigma = sigma(nas.1.p2a), edf=df.residual(nas.1.p2a))
+```
+
+```
+##  contrast                                                              
+##  Core TEMPERATURE29.0965909090909 - Leading TEMPERATURE29.0965909090909
+##  effect.size    SE  df lower.CL upper.CL
+##        0.941 0.336 174    0.278     1.61
+## 
+## sigma used for effect sizes: 2.221 
+## Confidence level used: 0.95
+```
 #### {-}
 
 #### Summary figure 
@@ -3914,6 +3965,23 @@ ldh.model.1.p3a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_C
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"temperature20 - temperature30","2":"Core","3":"-38.21524","4":"5.870090","5":"148","6":"-53.46844","7":"-22.96205","8":"-6.510163","9":"6.563142e-09","_rn_":"1"},{"1":"temperature20 - temperature40","2":"Core","3":"-120.25618","4":"5.964207","5":"148","6":"-135.75393","7":"-104.75843","8":"-20.162980","9":"2.309264e-14","_rn_":"2"},{"1":"temperature20 - temperature50","2":"Core","3":"-187.20407","4":"5.870090","5":"148","6":"-202.45727","7":"-171.95088","8":"-31.891175","9":"2.309264e-14","_rn_":"3"},{"1":"temperature30 - temperature40","2":"Core","3":"-82.04094","4":"5.964207","5":"148","6":"-97.53869","7":"-66.54319","8":"-13.755549","9":"2.309264e-14","_rn_":"4"},{"1":"temperature30 - temperature50","2":"Core","3":"-148.98883","4":"5.870090","5":"148","6":"-164.24202","7":"-133.73564","8":"-25.381012","9":"2.309264e-14","_rn_":"5"},{"1":"temperature40 - temperature50","2":"Core","3":"-66.94789","4":"5.964207","5":"148","6":"-82.44564","7":"-51.45014","8":"-11.224945","9":"4.019007e-14","_rn_":"6"},{"1":"temperature20 - temperature30","2":"Leading","3":"-36.89654","4":"6.654339","5":"148","6":"-54.18758","7":"-19.60551","8":"-5.544735","9":"7.852473e-07","_rn_":"7"},{"1":"temperature20 - temperature40","2":"Leading","3":"-119.57331","4":"6.654339","5":"148","6":"-136.86434","7":"-102.28227","8":"-17.969224","9":"2.309264e-14","_rn_":"8"},{"1":"temperature20 - temperature50","2":"Leading","3":"-198.58701","4":"6.654339","5":"148","6":"-215.87804","7":"-181.29597","8":"-29.843236","9":"2.309264e-14","_rn_":"9"},{"1":"temperature30 - temperature40","2":"Leading","3":"-82.67676","4":"6.524241","5":"148","6":"-99.62974","7":"-65.72378","8":"-12.672243","9":"2.375877e-14","_rn_":"10"},{"1":"temperature30 - temperature50","2":"Leading","3":"-161.69046","4":"6.524241","5":"148","6":"-178.64344","7":"-144.73748","8":"-24.783032","9":"2.309264e-14","_rn_":"11"},{"1":"temperature40 - temperature50","2":"Leading","3":"-79.01370","4":"6.524241","5":"148","6":"-95.96668","7":"-62.06072","8":"-12.110789","9":"2.664535e-14","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+
+##### Effect size
+
+```r
+ldh.emm <- ldh.model.1.p3a %>% emmeans(~REGION*temperature)
+eff_size(ldh.emm, sigma = sigma(ldh.model.1.p3a), edf=df.residual(ldh.model.1.p3a))
+```
+
+```
+##  contrast                                                              
+##  Core temperature35.0666666666667 - Leading temperature35.0666666666667
+##  effect.size    SE  df lower.CL upper.CL
+##        0.331 0.546 148   -0.748     1.41
+## 
+## sigma used for effect sizes: 19.02 
+## Confidence level used: 0.95
+```
 #### {-}
 
 #### Summary figure 
@@ -4419,7 +4487,7 @@ cs.model.1c <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CENTER
 </tbody>
 </table>
 
-Model _ldh.model.1a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
+Model _cs.model.1a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
 
 #### Model validation {.tabset .tabset-faded}
 
@@ -5271,6 +5339,23 @@ cs.model.1a.log.p2  %>% update(.~1+ REGION * as.factor(TEMPERATURE) + TISSUE_MAS
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"TEMPERATURE20 / TEMPERATURE30","2":"Core","3":"0.5386597","4":"0.03700002","5":"123","6":"0.4504213","7":"0.6441842","8":"1","9":"-9.006841","10":"1.253442e-13","_rn_":"1"},{"1":"TEMPERATURE20 / TEMPERATURE40","2":"Core","3":"0.3672803","4":"0.02383007","5":"123","6":"0.3101756","7":"0.4348982","8":"1","9":"-15.437593","10":"6.716849e-14","_rn_":"2"},{"1":"TEMPERATURE20 / TEMPERATURE50","2":"Core","3":"0.2787761","4":"0.01777410","5":"123","6":"0.2361228","7":"0.3291342","8":"1","9":"-20.034413","10":"6.716849e-14","_rn_":"3"},{"1":"TEMPERATURE30 / TEMPERATURE40","2":"Core","3":"0.6818410","4":"0.02682105","5":"123","6":"0.6154448","7":"0.7554002","8":"1","9":"-9.735526","10":"1.048051e-13","_rn_":"4"},{"1":"TEMPERATURE30 / TEMPERATURE50","2":"Core","3":"0.5175365","4":"0.01931727","5":"123","6":"0.4695928","7":"0.5703751","8":"1","9":"-17.646824","10":"6.716849e-14","_rn_":"5"},{"1":"TEMPERATURE40 / TEMPERATURE50","2":"Core","3":"0.7590282","4":"0.02244229","5":"123","6":"0.7027711","7":"0.8197886","8":"1","9":"-9.325095","10":"1.071365e-13","_rn_":"6"},{"1":"TEMPERATURE20 / TEMPERATURE30","2":"Leading","3":"0.5791721","4":"0.04195808","5":"123","6":"0.4795829","7":"0.6994418","8":"1","9":"-7.538907","10":"5.395606e-11","_rn_":"7"},{"1":"TEMPERATURE20 / TEMPERATURE40","2":"Leading","3":"0.3558938","4":"0.02369230","5":"123","6":"0.2992404","7":"0.4232729","8":"1","9":"-15.519052","10":"6.716849e-14","_rn_":"8"},{"1":"TEMPERATURE20 / TEMPERATURE50","2":"Leading","3":"0.2580221","4":"0.01677896","5":"123","6":"0.2178217","7":"0.3056418","8":"1","9":"-20.832353","10":"6.716849e-14","_rn_":"9"},{"1":"TEMPERATURE30 / TEMPERATURE40","2":"Leading","3":"0.6144870","4":"0.02619174","5":"123","6":"0.5499208","7":"0.6866340","8":"1","9":"-11.424793","10":"8.071321e-14","_rn_":"10"},{"1":"TEMPERATURE30 / TEMPERATURE50","2":"Leading","3":"0.4455016","4":"0.01789033","5":"123","6":"0.4012602","7":"0.4946210","8":"1","9":"-20.134467","10":"6.716849e-14","_rn_":"11"},{"1":"TEMPERATURE40 / TEMPERATURE50","2":"Leading","3":"0.7249976","4":"0.02035766","5":"123","6":"0.6738685","7":"0.7800061","8":"1","9":"-11.452681","10":"8.026912e-14","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+
+##### Effect size
+
+```r
+cs.emm <- cs.model.1a.log.p2 %>% emmeans(~REGION*TEMPERATURE)
+eff_size(cs.emm, sigma = sigma(cs.model.1a.log.p2), edf=df.residual(cs.model.1a.log.p2))
+```
+
+```
+##  contrast                                                              
+##  Core TEMPERATURE34.6268656716418 - Leading TEMPERATURE34.6268656716418
+##  effect.size    SE  df lower.CL upper.CL
+##       -0.107 0.188 125    -0.48    0.265
+## 
+## sigma used for effect sizes: 0.4919 
+## Confidence level used: 0.95
+```
 #### {-}
 
 #### Summary figure 
@@ -5616,12 +5701,12 @@ Model _ldh.cs.model.1a_ appears to be the best model, however, there seems to be
 
 ##### performance {.tabset .tabset-faded}
 
-###### rmr.3a (linear)
+###### ldh.cs.model.1a (linear)
 ![](DataAnalysisSummary_files/figure-html/ldh-cs-model-valid-1-1.png)<!-- -->
 
 ##### DHARMa residuals {.tabset .tabset-faded}
 
-###### nas.1a (linear)
+###### ldh.cs.model.1a (linear)
 
 ```r
 ldh.cs.model.1a %>% simulateResiduals(plot=TRUE)
@@ -5958,6 +6043,22 @@ ldh.cs.model.1a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_C
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"temperature20 - temperature30","2":"Core","3":"1.562136","4":"2.454442","5":"130","6":"-4.82573","7":"7.9500011","8":"0.6364525","9":"9.200496e-01","_rn_":"1"},{"1":"temperature20 - temperature40","2":"Core","3":"-6.918859","4":"2.545822","5":"130","6":"-13.54455","7":"-0.2931708","8":"-2.7177311","9":"3.704914e-02","_rn_":"2"},{"1":"temperature20 - temperature50","2":"Core","3":"-11.999080","4":"2.598723","5":"130","6":"-18.76245","7":"-5.2357135","8":"-4.6172992","9":"5.411437e-05","_rn_":"3"},{"1":"temperature30 - temperature40","2":"Core","3":"-8.480995","4":"2.502167","5":"130","6":"-14.99307","7":"-1.9689224","8":"-3.3894605","9":"5.075801e-03","_rn_":"4"},{"1":"temperature30 - temperature50","2":"Core","3":"-13.561216","4":"2.553529","5":"130","6":"-20.20696","7":"-6.9154685","8":"-5.3107738","9":"2.727373e-06","_rn_":"5"},{"1":"temperature40 - temperature50","2":"Core","3":"-5.080221","4":"2.649322","5":"130","6":"-11.97528","7":"1.8148338","8":"-1.9175553","9":"2.257644e-01","_rn_":"6"},{"1":"temperature20 - temperature30","2":"Leading","3":"-1.161688","4":"2.683602","5":"130","6":"-8.14596","7":"5.8225846","8":"-0.4328837","9":"9.727133e-01","_rn_":"7"},{"1":"temperature20 - temperature40","2":"Leading","3":"-8.346903","4":"2.683602","5":"130","6":"-15.33118","7":"-1.3626307","8":"-3.1103352","9":"1.216030e-02","_rn_":"8"},{"1":"temperature20 - temperature50","2":"Leading","3":"-11.835599","4":"2.740470","5":"130","6":"-18.96787","7":"-4.7033247","8":"-4.3188210","9":"1.794904e-04","_rn_":"9"},{"1":"temperature30 - temperature40","2":"Leading","3":"-7.185215","4":"2.627672","5":"130","6":"-14.02393","7":"-0.3465049","8":"-2.7344411","9":"3.543500e-02","_rn_":"10"},{"1":"temperature30 - temperature50","2":"Leading","3":"-10.673911","4":"2.683569","5":"130","6":"-17.65810","7":"-3.6897258","8":"-3.9775059","9":"6.584238e-04","_rn_":"11"},{"1":"temperature40 - temperature50","2":"Leading","3":"-3.488696","4":"2.683569","5":"130","6":"-10.47288","7":"3.4954895","8":"-1.3000210","9":"5.645823e-01","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+##### Effect size
+
+```r
+ldh.cs.emm <- ldh.cs.model.1a %>% emmeans(~REGION*temperature)
+eff_size(ldh.cs.emm, sigma = sigma(ldh.cs.model.1a), edf=df.residual(ldh.cs.model.1a))
+```
+
+```
+##  contrast                                                              
+##  Core temperature34.6969696969697 - Leading temperature34.6969696969697
+##  effect.size    SE  df lower.CL upper.CL
+##        0.506 0.527 130   -0.535     1.55
+## 
+## sigma used for effect sizes: 7.602 
+## Confidence level used: 0.95
+```
 #### {-}
 
 #### Summary figure 
@@ -7191,6 +7292,24 @@ pha.2.p3b.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["asymp.LCL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["asymp.UCL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["z.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"TEMPERATURE27 / TEMPERATURE28.5","2":"Core","3":"0.8281047","4":"0.1846585","5":"Inf","6":"0.4669737","7":"1.4685140","8":"1","9":"-0.8458506","10":"8.324967e-01","_rn_":"1"},{"1":"TEMPERATURE27 / TEMPERATURE30","2":"Core","3":"1.5374472","4":"0.3805116","5":"Inf","6":"0.8140764","7":"2.9035897","8":"1","9":"1.7379021","10":"3.039604e-01","_rn_":"2"},{"1":"TEMPERATURE27 / TEMPERATURE31.5","2":"Core","3":"2.8577459","4":"0.7462501","5":"Inf","6":"1.4610796","7":"5.5895047","8":"1","9":"4.0210752","10":"3.375427e-04","_rn_":"3"},{"1":"TEMPERATURE28.5 / TEMPERATURE30","2":"Core","3":"1.8565854","4":"0.4640655","5":"Inf","6":"0.9768648","7":"3.5285430","8":"1","9":"2.4753873","10":"6.379280e-02","_rn_":"4"},{"1":"TEMPERATURE28.5 / TEMPERATURE31.5","2":"Core","3":"3.4509474","4":"0.9125589","5":"Inf","6":"1.7494496","7":"6.8073054","8":"1","9":"4.6840944","10":"1.670431e-05","_rn_":"5"},{"1":"TEMPERATURE30 / TEMPERATURE31.5","2":"Core","3":"1.8587604","4":"0.5303305","5":"Inf","6":"0.8930871","7":"3.8685926","8":"1","9":"2.1727275","10":"1.308508e-01","_rn_":"6"},{"1":"TEMPERATURE27 / TEMPERATURE28.5","2":"Leading","3":"0.4953514","4":"0.1295781","5":"Inf","6":"0.2529620","7":"0.9699996","8":"1","9":"-2.6854727","10":"3.642552e-02","_rn_":"7"},{"1":"TEMPERATURE27 / TEMPERATURE30","2":"Leading","3":"0.9217280","4":"0.2452159","5":"Inf","6":"0.4653485","7":"1.8256907","8":"1","9":"-0.3063650","10":"9.900277e-01","_rn_":"8"},{"1":"TEMPERATURE27 / TEMPERATURE31.5","2":"Leading","3":"2.2241843","4":"0.6131252","5":"Inf","6":"1.0954917","7":"4.5157765","8":"1","9":"2.8998826","10":"1.953965e-02","_rn_":"9"},{"1":"TEMPERATURE28.5 / TEMPERATURE30","2":"Leading","3":"1.8607558","4":"0.5146272","5":"Inf","6":"0.9143594","7":"3.7867080","8":"1","9":"2.2453093","10":"1.112159e-01","_rn_":"10"},{"1":"TEMPERATURE28.5 / TEMPERATURE31.5","2":"Leading","3":"4.4901141","4":"1.2750342","5":"Inf","6":"2.1648771","7":"9.3128265","8":"1","9":"5.2889592","10":"7.356377e-07","_rn_":"11"},{"1":"TEMPERATURE30 / TEMPERATURE31.5","2":"Leading","3":"2.4130593","4":"0.6979188","5":"Inf","6":"1.1478210","7":"5.0729647","8":"1","9":"3.0457022","10":"1.242853e-02","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+
+#### effect size [latitudes]
+
+```r
+immuno.emm <- pha.2.p3b.gamma %>% emmeans(~REGION*TEMPERATURE)
+eff_size(immuno.emm, sigma = sigma(pha.2.p3b.gamma), edf=df.residual(pha.2.p3b.gamma))
+```
+
+```
+##  contrast                                                              
+##  Core TEMPERATURE28.9339622641509 - Leading TEMPERATURE28.9339622641509
+##  effect.size    SE  df asymp.LCL asymp.UCL
+##       -0.105 0.265 Inf    -0.626     0.415
+## 
+## sigma used for effect sizes: 0.815 
+## Confidence level used: 0.95
+```
+
 ### {-}
 
 ### Summary figure 
@@ -7680,7 +7799,6 @@ The basic looks good and passes the validation checks.
 </tbody>
 </table>
 
-
 ### {-} 
 
 ### Pairwise comparisons {.tabset .tabset-faded} 
@@ -7702,6 +7820,21 @@ hema.1 %>% emmeans(pairwise ~ REGION, type = "response")
 ## $contrasts
 ##  contrast       estimate     SE df t.ratio p.value
 ##  Core - Leading  -0.0356 0.0182 36  -1.959  0.0578
+```
+
+#### effect size [latitudes]
+
+```r
+hema.emm <- emmeans(hema.1, "REGION")
+eff_size(hema.emm, sigma = sigma(hema.1), edf=df.residual(hema.1))
+```
+
+```
+##  contrast       effect.size    SE df lower.CL upper.CL
+##  Core - Leading      -0.639 0.335 36    -1.32   0.0398
+## 
+## sigma used for effect sizes: 0.05565 
+## Confidence level used: 0.95
 ```
 
 ### {-}
