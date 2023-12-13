@@ -4,14 +4,15 @@ library(ggpubr)
 library(ggpubr)
 
 #--- recreate figure above but with legend ---# 
-reefs <- rbind(CairnsTemp2, MackayTemp2) 
-save(reefs, file="./sampled_reefs_temp_data.RData") 
+#reefs <- rbind(CairnsTemp2, MackayTemp2) 
+#save(reefs, file="./sampled_reefs_temp_data.RData") 
+load("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/supplemental_figures/sampled_reefs_temp_data.RData")
 
 
 temperature.plot2 <- ggplot(reefs, aes(x=cal_val, fill=REGION)) + 
   geom_density(alpha = 0.8, 
                adjust=1.5) + 
-  scale_fill_manual(values = c("#0D47A1","#DA3A36")) + 
+  scale_fill_manual(values = c("#4393C3","#B2182B")) + 
   geom_vline(xintercept = c(27,28.5,30,31.5), 
              linetype = "dashed", 
              color ="black") +
@@ -22,16 +23,16 @@ months=c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"
 temperature.plot3 <- ggplot(reefs, aes(x=MONTH, y=cal_val, color=REGION)) + 
   geom_smooth(size=2) +
   scale_x_continuous(labels=months, breaks=seq(1,12,1))+ 
-  scale_color_manual(values = c("#0D47A1","#DA3A36"),  name = "Latitude") + 
+  scale_color_manual(values = c("#4393C3","#B2182B"),  name = "Latitude") + 
   ggplot2::scale_y_continuous(limits=c(19.5,31.5),breaks = seq(19.5,33,1.5)) +
   geom_hline(yintercept = c(27,28.5,30,31.5), 
              linetype = "dashed", 
              color ="black")+
-  xlab("Month")+ylab("Temperature (°C)") +
+  xlab("Month")+ylab("TEMPERATURE (°C)") +
   theme_classic(); temperature.plot3
 
 yplot <- ggdensity(reefs, "cal_val", fill="REGION") + 
-  scale_fill_manual(values = c("#0D47A1","#DA3A36"),  name = "Latitude") + 
+  scale_fill_manual(values = c("#4393C3","#B2182B"),  name = "Latitude") + 
   ggplot2::scale_x_continuous(limits=c(19.5,31.5),breaks = seq(19.5,33,1.5)) +
   geom_vline(xintercept = c(27,28.5,30,31.5), 
              linetype = "dashed", 
@@ -54,13 +55,13 @@ months=c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"
 range.plot3 <- ggplot(reefs2, aes(x=MONTH, y=cal_range, color=REGION)) + 
   geom_smooth(size=2) +
   scale_x_continuous(labels=months, breaks=seq(1,12,1))+ 
-  scale_color_manual(values = c("#0D47A1","#DA3A36"),  name = "Latitude") + 
+  scale_color_manual(values = c("#4393C3","#B2182B"),  name = "Latitude") + 
   ggplot2::scale_y_continuous(limits=c(0,1), breaks = seq(0,1,0.1)) +
-  xlab("Month")+ylab("Temperature range (°C)") + 
+    xlab("Month")+ylab("TEMPERATURE RANGE (°C)") + 
   theme_classic(); range.plot3
 
 yplot.r <- ggdensity(reefs2, "cal_range", fill="REGION") + 
-  scale_fill_manual(values = c("#0D47A1","#DA3A36"),  name = "Latitude") +  
+  scale_fill_manual(values = c("#4393C3","#B2182B"),  name = "Latitude") +  
   scale_x_continuous(limits = c(0,1), breaks = seq(0,1,0.1))+
   rotate() + clean_theme(); yplot.r
 
@@ -69,23 +70,25 @@ env.temp.plot2 <- ggpubr::ggarrange(temperature.plot3, yplot, range.plot3, yplot
                                     widths = c(4, 1, 4, 1), heights = c(1, 1, 2, 2),
                                     common.legend = TRUE, labels = c("A","","B","")); env.temp.plot2
 
-ggsave("./supplemental_figures/Supplemental_figure1.pdf", width=28, height=16, units = "cm", dpi=360)
-
+ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/supplemental_figures/Supplemental_figure1.pdf", env.temp.plot2 , device="pdf", width=8.6, height = 7, units = "in", dpi=1200)
 
 range.plot2 <- ggplot(reefs2, aes(x=cal_range, fill=REGION)) + 
   geom_density(alpha = 0.8, 
                adjust=1.5) + 
-  scale_fill_manual(values = c("#0D47A1","#DA3A36")) +
+  scale_fill_manual(values = c("#4393C3","#B2182B")) +
   scale_x_continuous(limits = c(0,1), breaks = seq(0,1,0.05))+
   theme_classic(); range.plot2 
-  
+
+
+
+
 #--- with heron ---# 
 reefs3 <- rbind(reefs, heron2)
 
 temperature.plot2a <- ggplot(reefs3, aes(x=cal_val, fill=REGION)) + 
   geom_density(alpha = 0.8, 
                adjust=1.5) + 
-  scale_fill_manual(values = c("#00B050","#0D47A1","#DA3A36")) + 
+  scale_fill_manual(values = c("#00B050","#4393C3","#B2182B")) + 
   geom_vline(xintercept = c(27,28.5,30,31.5), 
              linetype = "dashed", 
              color ="black") +
@@ -96,7 +99,7 @@ months=c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"
 temperature.plot3a <- ggplot(reefs3, aes(x=MONTH, y=cal_val, color=REGION)) + 
   geom_smooth(size=2) +
   scale_x_continuous(labels=months, breaks=seq(1,12,1))+ 
-  scale_color_manual(values = c("#00B050","#0D47A1","#DA3A36"),  name = "Latitude") + 
+  scale_color_manual(values = c("#00B050","#4393C3","#B2182B"),  name = "Latitude") + 
   ggplot2::scale_y_continuous(limits=c(19.5,31.5),breaks = seq(19.5,33,1.5)) +
   geom_hline(yintercept = c(27,28.5,30,31.5), 
              linetype = "dashed", 
@@ -105,7 +108,7 @@ temperature.plot3a <- ggplot(reefs3, aes(x=MONTH, y=cal_val, color=REGION)) +
   theme_classic(); temperature.plot3a
 
 yplot <- ggdensity(reefs3, "cal_val", fill="REGION") + 
-  scale_fill_manual(values = c("#00B050","#0D47A1","#DA3A36"),  name = "Latitude") + 
+  scale_fill_manual(values = c("#00B050","#4393C3","#B2182B"),  name = "Latitude") + 
   ggplot2::scale_x_continuous(limits=c(19.5,31.5),breaks = seq(19.5,33,1.5)) +
   geom_vline(xintercept = c(27,28.5,30,31.5), 
              linetype = "dashed", 
@@ -126,13 +129,13 @@ months=c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"
 range.plot3 <- ggplot(reefs4, aes(x=MONTH, y=cal_range, color=REGION)) + 
   geom_smooth(size=2, method="gam", formula = y ~ s(x, bs = "cs", k=4)) +
   scale_x_continuous(labels=months, breaks=seq(1,12,1))+ 
-  scale_color_manual(values = c("#00B050","#0D47A1","#DA3A36"),  name = "Latitude") + 
+  scale_color_manual(values = c("#00B050","#4393C3","#B2182B"),  name = "Latitude") + 
   ggplot2::scale_y_continuous(limits=c(0,1), breaks = seq(0,1,0.1)) +
   xlab("Month")+ylab("Temperature range (°C)") + 
   theme_classic(); range.plot3
 
 yplot.r <- ggdensity(reefs2, "cal_range", fill="REGION") + 
-  scale_fill_manual(values = c("#0D47A1","#DA3A36"),  name = "Latitude") +  
+  scale_fill_manual(values = c("#4393C3","#B2182B"),  name = "Latitude") +  
   scale_x_continuous(limits = c(0,1), breaks = seq(0,1,0.1))+
   rotate() + clean_theme(); yplot.r
 

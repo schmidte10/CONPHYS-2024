@@ -1,7 +1,7 @@
 ---
 title: "Data Overview"
 author: "Elliott Schmidt"
-date: "12 December, 2023"
+date: "13 December, 2023"
 output:
   html_document:
     keep_md: yes
@@ -2070,12 +2070,8 @@ eff_size(mmr.emm, sigma = sigma(mmr.1.p2a), edf=df.residual(mmr.1.p2a))
 
 #### Summary figure 
 
-
-```
-## Warning: Removed 1 rows containing missing values (`geom_point()`).
-```
-
 ![](DataAnalysisSummary_files/figure-html/max-sum-fig-1.png)<!-- -->
+
 
 #### Conclusion 
 
@@ -3041,6 +3037,25 @@ eff_size(aas.emm, sigma = sigma(nas.1.p2a), edf=df.residual(nas.1.p2a))
 ```
 
 ![](DataAnalysisSummary_files/figure-html/aas-sum-fig-1.png)<!-- -->
+
+ggplot(rmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype=REGION))+
+  geom_jitter(data=rmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  stat_smooth(method = "lm", 
+              formula =y ~ poly(x, 2, raw=TRUE)) + 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA)+ 
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
+  scale_y_continuous(limits = c(2,12), breaks = seq(2, 12, by = 2)) +
+  theme_classic() + ylab(expression("RESTING METABOLIC RATE (MgO "[2]* " hr"^{-1} * ")")) + xlab("")+
+  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) + 
+  theme(legend.position = "top", 
+        legend.text = element_text(size = 10), 
+        legend.title = element_blank(), 
+        axis.title = element_text(size =12), 
+        axis.text = element_text(size=10)) + 
+  annotate("text", x=30, y= 11.5, label="P =0.51", fontface="italic", size=5)
 
 #### Conclusion 
 
@@ -4022,7 +4037,7 @@ Now we can import that data. Two different data frames are being imported. The f
 #### Load data 
 
 ```r
-cs <- read_delim("./enzymes/CS_LocalAdapt6.txt", 
+cs <- read_delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/enzymes/CS_LocalAdapt6.txt", 
                              delim = "\t", escape_double = FALSE, 
                              col_types = cols(...21 = col_skip(), 
                                               ...22 = col_skip()), trim_ws = TRUE) %>% 
@@ -7862,3 +7877,321 @@ Further analysis of results can be see within the paper titled "[INSERT TITLE HE
 
 ![](DataAnalysisSummary_files/figure-html/figure-1.png)<!-- -->
 
+# Figure for manuscript {.tabset .tabset-pills}
+
+## Figure 2
+
+
+```r
+rmr.g2 <- ggplot(rmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype=REGION))+
+  geom_jitter(data=rmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  stat_smooth(method = "lm", 
+              formula =y ~ poly(x, 2, raw=TRUE)) + 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA)+ 
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
+  scale_y_continuous(limits = c(2,12), breaks = seq(2, 12, by = 2)) +
+  theme_classic() + ylab(expression("RESTING METABOLIC RATE (MgO "[2]* " hr"^{-1} * ")")) + xlab("")+
+  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) + 
+  theme(legend.position = "top", 
+        legend.text = element_text(size = 10), 
+        legend.title = element_blank(), 
+        axis.title = element_text(size =12), 
+        axis.text = element_text(size=10)) + 
+  annotate("text", x=30, y= 11.5, label="P =0.51", fontface="italic", size=5)
+
+mmr.g2 <- ggplot(mmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype=REGION))+
+  geom_jitter(data=mmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) + 
+  stat_smooth(method = "lm", 
+              formula =y ~ poly(x, 2, raw=TRUE)) + 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA) +
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
+  scale_y_continuous(limits = c(6,28), breaks = seq(6, 28, by = 2)) +
+  theme_classic() + ylab(expression("MAXIMUM OXYGEN CONSUMPTION (MgO   " [2]* "  hr"^{-1} * ")"))  + xlab("")+
+  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) + 
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) + 
+  theme(legend.position = 'none', 
+        legend.text = element_text(size = 10), 
+        legend.title = element_blank(), 
+        axis.title = element_text(size =12), 
+        axis.text = element_text(size=10))+
+  annotate("text", x=30, y= 27, label="P =0.0010", fontface="italic", size=5) 
+
+nas.g2 <- ggplot(nas.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype=REGION)) + 
+  geom_jitter(data=nas.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  stat_smooth(method = "lm", 
+              formula =y ~ poly(x, 2, raw=TRUE)) + 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA)+
+  scale_y_continuous(limits = c(4,20), breaks = seq(4, 20, by = 2)) + 
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
+  theme_classic() + ylab(expression("ABSOLUTE AEROBIC SCOPE (MgO "[2]* " hr"^{-1} * ")")) +
+  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) + 
+  theme(legend.position = "none", 
+        legend.text = element_text(size = 10), 
+        legend.title = element_blank(), 
+        axis.title = element_text(size =12), 
+        axis.text = element_text(size=10)) + 
+  annotate("text", x=30, y= 19, label="P =0.0010", fontface="italic", size=5)
+```
+  
+
+```r
+fig2 <- ggarrange(rmr.g2, mmr.g2, nas.g2, 
+          nrow = 3, 
+          ncol=1, 
+          align = "v",
+          labels = c("A","B","C"),
+          common.legend = TRUE); fig2
+```
+
+```
+## Warning: Removed 4 rows containing missing values (`geom_point()`).
+```
+
+![Fig. 2: Thermal performance curves of resting oxygen performance (A), maximum oxygen performance (B), and absolute aerobic scope (C) of fish from low- (solid red lines) and high-latitudinal (dashed blue line) regions across four different temperatures. Ribbon represent 95% confidence intervals.](DataAnalysisSummary_files/figure-html/figure-2b-1.png)
+
+```r
+ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/figures/Figure2.pdf", fig2, device="pdf", width=6.6, height = 19.86, units = "in", dpi=1200)
+```
+
+## Figure 3
+
+
+```r
+pha.emm <- emmeans(pha.2.p3b.gamma, ~ TEMPERATURE*REGION, 
+               at = list(TEMPERATURE = seq(from=27, to = 31.5, by=.1)), 
+               type='response')
+pha.emm.df=as.data.frame(pha.emm)
+
+pha.obs <-  pha2 %>% 
+  mutate(Pred=predict(pha.2.p3b.gamma, re.form=NA),
+         Resid = residuals(pha.2.p3b.gamma, type='response'),
+         Fit = Pred + Resid)
+
+pha.g2 <- ggplot(pha.emm.df, aes(y=response, x=TEMPERATURE, color = REGION, linetype=REGION)) + 
+  stat_smooth(method = "lm", se=FALSE,
+              formula =y ~ poly(x, 3, raw=TRUE)) +  
+  geom_ribbon(aes(x=TEMPERATURE, ymin= asymp.LCL, ymax= asymp.UCL, fill = REGION), 
+              alpha = 0.2, color=NA) + 
+  #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
+  theme_classic() + ylab("PHA RESPONSE (mm)") + 
+  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) + 
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
+  theme(legend.position = c(0.855,0.8), 
+        legend.text = element_text(size = 10), 
+        legend.title = element_blank(), 
+        axis.title = element_text(size =12), 
+        axis.text = element_text(size=10)) + 
+  annotate("text", x=30, y=0.495, fontface="italic", size=5, label="P =0.85")
+```
+
+
+```r
+pha.g2
+```
+
+![Fig. 3: Thermal performance curve of swelling response of the caudal peduncle ~18-24 hours post injection of phytohemagglutinin across four different experimental temperatures. Solid red lines represent low-latitude populations. Dashed blue line represents high-latitude populations. Ribbon represents 95% confidence intervals.](DataAnalysisSummary_files/figure-html/figure-3b-1.png)
+
+```r
+ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/figures/Figure3.pdf", pha.g2, device="pdf", width=6.6, height = 5, units = "in", dpi=1200)
+```
+
+## Figure 4
+
+
+```r
+#---ldh---#
+ldh.emm <- emmeans(ldh.model.1.p3a, ~ temperature*REGION, 
+                   at = list(temperature = seq(from=20, to = 50, by=1)))
+ldh.emm.df=as.data.frame(ldh.emm)
+
+ldh.obs <- ldh.data %>% 
+  mutate(Pred = predict(ldh.model.1.p3a, re.form=NA), 
+         Resid = residuals(ldh.model.1.p3a, type = 'response'), 
+         Fit = Pred - Resid)
+
+cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGION, linetype=REGION)) + 
+  stat_smooth(method = "lm", se=FALSE, 
+              formula =y ~ poly(x, 3, raw=TRUE)) + 
+  geom_ribbon(aes(x=temperature, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA) +
+  geom_jitter(data=ldh.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  scale_y_continuous(limits = c(0,250), breaks = seq(0, 250, by =50)) + 
+  theme_classic() + ylab(expression("LDH ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("TEMPERATURE") +
+  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) + 
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
+  theme(legend.position = c(0.80,0.2), 
+        legend.text = element_text(size = 10), 
+        legend.title = element_blank(), 
+        axis.title = element_text(size =12), 
+        axis.text = element_text(size=10)) + 
+  annotate("text", x=40, y=240, label="p =0.98", fontface = 'italic', size = 5)
+
+#--- cs ---#
+cs.emm <- emmeans(cs.model.1a.log.p2, ~ TEMPERATURE*REGION, type='response',
+                   at = list(TEMPERATURE = seq(from=20, to = 50, by=1)), 
+                  )
+cs.emm.df=as.data.frame(cs.emm)
+
+cs.obs <- CS.data %>% 
+  mutate(Pred = predict(cs.model.1a.log.p2, re.form=NA, type= 'response'), 
+         Resid = residuals(cs.model.1a.log.p2, type = 'response'), 
+         Fit = Pred - Resid)
+
+cs.plot2 <- ggplot(cs.emm.df, aes(y=response, x=TEMPERATURE, color=REGION, fill=REGION, linetype=REGION)) + 
+  stat_smooth(method = "lm", se=FALSE, 
+              formula =y ~ poly(x, 2, raw=TRUE)) +  
+  geom_jitter(data=cs.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA) +
+  scale_y_continuous(limits = c(0,10), breaks = seq(0, 10, by =2)) + 
+  theme_classic() + ylab(expression("CS ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("TEMPERATURE") +
+  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"))+
+  theme(legend.position = 'none', 
+        legend.text = element_text(size = 10), 
+        legend.title = element_blank(), 
+        axis.title = element_text(size =12), 
+        axis.text = element_text(size=10))+
+  annotate("text", x=40, y=9.8, label="p =0.15", fontface = 'italic', size = 5)
+
+#--- ldh:cs ratio ---#
+ldh.cs.emm <- emmeans(ldh.cs.model.1a, ~ temperature*REGION, type='response',
+                   at = list(temperature = seq(from=20, to = 50, by=1)), 
+                  )
+ldh.cs.emm.df=as.data.frame(ldh.cs.emm)
+
+ldh.cs.obs <- ldh.cs.data %>% 
+  mutate(Pred = predict(ldh.cs.model.1a, re.form=NA, type= 'response'), 
+         Resid = residuals(ldh.cs.model.1a, type = 'response'), 
+         Fit = Pred - Resid)
+
+ldh.cs.plot2 <- ggplot(ldh.cs.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGION, linetype=REGION)) + 
+  stat_smooth(method = "lm", se=FALSE, 
+              formula =y ~ poly(x, 2, raw=TRUE)) +  
+  geom_jitter(data=ldh.cs.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  geom_ribbon(aes(x=temperature, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA) +
+  scale_y_continuous(limits = c(0,50), breaks = seq(0, 50, by =10)) + 
+  theme_classic() + ylab("LDH:CS RATIO") + xlab("TEMPERATURE") +
+  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"))+
+  theme(legend.position = 'none', 
+        legend.text = element_text(size = 10), 
+        legend.title = element_blank(), 
+        axis.title = element_text(size =12), 
+        axis.text = element_text(size=10))+
+  annotate("text", x=40, y=48, label="p =0.91", fontface = 'italic', size = 5)
+```
+
+
+```r
+fig4 <- ggarrange(cldh2, cs.plot2, ldh.cs.plot2, 
+          nrow = 3, 
+          ncol=1, 
+          align = "v",
+          labels = c("A","B","C"),
+          common.legend = TRUE)
+
+fig4
+```
+
+![Fig.4: Thermal performance curve of maximal activity of A) lactate dehydrogenase (LDH), B) citrate synthase (CS), and C) LDH:CS ratio of low- (solid red line) and high-latitudinal (dashed blue line) populations across four experimental temperatures (i.e., 20°C, 30°C, 40°C, 50°C). Ribbons represent 95% confidence intervals.](DataAnalysisSummary_files/figure-html/figure-4b-1.png)
+
+```r
+ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/figures/Figure4.pdf", fig4, device="pdf", width=6.6, height = 19.86, units = "in", dpi=1200)
+```
+
+# Supplemental figures for manuscript {.tabset .tabset-pills}
+
+## Supplemental figure 4
+
+```r
+hema.newdata <-  hema.1 %>% ggemmeans(~REGION) %>% 
+  as.data.frame() %>% 
+  dplyr::rename(REGION = x)
+
+obs <- hema %>% 
+  mutate(Pred = predict(hema.1, re.form=NA), 
+         Resid = residuals(hema.1, type = "response"), 
+         Fit = Pred + Resid)
+
+hema.plot <- ggplot(hema.newdata, aes(y=predicted, x=REGION, color=REGION, linetype=REGION))  + 
+  geom_jitter(data=obs, aes(y=Pred, x=REGION, color =REGION), 
+              width = 0.05, alpha=0.3)+
+  geom_pointrange(aes(ymin=conf.low, 
+                      ymax=conf.high), 
+                  shape = 19, 
+                  size = 1, 
+                  position = position_dodge(0.2)) + 
+  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
+  ylab("HEMATOCRIT RATIO") +
+  scale_x_discrete(name = "", 
+                   labels = c("Low-latitude","High-latitude"))+
+  theme_classic() + 
+  theme(legend.position = 'top', 
+        legend.text = element_text(size = 10), 
+        legend.title = element_blank(), 
+        axis.title = element_text(size =12), 
+        axis.text = element_text(size=10))  + 
+  annotate("text", x=1.5, y=0.275, fontface="italic", size=5, label="P =0.057")
+```
+
+
+```r
+hema.plot
+```
+
+![Fig. 3: Comparison of hematocrit ratios, that were measured at 31.5°C, between low- (red) and high-latitudinal (blue) populations. No significant difference was observed between the different latitudes (p =0.058). Solid (low-latitude) and dashed (high-latitude) lines represent 95% confidence intervals.](DataAnalysisSummary_files/figure-html/Sfigure-4b-1.png)
+
+```r
+ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/supplemental_figures/Supplemental_figure4.pdf", hema.plot, device="pdf", width=6.6, height = 5, units = "in", dpi=1200)
+```
+
+## Supplemental figure 3
+
+```r
+library(ggridges)
+mass.distr <- resp4 %>% distinct(FISH_ID, .keep_all = TRUE) %>% 
+  mutate(CHAMBER_RATIO = 1.5/DRY_WEIGHT) %>%
+  ggplot(aes(x=CHAMBER_RATIO, y=REGION, fill=REGION)) + 
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
+  ylab("")+ scale_x_continuous(limits = c(20,150), breaks = seq(20, 150, by =20)) + 
+  geom_density_ridges(scale = 2, jittered_points=TRUE, position = position_points_jitter(height = 0),
+                      point_shape = '|', point_size = 3, point_alpha = 1, alpha = 0.7) + 
+  theme_classic() + 
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank())
+```
+
+
+```r
+mass.distr
+```
+
+```
+## Picking joint bandwidth of 5.99
+```
+
+![Fig. 3: Density plots displayed fish body size to chamber ratios. Fish that were sampled for aerobic physiology from the low-latitude region are represented in red; fish from the high-latitude region are represent in blue.](DataAnalysisSummary_files/figure-html/Sfigure-3b-1.png)
+
+```r
+ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/supplemental_figures/Supplemental_figure3.pdf",mass.distr, device="pdf", width=6.6, height = 5, units = "in", dpi=1200)
+```
+
+```
+## Picking joint bandwidth of 5.99
+```

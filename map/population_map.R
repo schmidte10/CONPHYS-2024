@@ -88,11 +88,11 @@ p1 <- ggplot() +
   theme(panel.background = element_rect(fill = "lightblue"), 
         panel.grid.major = element_line(colour = "lightblue")) + 
   geom_point(data = myreefs.core, aes(x = X_COORD, y = Y_COORD), size = 3, 
-             shape = 21, fill = "#DA3A36")+ 
+             shape = 21, fill = "#B2182B")+ 
   geom_point(data = myreefs.leading, aes(x = X_COORD, y = Y_COORD), size = 3, 
-             shape = 21, fill = "#0D47A1") + 
-  geom_rect(aes(xmin=145, xmax=147, ymin=-17.5, ymax=-16),fill="transparent", linetype = "dotted", color="#DA3A36") + 
-  geom_rect(aes(xmin=148.5, xmax=151, ymin=-21.7, ymax=-20.2),fill="transparent", linetype = "dotted", color="#0D47A1") + 
+             shape = 21, fill = "#4393C3") + 
+  geom_rect(aes(xmin=145, xmax=147, ymin=-17.5, ymax=-16),fill="transparent", linetype = "dotted", color="#B2182B") + 
+  geom_rect(aes(xmin=148.5, xmax=151, ymin=-21.7, ymax=-20.2),fill="transparent", linetype = "dotted", color="#4393C3") + 
   annotate("text", x = 149.8, y = -14, label = "Coral \nSea", fontface = "italic", size = 6);p1 
 
 insert1 <- ggplot() +
@@ -107,7 +107,7 @@ insert1 <- ggplot() +
   #annotate("segment", x = 146.2049, xend = 146.2049+0.3, y = -16.99838, yend = -16.99838+0.18, colour = "black", size = 1)+
   #annotate("segment", x = 145.9929, xend = 145.9929+0.3, y = -16.65520, yend = -16.65520+0.18, colour = "black", size = 1)+
   geom_point(data = myreefs.core, aes(x = X_COORD, y = Y_COORD), size = 5, 
-             shape = 21, fill = "#DA3A36") + 
+             shape = 21, fill = "#B2182B") + 
   geom_label(data = myreefs.core, aes(X_COORD+.3, Y_COORD+.01, label=QLD_NAME), fill = "white")+
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank(), 
@@ -123,13 +123,13 @@ insert2 <- ggplot() +
   theme(panel.background = element_rect(fill = "lightblue"), 
         panel.grid.major = element_line(colour = "lightblue")) +  
   geom_point(data = myreefs.leading, aes(x = X_COORD, y = Y_COORD), size = 5, 
-             shape = 21, fill = "#0D47A1")+ 
+             shape = 21, fill = "#4393C3")+ 
   xlab("") + ylab("") +
   geom_label_repel(data = myreefs.leading, aes(X_COORD, Y_COORD, label=GBR_NAME), fill = "white")+
   theme(axis.text.x=element_blank(), 
         axis.ticks.x=element_blank(), 
         axis.text.y=element_blank(),
-        panel.border = element_rect(colour = "#0D47A1", fill=NA, size=2),
+        panel.border = element_rect(colour = "#4393C3", fill=NA, size=2),
         axis.ticks.y=element_blank());insert2
 
 #---final figure ---# 
@@ -145,12 +145,8 @@ map <- ggarrange(p1, cb,
                  nrow=1, 
                  labels = c("A","")); map
 
-pdf("population_map.pdf")
-map2
-dev.off() 
-
 ggsave("./figures/figure1.jpeg", width = 11, height = 8, units = "in", dpi = 360)
-ggsave("./figures/figure1.pdf", width = 11, height = 8, units = "in", dpi = 360)
+ggsave("./figures/figure1.pdf", width = 11, height = 8, units = "in", dpi = 1200)
 
 #--- 3MT final figure ---# 
 mt_figure <- ggplot() +
