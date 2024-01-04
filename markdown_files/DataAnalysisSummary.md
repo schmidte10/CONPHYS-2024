@@ -1,7 +1,7 @@
 ---
 title: "Data Overview"
 author: "Elliott Schmidt"
-date: "15 December, 2023"
+date: "04 January, 2024"
 output:
   html_document:
     keep_md: yes
@@ -3069,7 +3069,7 @@ Now we can import that data. Two different data frames are being imported. The f
 ldh <- read_delim("./enzymes/LDH_LocalAdapt.txt", delim = "\t", 
                   escape_double = FALSE, col_types = cols(`Creation time` = col_datetime(format = "%d/%m/%Y %H:%M")), 
                   trim_ws = TRUE)
-tissue.mass <- read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/enzymes/tissue_mass.txt")
+tissue.mass <- read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/enzymes/tissue_mass.txt") 
 ```
 
 #### Data manipulation 
@@ -3249,7 +3249,8 @@ ldh.data <- final_table %>%
          ASSAY_VOL = 2.975, 
          SAMPLE_VOL = 0.025, 
          LDH_ACTIVITY = ((LDH_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))*-1) %>% 
-  filter(LDH_ACTIVITY >=0)
+  filter(LDH_ACTIVITY >=0) %>% 
+  filter(fish_id != "CVLA047")
 ```
 
 
@@ -3316,38 +3317,38 @@ ldh.model.1 <- glm(LDH_ACTIVITY ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED,
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> -100.7330611 </td>
-   <td style="text-align:right;"> 12.3696296 </td>
-   <td style="text-align:right;"> -8.1435794 </td>
+   <td style="text-align:right;"> -98.8473323 </td>
+   <td style="text-align:right;"> 12.7538631 </td>
+   <td style="text-align:right;"> -7.7503836 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -13.9358312 </td>
-   <td style="text-align:right;"> 18.7015018 </td>
-   <td style="text-align:right;"> -0.7451718 </td>
-   <td style="text-align:right;"> 0.4573740 </td>
+   <td style="text-align:right;"> -15.7431756 </td>
+   <td style="text-align:right;"> 19.0212806 </td>
+   <td style="text-align:right;"> -0.8276612 </td>
+   <td style="text-align:right;"> 0.4092512 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> temperature </td>
-   <td style="text-align:right;"> 6.4321810 </td>
-   <td style="text-align:right;"> 0.3368483 </td>
-   <td style="text-align:right;"> 19.0951868 </td>
+   <td style="text-align:right;"> 6.3664611 </td>
+   <td style="text-align:right;"> 0.3464135 </td>
+   <td style="text-align:right;"> 18.3782116 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -1.4968191 </td>
-   <td style="text-align:right;"> 0.5843444 </td>
-   <td style="text-align:right;"> -2.5615359 </td>
-   <td style="text-align:right;"> 0.0114421 </td>
+   <td style="text-align:right;"> -1.4109245 </td>
+   <td style="text-align:right;"> 0.6197670 </td>
+   <td style="text-align:right;"> -2.2765402 </td>
+   <td style="text-align:right;"> 0.0243089 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:temperature </td>
-   <td style="text-align:right;"> 0.3442058 </td>
-   <td style="text-align:right;"> 0.5071223 </td>
-   <td style="text-align:right;"> 0.6787431 </td>
-   <td style="text-align:right;"> 0.4983825 </td>
+   <td style="text-align:right;"> 0.4104065 </td>
+   <td style="text-align:right;"> 0.5148700 </td>
+   <td style="text-align:right;"> 0.7971070 </td>
+   <td style="text-align:right;"> 0.4267197 </td>
   </tr>
 </tbody>
 </table>
@@ -3374,31 +3375,31 @@ ldh.model.2 <- glm(LDH_ACTIVITY ~ 1 + REGION*temperature,
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> -101.8239560 </td>
-   <td style="text-align:right;"> 12.5955494 </td>
-   <td style="text-align:right;"> -8.0841218 </td>
+   <td style="text-align:right;"> -100.6938247 </td>
+   <td style="text-align:right;"> 12.9128467 </td>
+   <td style="text-align:right;"> -7.7979571 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -11.4789921 </td>
-   <td style="text-align:right;"> 19.0292884 </td>
-   <td style="text-align:right;"> -0.6032276 </td>
-   <td style="text-align:right;"> 0.5472932 </td>
+   <td style="text-align:right;"> -12.6091234 </td>
+   <td style="text-align:right;"> 19.2468460 </td>
+   <td style="text-align:right;"> -0.6551267 </td>
+   <td style="text-align:right;"> 0.5134386 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> temperature </td>
-   <td style="text-align:right;"> 6.4245334 </td>
-   <td style="text-align:right;"> 0.3431905 </td>
-   <td style="text-align:right;"> 18.7200209 </td>
+   <td style="text-align:right;"> 6.3664611 </td>
+   <td style="text-align:right;"> 0.3514432 </td>
+   <td style="text-align:right;"> 18.1151935 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:temperature </td>
-   <td style="text-align:right;"> 0.3602315 </td>
-   <td style="text-align:right;"> 0.5166515 </td>
-   <td style="text-align:right;"> 0.6972429 </td>
-   <td style="text-align:right;"> 0.4867596 </td>
+   <td style="text-align:right;"> 0.4183038 </td>
+   <td style="text-align:right;"> 0.5223337 </td>
+   <td style="text-align:right;"> 0.8008364 </td>
+   <td style="text-align:right;"> 0.4245549 </td>
   </tr>
 </tbody>
 </table>
@@ -3418,16 +3419,16 @@ ldh.model.2 <- glm(LDH_ACTIVITY ~ 1 + REGION*temperature,
   <tr>
    <td style="text-align:left;"> ldh.model.1 </td>
    <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 1495.243 </td>
-   <td style="text-align:right;"> 1512.719 </td>
-   <td style="text-align:right;"> 0.8226257 </td>
+   <td style="text-align:right;"> 1466.925 </td>
+   <td style="text-align:right;"> 1484.268 </td>
+   <td style="text-align:right;"> 0.818999 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ldh.model.2 </td>
    <td style="text-align:right;"> 5 </td>
-   <td style="text-align:right;"> 1499.711 </td>
-   <td style="text-align:right;"> 1514.347 </td>
-   <td style="text-align:right;"> 0.8156748 </td>
+   <td style="text-align:right;"> 1470.020 </td>
+   <td style="text-align:right;"> 1484.547 </td>
+   <td style="text-align:right;"> 0.813494 </td>
   </tr>
 </tbody>
 </table>
@@ -3468,28 +3469,28 @@ ldh.model.1.p3 <- glm(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MA
   <tr>
    <td style="text-align:left;"> ldh.model.1 </td>
    <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 1495.243 </td>
-   <td style="text-align:right;"> 1512.719 </td>
-   <td style="text-align:right;"> 0.8265616 </td>
+   <td style="text-align:right;"> 1466.925 </td>
+   <td style="text-align:right;"> 1484.268 </td>
+   <td style="text-align:right;"> 0.8230806 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ldh.model.1.p2 </td>
    <td style="text-align:right;"> 8 </td>
-   <td style="text-align:right;"> 1488.592 </td>
-   <td style="text-align:right;"> 1511.656 </td>
-   <td style="text-align:right;"> 0.8389161 </td>
+   <td style="text-align:right;"> 1461.007 </td>
+   <td style="text-align:right;"> 1483.887 </td>
+   <td style="text-align:right;"> 0.8351212 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ldh.model.1.p3 </td>
    <td style="text-align:right;"> 10 </td>
-   <td style="text-align:right;"> 1487.815 </td>
-   <td style="text-align:right;"> 1516.338 </td>
-   <td style="text-align:right;"> 0.8445486 </td>
+   <td style="text-align:right;"> 1460.160 </td>
+   <td style="text-align:right;"> 1488.447 </td>
+   <td style="text-align:right;"> 0.8410910 </td>
   </tr>
 </tbody>
 </table>
 
-From our model comparison we can see that the model that runs temperature as a third order polynomial performs the best. Therefore, moving forward we will use the third order polynomial model. 
+From our model comparison we can see that the model that runs temperature as a second order polynomial performs the best. Therefore, moving forward we will use the second order polynomial model. 
 
 #### Random factors 
 
@@ -3499,17 +3500,17 @@ Fish were repeatedly sampled over four different temperatures, therefore repeate
 
 
 ```r
-ldh.model.1.p3a <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id), 
+ldh.model.1.p2a <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id), 
                        family=gaussian(), 
                        data = ldh.data, 
                        REML = TRUE) 
 
-ldh.model.1.p3b <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
+ldh.model.1.p2b <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
                   family=gaussian(), 
                   data = ldh.data, 
                   REML = TRUE) 
 
-ldh.model.1.p3c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
+ldh.model.1.p2c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
                        family=gaussian(), 
                        data = ldh.data, 
                        REML = TRUE) # convergence problem
@@ -3530,49 +3531,49 @@ ldh.model.1.p3c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISS
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> ldh.model.1.p3a </td>
+   <td style="text-align:left;"> ldh.model.1.p2a </td>
    <td style="text-align:right;"> 11 </td>
-   <td style="text-align:right;"> 1344.532 </td>
-   <td style="text-align:right;"> 1375.736 </td>
-   <td style="text-align:right;"> 0.8365953 </td>
-   <td style="text-align:right;"> 0.8365953 </td>
+   <td style="text-align:right;"> 1315.961 </td>
+   <td style="text-align:right;"> 1346.900 </td>
+   <td style="text-align:right;"> 0.8321446 </td>
+   <td style="text-align:right;"> 0.8321446 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ldh.model.1.p3b </td>
+   <td style="text-align:left;"> ldh.model.1.p2b </td>
    <td style="text-align:right;"> 12 </td>
-   <td style="text-align:right;"> 1346.897 </td>
-   <td style="text-align:right;"> 1380.747 </td>
-   <td style="text-align:right;"> 0.8365966 </td>
-   <td style="text-align:right;"> 0.8365966 </td>
+   <td style="text-align:right;"> 1318.334 </td>
+   <td style="text-align:right;"> 1351.891 </td>
+   <td style="text-align:right;"> 0.8321469 </td>
+   <td style="text-align:right;"> 0.8321469 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ldh.model.1.p3c </td>
+   <td style="text-align:left;"> ldh.model.1.p2c </td>
    <td style="text-align:right;"> 14 </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 0.8365957 </td>
-   <td style="text-align:right;"> 0.8365957 </td>
+   <td style="text-align:right;"> 0.8321443 </td>
+   <td style="text-align:right;"> 0.8321443 </td>
   </tr>
 </tbody>
 </table>
 
-Model _ldh.model.1.p3a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
+Model _ldh.model.1.p2a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
 
 #### Model validation {.tabset .tabset-faded}
 
 ##### performance {.tabset .tabset-faded}
 
-###### ldh.model.1.p3a (3rd order polynomial)
+###### ldh.model.1.p2a (2nd order polynomial)
 ![](DataAnalysisSummary_files/figure-html/ldh-model-valid-1-1.png)<!-- -->
 
-The _ldh.model.1.p3a_ model looks like it performs well.
+The _ldh.model.1.p2a_ model looks like it performs well.
 
 ##### DHARMa residuals {.tabset .tabset-faded}
 
-###### ldh.model.1.p3a (3rd order polynomial))
+###### ldh.model.1.p2a (3rd order polynomial))
 
 ```r
-ldh.model.1.p3a %>% simulateResiduals(plot=TRUE)
+ldh.model.1.p2a %>% simulateResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/ldh-model-valid-2-1.png)<!-- -->
@@ -3580,11 +3581,11 @@ ldh.model.1.p3a %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.184 0.052 0 0.008 0.376 0.324 0.392 0.652 0.396 0.716 0.552 0.624 0.82 0.888 0.948 0.78 0.36 0.244 0.948 0.3 ...
+## Scaled residual values: 0.184 0.068 0.004 0.012 0.376 0.28 0.396 0.608 0.444 0.788 0.636 0.708 0.816 0.884 0.94 0.808 0.328 0.276 0.932 0.312 ...
 ```
 
 ```r
-ldh.model.1.p3a %>% DHARMa::testResiduals(plot=TRUE)
+ldh.model.1.p2a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/ldh-model-valid-2-2.png)<!-- -->
@@ -3595,7 +3596,7 @@ ldh.model.1.p3a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.10533, p-value = 0.07169
+## D = 0.088735, p-value = 0.1974
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -3605,7 +3606,7 @@ ldh.model.1.p3a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.95832, p-value = 0.8
+## dispersion = 0.93516, p-value = 0.776
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -3615,13 +3616,13 @@ ldh.model.1.p3a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 2, observations = 150, p-value = 0.3359
+## outliers at both margin(s) = 1, observations = 147, p-value = 1
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.001618827 0.047333019
+##  0.0001722152 0.0373181816
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                             0.01333333
+##                                            0.006802721
 ```
 
 ```
@@ -3630,7 +3631,7 @@ ldh.model.1.p3a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.10533, p-value = 0.07169
+## D = 0.088735, p-value = 0.1974
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -3640,7 +3641,7 @@ ldh.model.1.p3a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.95832, p-value = 0.8
+## dispersion = 0.93516, p-value = 0.776
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -3650,13 +3651,13 @@ ldh.model.1.p3a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 2, observations = 150, p-value = 0.3359
+## outliers at both margin(s) = 1, observations = 147, p-value = 1
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.001618827 0.047333019
+##  0.0001722152 0.0373181816
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                             0.01333333
+##                                            0.006802721
 ```
 
 ##### {-}
@@ -3693,66 +3694,66 @@ The model performs well and passes validation checks.
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 124.870515 </td>
-   <td style="text-align:right;"> 6.3516685 </td>
-   <td style="text-align:right;"> 19.6594823 </td>
+   <td style="text-align:right;"> 124.555285 </td>
+   <td style="text-align:right;"> 6.679426 </td>
+   <td style="text-align:right;"> 18.6476039 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -2.072650 </td>
-   <td style="text-align:right;"> 9.6125044 </td>
-   <td style="text-align:right;"> -0.2156202 </td>
-   <td style="text-align:right;"> 0.8292838 </td>
+   <td style="text-align:right;"> -1.411446 </td>
+   <td style="text-align:right;"> 9.986395 </td>
+   <td style="text-align:right;"> -0.1413369 </td>
+   <td style="text-align:right;"> 0.8876038 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(temperature, 3)1 </td>
-   <td style="text-align:right;"> 882.397643 </td>
-   <td style="text-align:right;"> 25.4584946 </td>
-   <td style="text-align:right;"> 34.6602444 </td>
+   <td style="text-align:right;"> 861.723891 </td>
+   <td style="text-align:right;"> 25.570654 </td>
+   <td style="text-align:right;"> 33.6997207 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(temperature, 3)2 </td>
-   <td style="text-align:right;"> 88.450190 </td>
-   <td style="text-align:right;"> 25.6181936 </td>
-   <td style="text-align:right;"> 3.4526318 </td>
-   <td style="text-align:right;"> 0.0005551 </td>
+   <td style="text-align:right;"> 83.842778 </td>
+   <td style="text-align:right;"> 25.638721 </td>
+   <td style="text-align:right;"> 3.2701623 </td>
+   <td style="text-align:right;"> 0.0010749 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(temperature, 3)3 </td>
-   <td style="text-align:right;"> -80.670632 </td>
-   <td style="text-align:right;"> 25.7830163 </td>
-   <td style="text-align:right;"> -3.1288283 </td>
-   <td style="text-align:right;"> 0.0017550 </td>
+   <td style="text-align:right;"> -81.413847 </td>
+   <td style="text-align:right;"> 25.709496 </td>
+   <td style="text-align:right;"> -3.1666839 </td>
+   <td style="text-align:right;"> 0.0015419 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -1.519811 </td>
-   <td style="text-align:right;"> 0.9641605 </td>
-   <td style="text-align:right;"> -1.5763054 </td>
-   <td style="text-align:right;"> 0.1149554 </td>
+   <td style="text-align:right;"> -1.406645 </td>
+   <td style="text-align:right;"> 1.044818 </td>
+   <td style="text-align:right;"> -1.3463059 </td>
+   <td style="text-align:right;"> 0.1782039 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)1 </td>
-   <td style="text-align:right;"> 48.117770 </td>
-   <td style="text-align:right;"> 38.4025660 </td>
-   <td style="text-align:right;"> 1.2529832 </td>
-   <td style="text-align:right;"> 0.2102118 </td>
+   <td style="text-align:right;"> 56.873119 </td>
+   <td style="text-align:right;"> 38.086232 </td>
+   <td style="text-align:right;"> 1.4932724 </td>
+   <td style="text-align:right;"> 0.1353659 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)2 </td>
-   <td style="text-align:right;"> 40.901232 </td>
-   <td style="text-align:right;"> 38.3469874 </td>
-   <td style="text-align:right;"> 1.0666088 </td>
-   <td style="text-align:right;"> 0.2861485 </td>
+   <td style="text-align:right;"> 43.574437 </td>
+   <td style="text-align:right;"> 38.029467 </td>
+   <td style="text-align:right;"> 1.1458072 </td>
+   <td style="text-align:right;"> 0.2518749 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)3 </td>
-   <td style="text-align:right;"> 12.973651 </td>
-   <td style="text-align:right;"> 38.2874780 </td>
-   <td style="text-align:right;"> 0.3388484 </td>
-   <td style="text-align:right;"> 0.7347239 </td>
+   <td style="text-align:right;"> 14.222674 </td>
+   <td style="text-align:right;"> 37.970193 </td>
+   <td style="text-align:right;"> 0.3745747 </td>
+   <td style="text-align:right;"> 0.7079768 </td>
   </tr>
 </tbody>
 </table>
@@ -3770,27 +3771,27 @@ The model performs well and passes validation checks.
 <tbody>
   <tr>
    <td style="text-align:left;"> REGION </td>
-   <td style="text-align:right;"> 0.0456565 </td>
+   <td style="text-align:right;"> 0.0197919 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.8308014 </td>
+   <td style="text-align:right;"> 0.8881199 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(temperature, 3) </td>
-   <td style="text-align:right;"> 2297.2292818 </td>
+   <td style="text-align:right;"> 2241.9339643 </td>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> 2.4847387 </td>
+   <td style="text-align:right;"> 1.8125396 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.1149554 </td>
+   <td style="text-align:right;"> 0.1782039 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGION:poly(temperature, 3) </td>
-   <td style="text-align:right;"> 2.8373979 </td>
+   <td style="text-align:right;"> 3.6997580 </td>
    <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 0.4173805 </td>
+   <td style="text-align:right;"> 0.2957632 </td>
   </tr>
 </tbody>
 </table>
@@ -3808,63 +3809,63 @@ The model performs well and passes validation checks.
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 112.421473 </td>
-   <td style="text-align:right;"> 137.3195565 </td>
-   <td style="text-align:right;"> 124.870515 </td>
+   <td style="text-align:right;"> 111.463851 </td>
+   <td style="text-align:right;"> 137.6467184 </td>
+   <td style="text-align:right;"> 124.555285 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -20.912812 </td>
-   <td style="text-align:right;"> 16.7675122 </td>
-   <td style="text-align:right;"> -2.072650 </td>
+   <td style="text-align:right;"> -20.984421 </td>
+   <td style="text-align:right;"> 18.1615283 </td>
+   <td style="text-align:right;"> -1.411446 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(temperature, 3)1 </td>
-   <td style="text-align:right;"> 832.499911 </td>
-   <td style="text-align:right;"> 932.2953755 </td>
-   <td style="text-align:right;"> 882.397643 </td>
+   <td style="text-align:right;"> 811.606331 </td>
+   <td style="text-align:right;"> 911.8414518 </td>
+   <td style="text-align:right;"> 861.723891 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(temperature, 3)2 </td>
-   <td style="text-align:right;"> 38.239453 </td>
-   <td style="text-align:right;"> 138.6609266 </td>
-   <td style="text-align:right;"> 88.450190 </td>
+   <td style="text-align:right;"> 33.591808 </td>
+   <td style="text-align:right;"> 134.0937479 </td>
+   <td style="text-align:right;"> 83.842778 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(temperature, 3)3 </td>
-   <td style="text-align:right;"> -131.204416 </td>
-   <td style="text-align:right;"> -30.1368487 </td>
-   <td style="text-align:right;"> -80.670632 </td>
+   <td style="text-align:right;"> -131.803533 </td>
+   <td style="text-align:right;"> -31.0241611 </td>
+   <td style="text-align:right;"> -81.413847 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -3.409531 </td>
-   <td style="text-align:right;"> 0.3699084 </td>
-   <td style="text-align:right;"> -1.519811 </td>
+   <td style="text-align:right;"> -3.454451 </td>
+   <td style="text-align:right;"> 0.6411612 </td>
+   <td style="text-align:right;"> -1.406645 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)1 </td>
-   <td style="text-align:right;"> -27.149876 </td>
-   <td style="text-align:right;"> 123.3854163 </td>
-   <td style="text-align:right;"> 48.117770 </td>
+   <td style="text-align:right;"> -17.774525 </td>
+   <td style="text-align:right;"> 131.5207627 </td>
+   <td style="text-align:right;"> 56.873119 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)2 </td>
-   <td style="text-align:right;"> -34.257482 </td>
-   <td style="text-align:right;"> 116.0599465 </td>
-   <td style="text-align:right;"> 40.901232 </td>
+   <td style="text-align:right;"> -30.961948 </td>
+   <td style="text-align:right;"> 118.1108231 </td>
+   <td style="text-align:right;"> 43.574437 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)3 </td>
-   <td style="text-align:right;"> -62.068427 </td>
-   <td style="text-align:right;"> 88.0157286 </td>
-   <td style="text-align:right;"> 12.973651 </td>
+   <td style="text-align:right;"> -60.197538 </td>
+   <td style="text-align:right;"> 88.6428847 </td>
+   <td style="text-align:right;"> 14.222674 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Std.Dev.(Intercept)|fish_id </td>
-   <td style="text-align:right;"> 20.943652 </td>
-   <td style="text-align:right;"> 35.4712452 </td>
-   <td style="text-align:right;"> 27.256144 </td>
+   <td style="text-align:right;"> 21.203654 </td>
+   <td style="text-align:right;"> 36.0995765 </td>
+   <td style="text-align:right;"> 27.666639 </td>
   </tr>
 </tbody>
 </table>
@@ -3880,8 +3881,8 @@ The model performs well and passes validation checks.
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:right;"> 0.9464824 </td>
-   <td style="text-align:right;"> 0.8365953 </td>
+   <td style="text-align:right;"> 0.9465329 </td>
+   <td style="text-align:right;"> 0.8321446 </td>
    <td style="text-align:left;"> FALSE </td>
   </tr>
 </tbody>
@@ -3896,12 +3897,12 @@ The model performs well and passes validation checks.
 
 
 ```r
-ldh.model.1.p3a  %>% emtrends(var = "temperature", type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+ldh.model.1.p2a  %>% emtrends(var = "temperature", type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 ```
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core TISSUE_MASS_CENTERED0.00637773359840945 - Leading TISSUE_MASS_CENTERED0.00637773359840945","2":"35.06667","3":"-0.02959867","4":"0.995009","5":"148","6":"-1.995858","7":"1.936661","8":"-0.02974714","9":"0.9763088","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core TISSUE_MASS_CENTERED0.206432155367117 - Leading TISSUE_MASS_CENTERED0.206432155367117","2":"35.10204","3":"-0.06914598","4":"0.993288","5":"145","6":"-2.03234","7":"1.894048","8":"-0.06961323","9":"0.9445974","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 SCROLL TO THE RIGHT -->
@@ -3911,24 +3912,24 @@ The numbers in the left most column in the table just mention that the slopes ar
 ##### emmeans [latitudes]
 
 ```r
-ldh.model.1.p3a  %>% emmeans(pairwise ~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+ldh.model.1.p2a  %>% emmeans(pairwise ~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 ```
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core - Leading","2":"35.06667","3":"6.289375","4":"10.38063","5":"148","6":"-14.22402","7":"26.80277","8":"0.605876","9":"0.5455252","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core - Leading","2":"35.10204","3":"5.914894","4":"10.7187","5":"145","6":"-15.27019","7":"27.09998","8":"0.5518293","9":"0.5819148","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
 ##### temperature 
 
 ```r
-ldh.model.1.p3a  %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer=TRUE)
+ldh.model.1.p2a  %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer=TRUE)
 ```
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["temperature"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"35.06667","2":"Core","3":"116.0949","4":"6.884292","5":"148","6":"102.49074","7":"129.6992","8":"16.86375","9":"2.821199e-36","_rn_":"1"},{"1":"35.06667","2":"Leading","3":"109.8056","4":"7.655082","5":"148","6":"94.67819","7":"124.9330","8":"14.34414","9":"8.455227e-30","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["temperature"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"35.10204","2":"Core","3":"115.8714","4":"7.145787","5":"145","6":"101.74808","7":"129.9948","8":"16.21535","9":"2.215130e-34","_rn_":"1"},{"1":"35.10204","2":"Leading","3":"109.9565","4":"7.781246","5":"145","6":"94.57722","7":"125.3359","8":"14.13097","9":"4.710313e-29","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -3936,43 +3937,43 @@ ldh.model.1.p3a  %>% emmeans(~ temperature*REGION, type = "response")  %>% summa
 ##### Means - f(temperature)
 
 ```r
-ldh.model.1.p3a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
+ldh.model.1.p2a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
   emmeans(~REGION*temperature, type = "response") %>% summary(infer=TRUE)
 ```
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["REGION"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core","2":"20","3":"38.09140","4":"7.291177","5":"148","6":"23.68314","7":"52.49966","8":"5.224315","9":"5.836247e-07","_rn_":"1"},{"1":"Leading","2":"20","3":"33.63759","4":"8.239782","5":"148","6":"17.35477","7":"49.92041","8":"4.082340","9":"7.269476e-05","_rn_":"2"},{"1":"Core","2":"30","3":"76.30665","4":"7.291177","5":"148","6":"61.89839","7":"90.71491","8":"10.465614","9":"1.570789e-19","_rn_":"3"},{"1":"Leading","2":"30","3":"70.53414","4":"8.138599","5":"148","6":"54.45127","7":"86.61700","8":"8.666619","9":"7.175841e-15","_rn_":"4"},{"1":"Core","2":"40","3":"158.34758","4":"7.374367","5":"148","6":"143.77493","7":"172.92024","8":"21.472702","9":"2.565838e-47","_rn_":"5"},{"1":"Leading","2":"40","3":"153.21090","4":"8.138599","5":"148","6":"137.12803","7":"169.29377","8":"18.825217","9":"4.102661e-41","_rn_":"6"},{"1":"Core","2":"50","3":"225.29548","4":"7.291177","5":"148","6":"210.88722","7":"239.70374","8":"30.899739","9":"2.003111e-66","_rn_":"7"},{"1":"Leading","2":"50","3":"232.22460","4":"8.138599","5":"148","6":"216.14173","7":"248.30746","8":"28.533730","9":"4.902599e-62","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["REGION"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core","2":"20","3":"38.11728","4":"7.582058","5":"145","6":"23.13165","7":"53.10291","8":"5.027300","9":"1.445950e-06","_rn_":"1"},{"1":"Leading","2":"20","3":"33.47857","4":"8.349669","5":"145","6":"16.97579","7":"49.98136","8":"4.009569","9":"9.699945e-05","_rn_":"2"},{"1":"Core","2":"30","3":"75.92933","4":"7.582058","5":"145","6":"60.94370","7":"90.91497","8":"10.014344","9":"2.872868e-18","_rn_":"3"},{"1":"Leading","2":"30","3":"70.38417","4":"8.252014","5":"145","6":"54.07440","7":"86.69394","8":"8.529332","9":"1.778898e-14","_rn_":"4"},{"1":"Core","2":"40","3":"157.56341","4":"7.582058","5":"145","6":"142.57778","7":"172.54904","8":"20.781087","9":"2.536940e-45","_rn_":"5"},{"1":"Leading","2":"40","3":"153.06093","4":"8.252014","5":"145","6":"136.75116","7":"169.37070","8":"18.548312","9":"4.143414e-40","_rn_":"6"},{"1":"Core","2":"50","3":"223.12129","4":"7.582058","5":"145","6":"208.13566","7":"238.10693","8":"29.427537","9":"5.116549e-63","_rn_":"7"},{"1":"Leading","2":"50","3":"232.07463","4":"8.252014","5":"145","6":"215.76486","7":"248.38440","8":"28.123393","9":"1.382666e-60","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
 ##### Abs. diff - f(temperature)
 
 ```r
-ldh.model.1.p3a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
+ldh.model.1.p2a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
   emmeans(~REGION*temperature, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
 ```
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"temperature20 - temperature30","2":"Core","3":"-38.21524","4":"5.870090","5":"148","6":"-53.46844","7":"-22.96205","8":"-6.510163","9":"6.563142e-09","_rn_":"1"},{"1":"temperature20 - temperature40","2":"Core","3":"-120.25618","4":"5.964207","5":"148","6":"-135.75393","7":"-104.75843","8":"-20.162980","9":"2.309264e-14","_rn_":"2"},{"1":"temperature20 - temperature50","2":"Core","3":"-187.20407","4":"5.870090","5":"148","6":"-202.45727","7":"-171.95088","8":"-31.891175","9":"2.309264e-14","_rn_":"3"},{"1":"temperature30 - temperature40","2":"Core","3":"-82.04094","4":"5.964207","5":"148","6":"-97.53869","7":"-66.54319","8":"-13.755549","9":"2.309264e-14","_rn_":"4"},{"1":"temperature30 - temperature50","2":"Core","3":"-148.98883","4":"5.870090","5":"148","6":"-164.24202","7":"-133.73564","8":"-25.381012","9":"2.309264e-14","_rn_":"5"},{"1":"temperature40 - temperature50","2":"Core","3":"-66.94789","4":"5.964207","5":"148","6":"-82.44564","7":"-51.45014","8":"-11.224945","9":"4.019007e-14","_rn_":"6"},{"1":"temperature20 - temperature30","2":"Leading","3":"-36.89654","4":"6.654339","5":"148","6":"-54.18758","7":"-19.60551","8":"-5.544735","9":"7.852473e-07","_rn_":"7"},{"1":"temperature20 - temperature40","2":"Leading","3":"-119.57331","4":"6.654339","5":"148","6":"-136.86434","7":"-102.28227","8":"-17.969224","9":"2.309264e-14","_rn_":"8"},{"1":"temperature20 - temperature50","2":"Leading","3":"-198.58701","4":"6.654339","5":"148","6":"-215.87804","7":"-181.29597","8":"-29.843236","9":"2.309264e-14","_rn_":"9"},{"1":"temperature30 - temperature40","2":"Leading","3":"-82.67676","4":"6.524241","5":"148","6":"-99.62974","7":"-65.72378","8":"-12.672243","9":"2.375877e-14","_rn_":"10"},{"1":"temperature30 - temperature50","2":"Leading","3":"-161.69046","4":"6.524241","5":"148","6":"-178.64344","7":"-144.73748","8":"-24.783032","9":"2.309264e-14","_rn_":"11"},{"1":"temperature40 - temperature50","2":"Leading","3":"-79.01370","4":"6.524241","5":"148","6":"-95.96668","7":"-62.06072","8":"-12.110789","9":"2.664535e-14","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"temperature20 - temperature30","2":"Core","3":"-37.81205","4":"5.981486","5":"145","6":"-53.35838","7":"-22.26573","8":"-6.321515","9":"1.803058e-08","_rn_":"1"},{"1":"temperature20 - temperature40","2":"Core","3":"-119.44613","4":"5.981486","5":"145","6":"-134.99245","7":"-103.89980","8":"-19.969307","9":"3.552714e-15","_rn_":"2"},{"1":"temperature20 - temperature50","2":"Core","3":"-185.00401","4":"5.981486","5":"145","6":"-200.55034","7":"-169.45769","8":"-30.929441","9":"3.552714e-15","_rn_":"3"},{"1":"temperature30 - temperature40","2":"Core","3":"-81.63407","4":"5.981486","5":"145","6":"-97.18040","7":"-66.08775","8":"-13.647792","9":"3.552714e-15","_rn_":"4"},{"1":"temperature30 - temperature50","2":"Core","3":"-147.19196","4":"5.981486","5":"145","6":"-162.73828","7":"-131.64564","8":"-24.607926","9":"3.552714e-15","_rn_":"5"},{"1":"temperature40 - temperature50","2":"Core","3":"-65.55789","4":"5.981486","5":"145","6":"-81.10421","7":"-50.01156","8":"-10.960134","9":"2.620126e-14","_rn_":"6"},{"1":"temperature20 - temperature30","2":"Leading","3":"-36.90560","4":"6.617361","5":"145","6":"-54.10461","7":"-19.70659","8":"-5.577087","9":"6.927738e-07","_rn_":"7"},{"1":"temperature20 - temperature40","2":"Leading","3":"-119.58236","4":"6.617361","5":"145","6":"-136.78137","7":"-102.38335","8":"-18.071005","9":"3.552714e-15","_rn_":"8"},{"1":"temperature20 - temperature50","2":"Leading","3":"-198.59606","4":"6.617361","5":"145","6":"-215.79507","7":"-181.39705","8":"-30.011370","9":"3.552714e-15","_rn_":"9"},{"1":"temperature30 - temperature40","2":"Leading","3":"-82.67676","4":"6.487832","5":"145","6":"-99.53912","7":"-65.81441","8":"-12.743357","9":"3.996803e-15","_rn_":"10"},{"1":"temperature30 - temperature50","2":"Leading","3":"-161.69046","4":"6.487832","5":"145","6":"-178.55282","7":"-144.82810","8":"-24.922108","9":"3.552714e-15","_rn_":"11"},{"1":"temperature40 - temperature50","2":"Leading","3":"-79.01370","4":"6.487832","5":"145","6":"-95.87605","7":"-62.15134","8":"-12.178752","9":"5.884182e-15","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
 ##### Effect size
 
 ```r
-ldh.emm <- ldh.model.1.p3a %>% emmeans(~REGION*temperature)
-eff_size(ldh.emm, sigma = sigma(ldh.model.1.p3a), edf=df.residual(ldh.model.1.p3a))
+ldh.emm <- ldh.model.1.p2a %>% emmeans(~REGION*temperature)
+eff_size(ldh.emm, sigma = sigma(ldh.model.1.p2a), edf=df.residual(ldh.model.1.p2a))
 ```
 
 ```
 ##  contrast                                                              
-##  Core temperature35.0666666666667 - Leading temperature35.0666666666667
+##  Core temperature35.1020408163265 - Leading temperature35.1020408163265
 ##  effect.size    SE  df lower.CL upper.CL
-##        0.331 0.546 148   -0.748     1.41
+##        0.313 0.567 145   -0.808     1.43
 ## 
-## sigma used for effect sizes: 19.02 
+## sigma used for effect sizes: 18.92 
 ## Confidence level used: 0.95
 ```
 #### {-}
@@ -3981,7 +3982,7 @@ eff_size(ldh.emm, sigma = sigma(ldh.model.1.p3a), edf=df.residual(ldh.model.1.p3
 
 
 ```
-## Warning: Removed 6 rows containing missing values (`geom_point()`).
+## Warning: Removed 5 rows containing missing values (`geom_point()`).
 ```
 
 ![](DataAnalysisSummary_files/figure-html/ldh-sum-fig-1.png)<!-- -->
@@ -4173,7 +4174,8 @@ CS.data <- final_table %>%
          TISSUE_CONCENTRATION = 0.01, 
          ASSAY_VOL = 0.930, 
          SAMPLE_VOL = 0.020, 
-         CS_ACTIVITY = ((CS_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL)))
+         CS_ACTIVITY = ((CS_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))) %>% 
+  filter(FISH_ID != "CVLA047")
 ```
 
 
@@ -4240,38 +4242,38 @@ cs.model.1 <- glm(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CENTERED,
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> -1.3913591 </td>
-   <td style="text-align:right;"> 0.5554409 </td>
-   <td style="text-align:right;"> -2.5049635 </td>
-   <td style="text-align:right;"> 0.0134922 </td>
+   <td style="text-align:right;"> -1.3917427 </td>
+   <td style="text-align:right;"> 0.4681525 </td>
+   <td style="text-align:right;"> -2.9728401 </td>
+   <td style="text-align:right;"> 0.0035409 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -0.7098815 </td>
-   <td style="text-align:right;"> 0.8088522 </td>
-   <td style="text-align:right;"> -0.8776405 </td>
-   <td style="text-align:right;"> 0.3817705 </td>
+   <td style="text-align:right;"> -0.6551419 </td>
+   <td style="text-align:right;"> 0.6711737 </td>
+   <td style="text-align:right;"> -0.9761138 </td>
+   <td style="text-align:right;"> 0.3308934 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TEMPERATURE </td>
-   <td style="text-align:right;"> 0.1582065 </td>
-   <td style="text-align:right;"> 0.0153212 </td>
-   <td style="text-align:right;"> 10.3259736 </td>
+   <td style="text-align:right;"> 0.1491176 </td>
+   <td style="text-align:right;"> 0.0128965 </td>
+   <td style="text-align:right;"> 11.5626489 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -0.0552608 </td>
-   <td style="text-align:right;"> 0.0247762 </td>
-   <td style="text-align:right;"> -2.2304002 </td>
-   <td style="text-align:right;"> 0.0274491 </td>
+   <td style="text-align:right;"> 0.0065822 </td>
+   <td style="text-align:right;"> 0.0217986 </td>
+   <td style="text-align:right;"> 0.3019550 </td>
+   <td style="text-align:right;"> 0.7631882 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:TEMPERATURE </td>
-   <td style="text-align:right;"> 0.0281522 </td>
-   <td style="text-align:right;"> 0.0222011 </td>
-   <td style="text-align:right;"> 1.2680542 </td>
-   <td style="text-align:right;"> 0.2070624 </td>
+   <td style="text-align:right;"> 0.0372828 </td>
+   <td style="text-align:right;"> 0.0183990 </td>
+   <td style="text-align:right;"> 2.0263512 </td>
+   <td style="text-align:right;"> 0.0448568 </td>
   </tr>
 </tbody>
 </table>
@@ -4298,31 +4300,31 @@ cs.model.2 <- glm(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE,
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> -1.4651180 </td>
-   <td style="text-align:right;"> 0.5628678 </td>
-   <td style="text-align:right;"> -2.6029523 </td>
-   <td style="text-align:right;"> 0.0103162 </td>
+   <td style="text-align:right;"> -1.3792002 </td>
+   <td style="text-align:right;"> 0.4646214 </td>
+   <td style="text-align:right;"> -2.968439 </td>
+   <td style="text-align:right;"> 0.0035836 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -0.5875519 </td>
-   <td style="text-align:right;"> 0.8192343 </td>
-   <td style="text-align:right;"> -0.7171963 </td>
-   <td style="text-align:right;"> 0.4745396 </td>
+   <td style="text-align:right;"> -0.6734697 </td>
+   <td style="text-align:right;"> 0.6660086 </td>
+   <td style="text-align:right;"> -1.011203 </td>
+   <td style="text-align:right;"> 0.3138573 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TEMPERATURE </td>
-   <td style="text-align:right;"> 0.1594164 </td>
-   <td style="text-align:right;"> 0.0155439 </td>
-   <td style="text-align:right;"> 10.2558665 </td>
+   <td style="text-align:right;"> 0.1489822 </td>
+   <td style="text-align:right;"> 0.0128421 </td>
+   <td style="text-align:right;"> 11.601054 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:TEMPERATURE </td>
-   <td style="text-align:right;"> 0.0269796 </td>
-   <td style="text-align:right;"> 0.0225316 </td>
-   <td style="text-align:right;"> 1.1974084 </td>
-   <td style="text-align:right;"> 0.2333262 </td>
+   <td style="text-align:right;"> 0.0374138 </td>
+   <td style="text-align:right;"> 0.0183274 </td>
+   <td style="text-align:right;"> 2.041412 </td>
+   <td style="text-align:right;"> 0.0432978 </td>
   </tr>
 </tbody>
 </table>
@@ -4342,16 +4344,16 @@ cs.model.2 <- glm(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE,
   <tr>
    <td style="text-align:left;"> cs.model.1 </td>
    <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 481.1462 </td>
-   <td style="text-align:right;"> 497.8718 </td>
-   <td style="text-align:right;"> 0.6531885 </td>
+   <td style="text-align:right;"> 414.3969 </td>
+   <td style="text-align:right;"> 430.9192 </td>
+   <td style="text-align:right;"> 0.7286043 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> cs.model.2 </td>
    <td style="text-align:right;"> 5 </td>
-   <td style="text-align:right;"> 484.0239 </td>
-   <td style="text-align:right;"> 498.0443 </td>
-   <td style="text-align:right;"> 0.6417364 </td>
+   <td style="text-align:right;"> 412.2926 </td>
+   <td style="text-align:right;"> 426.1464 </td>
+   <td style="text-align:right;"> 0.7299815 </td>
   </tr>
 </tbody>
 </table>
@@ -4392,23 +4394,23 @@ cs.model.1.p3 <- glm(CS_ACTIVITY ~ 1 + REGION*poly(TEMPERATURE, 3) + TISSUE_MASS
   <tr>
    <td style="text-align:left;"> cs.model.1 </td>
    <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 481.1462 </td>
-   <td style="text-align:right;"> 497.8718 </td>
-   <td style="text-align:right;"> 0.6600734 </td>
+   <td style="text-align:right;"> 414.3969 </td>
+   <td style="text-align:right;"> 430.9192 </td>
+   <td style="text-align:right;"> 0.7347879 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> cs.model.1.p2 </td>
    <td style="text-align:right;"> 8 </td>
-   <td style="text-align:right;"> 484.7957 </td>
-   <td style="text-align:right;"> 506.8264 </td>
-   <td style="text-align:right;"> 0.6622002 </td>
+   <td style="text-align:right;"> 417.7056 </td>
+   <td style="text-align:right;"> 439.4558 </td>
+   <td style="text-align:right;"> 0.7372215 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> cs.model.1.p3 </td>
    <td style="text-align:right;"> 10 </td>
-   <td style="text-align:right;"> 489.1793 </td>
-   <td style="text-align:right;"> 516.3691 </td>
-   <td style="text-align:right;"> 0.6628374 </td>
+   <td style="text-align:right;"> 421.9615 </td>
+   <td style="text-align:right;"> 448.7881 </td>
+   <td style="text-align:right;"> 0.7380345 </td>
   </tr>
 </tbody>
 </table>
@@ -4456,26 +4458,26 @@ cs.model.1c <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CENTER
   <tr>
    <td style="text-align:left;"> cs.model.1a </td>
    <td style="text-align:right;"> 7 </td>
-   <td style="text-align:right;"> 415.8190 </td>
-   <td style="text-align:right;"> 435.2150 </td>
-   <td style="text-align:right;"> 0.6471885 </td>
-   <td style="text-align:right;"> 0.6471885 </td>
+   <td style="text-align:right;"> 368.4369 </td>
+   <td style="text-align:right;"> 387.5916 </td>
+   <td style="text-align:right;"> 0.7237186 </td>
+   <td style="text-align:right;"> 0.7237186 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> cs.model.1b </td>
    <td style="text-align:right;"> 8 </td>
-   <td style="text-align:right;"> 416.4204 </td>
-   <td style="text-align:right;"> 438.4512 </td>
-   <td style="text-align:right;"> 0.6304289 </td>
-   <td style="text-align:right;"> 0.6304289 </td>
+   <td style="text-align:right;"> 369.5447 </td>
+   <td style="text-align:right;"> 391.2949 </td>
+   <td style="text-align:right;"> 0.7114656 </td>
+   <td style="text-align:right;"> 0.7114656 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> cs.model.1c </td>
    <td style="text-align:right;"> 10 </td>
-   <td style="text-align:right;"> 420.9272 </td>
-   <td style="text-align:right;"> 448.1170 </td>
-   <td style="text-align:right;"> 0.6305743 </td>
-   <td style="text-align:right;"> 0.6305743 </td>
+   <td style="text-align:right;"> 373.7411 </td>
+   <td style="text-align:right;"> 400.5677 </td>
+   <td style="text-align:right;"> 0.7110716 </td>
+   <td style="text-align:right;"> 0.7110716 </td>
   </tr>
 </tbody>
 </table>
@@ -4502,7 +4504,7 @@ cs.model.1a %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.632 0.612 0.56 0.52 0.22 0.188 0.092 0.088 0.276 0.352 0.576 0.684 0.504 0.36 0.056 0.552 0.736 0.592 0.24 0.18 ...
+## Scaled residual values: 0.724 0.74 0.66 0.72 0.156 0.196 0.08 0.068 0.36 0.464 0.792 0.784 0.588 0.416 0.04 0.484 0.828 0.64 0.2 0.168 ...
 ```
 
 ```r
@@ -4517,7 +4519,7 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.10788, p-value = 0.08839
+## D = 0.065231, p-value = 0.6377
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -4527,7 +4529,7 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.97124, p-value = 0.92
+## dispersion = 0.97307, p-value = 0.984
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -4537,13 +4539,13 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 2, observations = 134, p-value = 0.2892
+## outliers at both margin(s) = 1, observations = 130, p-value = 1
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.001812671 0.052874653
+##  0.0001947334 0.0421127390
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                             0.01492537
+##                                            0.007692308
 ```
 
 ```
@@ -4552,7 +4554,7 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.10788, p-value = 0.08839
+## D = 0.065231, p-value = 0.6377
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -4562,7 +4564,7 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.97124, p-value = 0.92
+## dispersion = 0.97307, p-value = 0.984
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -4572,13 +4574,13 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 2, observations = 134, p-value = 0.2892
+## outliers at both margin(s) = 1, observations = 130, p-value = 1
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.001812671 0.052874653
+##  0.0001947334 0.0421127390
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                             0.01492537
+##                                            0.007692308
 ```
 
 ##### {-}
@@ -4623,6 +4625,7 @@ cs.model.1a.inv <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CE
 
 ##### DHARMa {.tabset .tabset-faded}
 
+###### Gaussian (identity)
 
 ```r
 cs.model.1a %>% simulateResiduals(plot=TRUE)
@@ -4633,7 +4636,7 @@ cs.model.1a %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.632 0.612 0.56 0.52 0.22 0.188 0.092 0.088 0.276 0.352 0.576 0.684 0.504 0.36 0.056 0.552 0.736 0.592 0.24 0.18 ...
+## Scaled residual values: 0.724 0.74 0.66 0.72 0.156 0.196 0.08 0.068 0.36 0.464 0.792 0.784 0.588 0.416 0.04 0.484 0.828 0.64 0.2 0.168 ...
 ```
 
 ```r
@@ -4648,7 +4651,7 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.10788, p-value = 0.08839
+## D = 0.065231, p-value = 0.6377
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -4658,7 +4661,7 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.97124, p-value = 0.92
+## dispersion = 0.97307, p-value = 0.984
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -4668,13 +4671,13 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 2, observations = 134, p-value = 0.2892
+## outliers at both margin(s) = 1, observations = 130, p-value = 1
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.001812671 0.052874653
+##  0.0001947334 0.0421127390
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                             0.01492537
+##                                            0.007692308
 ```
 
 ```
@@ -4683,7 +4686,7 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.10788, p-value = 0.08839
+## D = 0.065231, p-value = 0.6377
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -4693,7 +4696,7 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.97124, p-value = 0.92
+## dispersion = 0.97307, p-value = 0.984
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -4703,15 +4706,16 @@ cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 2, observations = 134, p-value = 0.2892
+## outliers at both margin(s) = 1, observations = 130, p-value = 1
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.001812671 0.052874653
+##  0.0001947334 0.0421127390
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                             0.01492537
+##                                            0.007692308
 ```
 
+###### Gaussian (log)
 
 ```r
 cs.model.1a.log %>% simulateResiduals(plot=TRUE)
@@ -4722,7 +4726,7 @@ cs.model.1a.log %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.6 0.744 0.68 0.516 0.012 0.136 0.124 0.132 0.056 0.4 0.704 0.636 0.576 0.464 0.076 0.28 0.856 0.588 0.016 0.112 ...
+## Scaled residual values: 0.676 0.864 0.752 0.664 0.036 0.144 0.112 0.088 0.1 0.524 0.836 0.748 0.64 0.568 0.06 0.256 0.896 0.58 0.012 0.14 ...
 ```
 
 ```r
@@ -4737,7 +4741,7 @@ cs.model.1a.log %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.085672, p-value = 0.279
+## D = 0.091692, p-value = 0.2244
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -4747,7 +4751,7 @@ cs.model.1a.log %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.0783, p-value = 0.68
+## dispersion = 0.98328, p-value = 0.944
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -4757,13 +4761,13 @@ cs.model.1a.log %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 1, observations = 134, p-value = 1
+## outliers at both margin(s) = 0, observations = 130, p-value = 0.6309
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.000188921 0.040877038
+##  0.00000000 0.02797718
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                            0.007462687
+##                                                      0
 ```
 
 ```
@@ -4772,7 +4776,7 @@ cs.model.1a.log %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.085672, p-value = 0.279
+## D = 0.091692, p-value = 0.2244
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -4782,7 +4786,7 @@ cs.model.1a.log %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.0783, p-value = 0.68
+## dispersion = 0.98328, p-value = 0.944
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -4792,15 +4796,16 @@ cs.model.1a.log %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 1, observations = 134, p-value = 1
+## outliers at both margin(s) = 0, observations = 130, p-value = 0.6309
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.000188921 0.040877038
+##  0.00000000 0.02797718
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                            0.007462687
+##                                                      0
 ```
 
+###### Gaussian (inverse)
 
 ```r
 cs.model.1a.inv %>% simulateResiduals(plot=TRUE)
@@ -4811,7 +4816,7 @@ cs.model.1a.inv %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.38 0.532 0.648 0.712 0.188 0.372 0.436 0.632 0.248 0.416 0.64 0.344 0.46 0.596 0.572 0.336 0.592 0.684 0.236 0.296 ...
+## Scaled residual values: 0.512 0.856 0.864 0.652 0.032 0.104 0.136 0.08 0.064 0.396 0.848 0.516 0.6 0.564 0.048 0.148 0.888 0.524 0.008 0.144 ...
 ```
 
 ```r
@@ -4826,7 +4831,7 @@ cs.model.1a.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.21707, p-value = 6.554e-06
+## D = 0.11877, p-value = 0.05107
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -4836,7 +4841,7 @@ cs.model.1a.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.0001e-05, p-value < 2.2e-16
+## dispersion = 0.58039, p-value = 0.408
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -4846,10 +4851,10 @@ cs.model.1a.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 0, observations = 134, p-value = 0.6316
+## outliers at both margin(s) = 0, observations = 130, p-value = 0.6309
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.00000000 0.02715348
+##  0.00000000 0.02797718
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
 ##                                                      0
@@ -4861,7 +4866,7 @@ cs.model.1a.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.21707, p-value = 6.554e-06
+## D = 0.11877, p-value = 0.05107
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -4871,7 +4876,7 @@ cs.model.1a.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.0001e-05, p-value < 2.2e-16
+## dispersion = 0.58039, p-value = 0.408
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -4881,10 +4886,10 @@ cs.model.1a.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 0, observations = 134, p-value = 0.6316
+## outliers at both margin(s) = 0, observations = 130, p-value = 0.6309
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.00000000 0.02715348
+##  0.00000000 0.02797718
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
 ##                                                      0
@@ -4930,26 +4935,26 @@ cs.model.1a.log.p3 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*poly(TEMPERATURE, 3) + TI
   <tr>
    <td style="text-align:left;"> cs.model.1a.log </td>
    <td style="text-align:right;"> 7 </td>
-   <td style="text-align:right;"> 344.8430 </td>
-   <td style="text-align:right;"> 364.2390 </td>
-   <td style="text-align:right;"> 0.3265260 </td>
-   <td style="text-align:right;"> 0.3265260 </td>
+   <td style="text-align:right;"> 319.7416 </td>
+   <td style="text-align:right;"> 338.8963 </td>
+   <td style="text-align:right;"> 0.3504577 </td>
+   <td style="text-align:right;"> 0.3504577 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> cs.model.1a.log.p2 </td>
    <td style="text-align:right;"> 9 </td>
-   <td style="text-align:right;"> 316.0282 </td>
-   <td style="text-align:right;"> 340.6571 </td>
-   <td style="text-align:right;"> 0.4461464 </td>
-   <td style="text-align:right;"> 0.4461464 </td>
+   <td style="text-align:right;"> 296.4647 </td>
+   <td style="text-align:right;"> 320.7725 </td>
+   <td style="text-align:right;"> 0.4639599 </td>
+   <td style="text-align:right;"> 0.4639599 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> cs.model.1a.log.p3 </td>
    <td style="text-align:right;"> 11 </td>
-   <td style="text-align:right;"> 319.2842 </td>
-   <td style="text-align:right;"> 348.9965 </td>
-   <td style="text-align:right;"> 0.4501938 </td>
-   <td style="text-align:right;"> 0.4501938 </td>
+   <td style="text-align:right;"> 300.4024 </td>
+   <td style="text-align:right;"> 329.7080 </td>
+   <td style="text-align:right;"> 0.4653824 </td>
+   <td style="text-align:right;"> 0.4653824 </td>
   </tr>
 </tbody>
 </table>
@@ -4977,7 +4982,7 @@ cs.model.1a.log.p2 %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.788 0.72 0.596 0.572 0.02 0.092 0.052 0.144 0.104 0.364 0.656 0.808 0.564 0.388 0.088 0.404 0.852 0.664 0.032 0.092 ...
+## Scaled residual values: 0.84 0.864 0.696 0.724 0.04 0.096 0.064 0.1 0.164 0.484 0.8 0.9 0.624 0.444 0.072 0.36 0.896 0.636 0.036 0.072 ...
 ```
 
 ```r
@@ -4992,7 +4997,7 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.067522, p-value = 0.5743
+## D = 0.070769, p-value = 0.533
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -5002,7 +5007,7 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.2149, p-value = 0.336
+## dispersion = 1.087, p-value = 0.616
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -5012,13 +5017,13 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 2, observations = 134, p-value = 0.2892
+## outliers at both margin(s) = 1, observations = 130, p-value = 1
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.001812671 0.052874653
+##  0.0001947334 0.0421127390
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                             0.01492537
+##                                            0.007692308
 ```
 
 ```
@@ -5027,7 +5032,7 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.067522, p-value = 0.5743
+## D = 0.070769, p-value = 0.533
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -5037,7 +5042,7 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.2149, p-value = 0.336
+## dispersion = 1.087, p-value = 0.616
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -5047,13 +5052,13 @@ cs.model.1a.log.p2 %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 2, observations = 134, p-value = 0.2892
+## outliers at both margin(s) = 1, observations = 130, p-value = 1
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.001812671 0.052874653
+##  0.0001947334 0.0421127390
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                             0.01492537
+##                                            0.007692308
 ```
 
 Validations look great! Moving ahead with the quadratic log-link model. 
@@ -5086,52 +5091,52 @@ Validations look great! Moving ahead with the quadratic log-link model.
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 1.2550450 </td>
-   <td style="text-align:right;"> 0.0617039 </td>
-   <td style="text-align:right;"> 20.3398046 </td>
+   <td style="text-align:right;"> 1.1984073 </td>
+   <td style="text-align:right;"> 0.0564498 </td>
+   <td style="text-align:right;"> 21.2295969 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> 0.0687295 </td>
-   <td style="text-align:right;"> 0.0915266 </td>
-   <td style="text-align:right;"> 0.7509231 </td>
-   <td style="text-align:right;"> 0.4526989 </td>
+   <td style="text-align:right;"> 0.1356647 </td>
+   <td style="text-align:right;"> 0.0820867 </td>
+   <td style="text-align:right;"> 1.6526997 </td>
+   <td style="text-align:right;"> 0.0983920 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 2)1 </td>
-   <td style="text-align:right;"> 5.3479095 </td>
-   <td style="text-align:right;"> 0.2386576 </td>
-   <td style="text-align:right;"> 22.4082958 </td>
+   <td style="text-align:right;"> 5.3642867 </td>
+   <td style="text-align:right;"> 0.2711131 </td>
+   <td style="text-align:right;"> 19.7861598 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 2)2 </td>
-   <td style="text-align:right;"> -0.8916249 </td>
-   <td style="text-align:right;"> 0.1859382 </td>
-   <td style="text-align:right;"> -4.7952749 </td>
-   <td style="text-align:right;"> 0.0000016 </td>
+   <td style="text-align:right;"> -0.8451058 </td>
+   <td style="text-align:right;"> 0.2110951 </td>
+   <td style="text-align:right;"> -4.0034360 </td>
+   <td style="text-align:right;"> 0.0000624 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -0.0081661 </td>
-   <td style="text-align:right;"> 0.0088766 </td>
-   <td style="text-align:right;"> -0.9199515 </td>
-   <td style="text-align:right;"> 0.3575981 </td>
+   <td style="text-align:right;"> 0.0024962 </td>
+   <td style="text-align:right;"> 0.0082421 </td>
+   <td style="text-align:right;"> 0.3028589 </td>
+   <td style="text-align:right;"> 0.7619974 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 2)1 </td>
-   <td style="text-align:right;"> 0.5401241 </td>
-   <td style="text-align:right;"> 0.3509571 </td>
-   <td style="text-align:right;"> 1.5390032 </td>
-   <td style="text-align:right;"> 0.1238035 </td>
+   <td style="text-align:right;"> 0.4346926 </td>
+   <td style="text-align:right;"> 0.3715558 </td>
+   <td style="text-align:right;"> 1.1699254 </td>
+   <td style="text-align:right;"> 0.2420310 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 2)2 </td>
-   <td style="text-align:right;"> 0.1504879 </td>
-   <td style="text-align:right;"> 0.2680341 </td>
-   <td style="text-align:right;"> 0.5614505 </td>
-   <td style="text-align:right;"> 0.5744905 </td>
+   <td style="text-align:right;"> 0.1150385 </td>
+   <td style="text-align:right;"> 0.2844006 </td>
+   <td style="text-align:right;"> 0.4044947 </td>
+   <td style="text-align:right;"> 0.6858490 </td>
   </tr>
 </tbody>
 </table>
@@ -5149,27 +5154,27 @@ Validations look great! Moving ahead with the quadratic log-link model.
 <tbody>
   <tr>
    <td style="text-align:left;"> REGION </td>
-   <td style="text-align:right;"> 1.3568748 </td>
+   <td style="text-align:right;"> 4.3163842 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.2440798 </td>
+   <td style="text-align:right;"> 0.0377470 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 2) </td>
-   <td style="text-align:right;"> 1364.8597249 </td>
+   <td style="text-align:right;"> 1234.7927952 </td>
    <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> 0.8463107 </td>
+   <td style="text-align:right;"> 0.0917235 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.3575981 </td>
+   <td style="text-align:right;"> 0.7619974 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGION:poly(TEMPERATURE, 2) </td>
-   <td style="text-align:right;"> 6.3016113 </td>
+   <td style="text-align:right;"> 3.5245189 </td>
    <td style="text-align:right;"> 2 </td>
-   <td style="text-align:right;"> 0.0428176 </td>
+   <td style="text-align:right;"> 0.1716566 </td>
   </tr>
 </tbody>
 </table>
@@ -5187,51 +5192,51 @@ Validations look great! Moving ahead with the quadratic log-link model.
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 1.1341076 </td>
-   <td style="text-align:right;"> 1.3759824 </td>
-   <td style="text-align:right;"> 1.2550450 </td>
+   <td style="text-align:right;"> 1.0877676 </td>
+   <td style="text-align:right;"> 1.3090469 </td>
+   <td style="text-align:right;"> 1.1984073 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -0.1106594 </td>
-   <td style="text-align:right;"> 0.2481183 </td>
-   <td style="text-align:right;"> 0.0687295 </td>
+   <td style="text-align:right;"> -0.0252223 </td>
+   <td style="text-align:right;"> 0.2965517 </td>
+   <td style="text-align:right;"> 0.1356647 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 2)1 </td>
-   <td style="text-align:right;"> 4.8801492 </td>
-   <td style="text-align:right;"> 5.8156697 </td>
-   <td style="text-align:right;"> 5.3479095 </td>
+   <td style="text-align:right;"> 4.8329148 </td>
+   <td style="text-align:right;"> 5.8956585 </td>
+   <td style="text-align:right;"> 5.3642867 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 2)2 </td>
-   <td style="text-align:right;"> -1.2560572 </td>
-   <td style="text-align:right;"> -0.5271927 </td>
-   <td style="text-align:right;"> -0.8916249 </td>
+   <td style="text-align:right;"> -1.2588446 </td>
+   <td style="text-align:right;"> -0.4313670 </td>
+   <td style="text-align:right;"> -0.8451058 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -0.0255639 </td>
-   <td style="text-align:right;"> 0.0092318 </td>
-   <td style="text-align:right;"> -0.0081661 </td>
+   <td style="text-align:right;"> -0.0136580 </td>
+   <td style="text-align:right;"> 0.0186503 </td>
+   <td style="text-align:right;"> 0.0024962 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 2)1 </td>
-   <td style="text-align:right;"> -0.1477392 </td>
-   <td style="text-align:right;"> 1.2279874 </td>
-   <td style="text-align:right;"> 0.5401241 </td>
+   <td style="text-align:right;"> -0.2935434 </td>
+   <td style="text-align:right;"> 1.1629285 </td>
+   <td style="text-align:right;"> 0.4346926 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 2)2 </td>
-   <td style="text-align:right;"> -0.3748493 </td>
-   <td style="text-align:right;"> 0.6758250 </td>
-   <td style="text-align:right;"> 0.1504879 </td>
+   <td style="text-align:right;"> -0.4423764 </td>
+   <td style="text-align:right;"> 0.6724535 </td>
+   <td style="text-align:right;"> 0.1150385 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Std.Dev.(Intercept)|FISH_ID </td>
-   <td style="text-align:right;"> 0.1981099 </td>
-   <td style="text-align:right;"> 0.3245578 </td>
-   <td style="text-align:right;"> 0.2535708 </td>
+   <td style="text-align:right;"> 0.1678718 </td>
+   <td style="text-align:right;"> 0.2807799 </td>
+   <td style="text-align:right;"> 0.2171060 </td>
   </tr>
 </tbody>
 </table>
@@ -5247,8 +5252,8 @@ Validations look great! Moving ahead with the quadratic log-link model.
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:right;"> 0.5624371 </td>
-   <td style="text-align:right;"> 0.4461464 </td>
+   <td style="text-align:right;"> 0.551021 </td>
+   <td style="text-align:right;"> 0.4639599 </td>
    <td style="text-align:left;"> FALSE </td>
   </tr>
 </tbody>
@@ -5268,7 +5273,7 @@ cs.model.1a.log.p2  %>% emtrends(var = "TEMPERATURE", type = "response") %>% pai
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Core TISSUE_MASS_CENTERED-0.117338329414431) - (Leading TISSUE_MASS_CENTERED-0.117338329414431)","2":"34.62687","3":"-0.00416638","4":"0.00281528","5":"125","6":"-0.009738169","7":"0.00140541","8":"-1.479916","9":"0.1414115","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core TISSUE_MASS_CENTERED0.179148467370874 - Leading TISSUE_MASS_CENTERED0.179148467370874","2":"34.61538","3":"-0.003406712","4":"0.003029412","5":"121","6":"-0.009404232","7":"0.002590808","8":"-1.124546","9":"0.2630075","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 SCROLL TO THE RIGHT -->
@@ -5283,7 +5288,7 @@ cs.model.1a.log.p2  %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response"
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core / Leading","2":"34.6268656716418","3":"0.9485013","4":"0.08772189","5":"125","6":"0.7898511","7":"1.139018","8":"1","9":"-0.5716847","10":"0.5685622","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core / Leading","2":"34.6153846153846","3":"0.8839391","4":"0.07367654","5":"121","6":"0.749476","7":"1.042526","8":"1","9":"-1.480105","10":"0.1414442","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -5295,7 +5300,7 @@ cs.model.1a.log.p2  %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% su
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["TEMPERATURE"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["response"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"34.62687","2":"Core","3":"3.857257","4":"0.2414918","5":"125","6":"3.407739","7":"4.366071","8":"1","9":"21.56234","10":"6.095915e-44","_rn_":"1"},{"1":"34.62687","2":"Leading","3":"4.066686","4":"0.2749439","5":"125","6":"3.557372","7":"4.648919","8":"1","9":"20.74919","10":"2.628397e-42","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["TEMPERATURE"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["response"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"34.61538","2":"Core","3":"3.629866","4":"0.2085430","5":"121","6":"3.239615","7":"4.067128","8":"1","9":"22.43954","10":"6.067269e-45","_rn_":"1"},{"1":"34.61538","2":"Leading","3":"4.106466","4":"0.2439527","5":"121","6":"3.650817","7":"4.618983","8":"1","9":"23.77773","10":"1.983143e-47","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -5309,7 +5314,7 @@ cs.model.1a.log.p2  %>% update(.~1+ REGION * as.factor(TEMPERATURE) + TISSUE_MAS
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["REGION"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["response"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core","2":"20","3":"1.719535","4":"0.1454138","5":"123","6":"1.454499","7":"2.032866","8":"1","9":"6.409854","10":"2.813011e-09","_rn_":"1"},{"1":"Leading","2":"20","3":"1.837350","4":"0.1645578","5":"123","6":"1.538858","7":"2.193740","8":"1","9":"6.792171","10":"4.191965e-10","_rn_":"2"},{"1":"Core","2":"30","3":"3.192248","4":"0.2140340","5":"123","6":"2.795491","7":"3.645315","8":"1","9":"17.311844","10":"9.068775e-35","_rn_":"3"},{"1":"Leading","2":"30","3":"3.172373","4":"0.2335069","5":"123","6":"2.742255","7":"3.669954","8":"1","9":"15.684505","10":"3.973783e-31","_rn_":"4"},{"1":"Core","2":"40","3":"4.681807","4":"0.2958839","5":"123","6":"4.131275","7":"5.305701","8":"1","9":"24.425901","10":"5.166984e-49","_rn_":"5"},{"1":"Leading","2":"40","3":"5.162636","4":"0.3501743","5":"123","6":"4.514005","7":"5.904471","8":"1","9":"24.199933","10":"1.333167e-48","_rn_":"6"},{"1":"Core","2":"50","3":"6.168159","4":"0.3824886","5":"123","6":"5.455668","7":"6.973699","8":"1","9":"29.340353","10":"2.230878e-57","_rn_":"7"},{"1":"Leading","2":"50","3":"7.120901","4":"0.4722449","5":"123","6":"6.244878","7":"8.119811","8":"1","9":"29.600259","10":"8.616759e-58","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["REGION"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["response"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core","2":"20","3":"1.626756","4":"0.1410920","5":"119","6":"1.370053","7":"1.931557","8":"1","9":"5.610239","10":"1.337513e-07","_rn_":"1"},{"1":"Leading","2":"20","3":"1.855927","4":"0.1555226","5":"119","6":"1.572169","7":"2.190900","8":"1","9":"7.379486","10":"2.346705e-11","_rn_":"2"},{"1":"Core","2":"30","3":"2.970544","4":"0.1899169","5":"119","6":"2.617319","7":"3.371438","8":"1","9":"17.029362","10":"1.081474e-33","_rn_":"3"},{"1":"Leading","2":"30","3":"3.205020","4":"0.2123027","5":"119","6":"2.811042","7":"3.654216","8":"1","9":"17.583129","10":"7.025666e-35","_rn_":"4"},{"1":"Core","2":"40","3":"4.448890","4":"0.2589903","5":"119","6":"3.964516","7":"4.992442","8":"1","9":"25.640554","10":"2.706591e-50","_rn_":"5"},{"1":"Leading","2":"40","3":"5.216029","4":"0.3112840","5":"119","6":"4.634680","7":"5.870298","8":"1","9":"27.677308","10":"1.109172e-53","_rn_":"6"},{"1":"Core","2":"50","3":"5.911525","4":"0.3339349","5":"119","6":"5.285940","7":"6.611148","8":"1","9":"31.455863","10":"1.665035e-59","_rn_":"7"},{"1":"Leading","2":"50","3":"7.195226","4":"0.4168537","5":"119","6":"6.415399","7":"8.069846","8":"1","9":"34.062758","10":"3.272283e-63","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -5322,7 +5327,7 @@ cs.model.1a.log.p2  %>% update(.~1+ REGION * as.factor(TEMPERATURE) + TISSUE_MAS
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"TEMPERATURE20 / TEMPERATURE30","2":"Core","3":"0.5386597","4":"0.03700002","5":"123","6":"0.4504213","7":"0.6441842","8":"1","9":"-9.006841","10":"1.253442e-13","_rn_":"1"},{"1":"TEMPERATURE20 / TEMPERATURE40","2":"Core","3":"0.3672803","4":"0.02383007","5":"123","6":"0.3101756","7":"0.4348982","8":"1","9":"-15.437593","10":"6.716849e-14","_rn_":"2"},{"1":"TEMPERATURE20 / TEMPERATURE50","2":"Core","3":"0.2787761","4":"0.01777410","5":"123","6":"0.2361228","7":"0.3291342","8":"1","9":"-20.034413","10":"6.716849e-14","_rn_":"3"},{"1":"TEMPERATURE30 / TEMPERATURE40","2":"Core","3":"0.6818410","4":"0.02682105","5":"123","6":"0.6154448","7":"0.7554002","8":"1","9":"-9.735526","10":"1.048051e-13","_rn_":"4"},{"1":"TEMPERATURE30 / TEMPERATURE50","2":"Core","3":"0.5175365","4":"0.01931727","5":"123","6":"0.4695928","7":"0.5703751","8":"1","9":"-17.646824","10":"6.716849e-14","_rn_":"5"},{"1":"TEMPERATURE40 / TEMPERATURE50","2":"Core","3":"0.7590282","4":"0.02244229","5":"123","6":"0.7027711","7":"0.8197886","8":"1","9":"-9.325095","10":"1.071365e-13","_rn_":"6"},{"1":"TEMPERATURE20 / TEMPERATURE30","2":"Leading","3":"0.5791721","4":"0.04195808","5":"123","6":"0.4795829","7":"0.6994418","8":"1","9":"-7.538907","10":"5.395606e-11","_rn_":"7"},{"1":"TEMPERATURE20 / TEMPERATURE40","2":"Leading","3":"0.3558938","4":"0.02369230","5":"123","6":"0.2992404","7":"0.4232729","8":"1","9":"-15.519052","10":"6.716849e-14","_rn_":"8"},{"1":"TEMPERATURE20 / TEMPERATURE50","2":"Leading","3":"0.2580221","4":"0.01677896","5":"123","6":"0.2178217","7":"0.3056418","8":"1","9":"-20.832353","10":"6.716849e-14","_rn_":"9"},{"1":"TEMPERATURE30 / TEMPERATURE40","2":"Leading","3":"0.6144870","4":"0.02619174","5":"123","6":"0.5499208","7":"0.6866340","8":"1","9":"-11.424793","10":"8.071321e-14","_rn_":"10"},{"1":"TEMPERATURE30 / TEMPERATURE50","2":"Leading","3":"0.4455016","4":"0.01789033","5":"123","6":"0.4012602","7":"0.4946210","8":"1","9":"-20.134467","10":"6.716849e-14","_rn_":"11"},{"1":"TEMPERATURE40 / TEMPERATURE50","2":"Leading","3":"0.7249976","4":"0.02035766","5":"123","6":"0.6738685","7":"0.7800061","8":"1","9":"-11.452681","10":"8.026912e-14","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"TEMPERATURE20 / TEMPERATURE30","2":"Core","3":"0.5476292","4":"0.04310668","5":"119","6":"0.4460763","7":"0.6723014","8":"1","9":"-7.649828","10":"3.473200e-11","_rn_":"1"},{"1":"TEMPERATURE20 / TEMPERATURE40","2":"Core","3":"0.3656545","4":"0.02712213","5":"119","6":"0.3013923","7":"0.4436185","8":"1","9":"-13.563564","10":"3.119727e-14","_rn_":"2"},{"1":"TEMPERATURE20 / TEMPERATURE50","2":"Core","3":"0.2751839","4":"0.02010091","5":"119","6":"0.2274896","7":"0.3328774","8":"1","9":"-17.664580","10":"3.108624e-14","_rn_":"3"},{"1":"TEMPERATURE30 / TEMPERATURE40","2":"Core","3":"0.6677045","4":"0.03025795","5":"119","6":"0.5933382","7":"0.7513915","8":"1","9":"-8.913103","10":"1.127987e-13","_rn_":"4"},{"1":"TEMPERATURE30 / TEMPERATURE50","2":"Core","3":"0.5025004","4":"0.02172228","5":"119","6":"0.4489699","7":"0.5624132","8":"1","9":"-15.919142","10":"3.108624e-14","_rn_":"5"},{"1":"TEMPERATURE40 / TEMPERATURE50","2":"Core","3":"0.7525790","4":"0.02566300","5":"119","6":"0.6885936","7":"0.8225101","8":"1","9":"-8.335739","10":"9.998669e-13","_rn_":"6"},{"1":"TEMPERATURE20 / TEMPERATURE30","2":"Leading","3":"0.5790688","4":"0.04218861","5":"119","6":"0.4789423","7":"0.7001276","8":"1","9":"-7.498824","10":"7.602163e-11","_rn_":"7"},{"1":"TEMPERATURE20 / TEMPERATURE40","2":"Leading","3":"0.3558123","4":"0.02382165","5":"119","6":"0.2988528","7":"0.4236279","8":"1","9":"-15.434674","10":"3.108624e-14","_rn_":"8"},{"1":"TEMPERATURE20 / TEMPERATURE50","2":"Leading","3":"0.2579387","4":"0.01686823","5":"119","6":"0.2175260","7":"0.3058594","8":"1","9":"-20.720340","10":"3.108624e-14","_rn_":"9"},{"1":"TEMPERATURE30 / TEMPERATURE40","2":"Leading","3":"0.6144560","4":"0.02633506","5":"119","6":"0.5495276","7":"0.6870559","8":"1","9":"-11.363221","10":"4.574119e-14","_rn_":"10"},{"1":"TEMPERATURE30 / TEMPERATURE50","2":"Leading","3":"0.4454370","4":"0.01798442","5":"119","6":"0.4009557","7":"0.4948530","8":"1","9":"-20.029816","10":"3.108624e-14","_rn_":"11"},{"1":"TEMPERATURE40 / TEMPERATURE50","2":"Leading","3":"0.7249291","4":"0.02046325","5":"119","6":"0.6735217","7":"0.7802603","8":"1","9":"-11.395853","10":"4.474199e-14","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -5335,11 +5340,11 @@ eff_size(cs.emm, sigma = sigma(cs.model.1a.log.p2), edf=df.residual(cs.model.1a.
 
 ```
 ##  contrast                                                              
-##  Core TEMPERATURE34.6268656716418 - Leading TEMPERATURE34.6268656716418
-##  effect.size    SE  df lower.CL upper.CL
-##       -0.107 0.188 125    -0.48    0.265
+##  Core TEMPERATURE34.6153846153846 - Leading TEMPERATURE34.6153846153846
+##  effect.size   SE  df lower.CL upper.CL
+##        -0.25 0.17 121   -0.586    0.086
 ## 
-## sigma used for effect sizes: 0.4919 
+## sigma used for effect sizes: 0.493 
 ## Confidence level used: 0.95
 ```
 #### {-}
@@ -5441,38 +5446,38 @@ ldh.cs.model.1 <- glm(LCr~ 1 + REGION*temperature + TISSUE_MASS_CENTERED,
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 15.5983207 </td>
-   <td style="text-align:right;"> 5.0802772 </td>
-   <td style="text-align:right;"> 3.0703680 </td>
-   <td style="text-align:right;"> 0.0026153 </td>
+   <td style="text-align:right;"> 17.0639389 </td>
+   <td style="text-align:right;"> 5.1189094 </td>
+   <td style="text-align:right;"> 3.3335106 </td>
+   <td style="text-align:right;"> 0.0011310 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -3.9718124 </td>
-   <td style="text-align:right;"> 7.4737412 </td>
-   <td style="text-align:right;"> -0.5314356 </td>
-   <td style="text-align:right;"> 0.5960452 </td>
+   <td style="text-align:right;"> -5.5908886 </td>
+   <td style="text-align:right;"> 7.4105238 </td>
+   <td style="text-align:right;"> -0.7544526 </td>
+   <td style="text-align:right;"> 0.4520079 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> temperature </td>
-   <td style="text-align:right;"> 0.4263166 </td>
-   <td style="text-align:right;"> 0.1403483 </td>
-   <td style="text-align:right;"> 3.0375611 </td>
-   <td style="text-align:right;"> 0.0028954 </td>
+   <td style="text-align:right;"> 0.4182537 </td>
+   <td style="text-align:right;"> 0.1410369 </td>
+   <td style="text-align:right;"> 2.9655625 </td>
+   <td style="text-align:right;"> 0.0036250 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -0.5451098 </td>
-   <td style="text-align:right;"> 0.2308028 </td>
-   <td style="text-align:right;"> -2.3617987 </td>
-   <td style="text-align:right;"> 0.0197067 </td>
+   <td style="text-align:right;"> -0.7838687 </td>
+   <td style="text-align:right;"> 0.2388626 </td>
+   <td style="text-align:right;"> -3.2816715 </td>
+   <td style="text-align:right;"> 0.0013405 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:temperature </td>
-   <td style="text-align:right;"> -0.0072626 </td>
-   <td style="text-align:right;"> 0.2047482 </td>
-   <td style="text-align:right;"> -0.0354710 </td>
-   <td style="text-align:right;"> 0.9717599 </td>
+   <td style="text-align:right;"> -0.0009074 </td>
+   <td style="text-align:right;"> 0.2026775 </td>
+   <td style="text-align:right;"> -0.0044771 </td>
+   <td style="text-align:right;"> 0.9964350 </td>
   </tr>
 </tbody>
 </table>
@@ -5499,31 +5504,31 @@ ldh.cs.model.2 <- glm(LCr ~ 1 + REGION*temperature,
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 14.9399468 </td>
-   <td style="text-align:right;"> 5.1625412 </td>
-   <td style="text-align:right;"> 2.8939133 </td>
-   <td style="text-align:right;"> 0.0044739 </td>
+   <td style="text-align:right;"> 15.6040768 </td>
+   <td style="text-align:right;"> 5.2950718 </td>
+   <td style="text-align:right;"> 2.9469056 </td>
+   <td style="text-align:right;"> 0.0038303 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -2.9630790 </td>
-   <td style="text-align:right;"> 7.5937909 </td>
-   <td style="text-align:right;"> -0.3901976 </td>
-   <td style="text-align:right;"> 0.6970390 </td>
+   <td style="text-align:right;"> -3.6272090 </td>
+   <td style="text-align:right;"> 7.6695352 </td>
+   <td style="text-align:right;"> -0.4729373 </td>
+   <td style="text-align:right;"> 0.6370827 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> temperature </td>
-   <td style="text-align:right;"> 0.4346143 </td>
-   <td style="text-align:right;"> 0.1427914 </td>
-   <td style="text-align:right;"> 3.0437008 </td>
-   <td style="text-align:right;"> 0.0028368 </td>
+   <td style="text-align:right;"> 0.4343827 </td>
+   <td style="text-align:right;"> 0.1463556 </td>
+   <td style="text-align:right;"> 2.9679943 </td>
+   <td style="text-align:right;"> 0.0035934 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:temperature </td>
-   <td style="text-align:right;"> -0.0116615 </td>
-   <td style="text-align:right;"> 0.2083689 </td>
-   <td style="text-align:right;"> -0.0559655 </td>
-   <td style="text-align:right;"> 0.9554565 </td>
+   <td style="text-align:right;"> -0.0114299 </td>
+   <td style="text-align:right;"> 0.2104223 </td>
+   <td style="text-align:right;"> -0.0543190 </td>
+   <td style="text-align:right;"> 0.9567677 </td>
   </tr>
 </tbody>
 </table>
@@ -5543,16 +5548,16 @@ ldh.cs.model.2 <- glm(LCr ~ 1 + REGION*temperature,
   <tr>
    <td style="text-align:left;"> ldh.cs.model.1 </td>
    <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 1058.427 </td>
-   <td style="text-align:right;"> 1075.052 </td>
-   <td style="text-align:right;"> 0.1609548 </td>
+   <td style="text-align:right;"> 1028.425 </td>
+   <td style="text-align:right;"> 1044.895 </td>
+   <td style="text-align:right;"> 0.1980466 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ldh.cs.model.2 </td>
    <td style="text-align:right;"> 5 </td>
-   <td style="text-align:right;"> 1061.906 </td>
-   <td style="text-align:right;"> 1075.843 </td>
-   <td style="text-align:right;"> 0.1259477 </td>
+   <td style="text-align:right;"> 1036.968 </td>
+   <td style="text-align:right;"> 1050.779 </td>
+   <td style="text-align:right;"> 0.1312030 </td>
   </tr>
 </tbody>
 </table>
@@ -5593,23 +5598,23 @@ ldh.cs.model.1.p3 <- glm(LCr ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CEN
   <tr>
    <td style="text-align:left;"> ldh.cs.model.1 </td>
    <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 1058.427 </td>
-   <td style="text-align:right;"> 1075.052 </td>
-   <td style="text-align:right;"> 0.1651868 </td>
+   <td style="text-align:right;"> 1028.425 </td>
+   <td style="text-align:right;"> 1044.895 </td>
+   <td style="text-align:right;"> 0.2031374 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ldh.cs.model.1.p2 </td>
    <td style="text-align:right;"> 8 </td>
-   <td style="text-align:right;"> 1062.050 </td>
-   <td style="text-align:right;"> 1083.942 </td>
-   <td style="text-align:right;"> 0.1707095 </td>
+   <td style="text-align:right;"> 1031.479 </td>
+   <td style="text-align:right;"> 1053.157 </td>
+   <td style="text-align:right;"> 0.2120904 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ldh.cs.model.1.p3 </td>
    <td style="text-align:right;"> 10 </td>
-   <td style="text-align:right;"> 1064.173 </td>
-   <td style="text-align:right;"> 1091.183 </td>
-   <td style="text-align:right;"> 0.1864203 </td>
+   <td style="text-align:right;"> 1034.187 </td>
+   <td style="text-align:right;"> 1060.921 </td>
+   <td style="text-align:right;"> 0.2239472 </td>
   </tr>
 </tbody>
 </table>
@@ -5657,26 +5662,26 @@ ldh.cs.model.1c <- glmmTMB(LCr ~ 1 + REGION*temperature + TISSUE_MASS_CENTERED +
   <tr>
    <td style="text-align:left;"> ldh.cs.model.1a </td>
    <td style="text-align:right;"> 7 </td>
-   <td style="text-align:right;"> 994.5411 </td>
-   <td style="text-align:right;"> 1013.818 </td>
-   <td style="text-align:right;"> 0.1483192 </td>
-   <td style="text-align:right;"> 0.1483192 </td>
+   <td style="text-align:right;"> 971.2014 </td>
+   <td style="text-align:right;"> 990.2944 </td>
+   <td style="text-align:right;"> 0.1892872 </td>
+   <td style="text-align:right;"> 0.1892872 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ldh.cs.model.1b </td>
    <td style="text-align:right;"> 8 </td>
-   <td style="text-align:right;"> 996.8086 </td>
-   <td style="text-align:right;"> 1018.700 </td>
-   <td style="text-align:right;"> 0.1483183 </td>
-   <td style="text-align:right;"> 0.1483183 </td>
+   <td style="text-align:right;"> 973.4758 </td>
+   <td style="text-align:right;"> 995.1543 </td>
+   <td style="text-align:right;"> 0.1892883 </td>
+   <td style="text-align:right;"> 0.1892883 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ldh.cs.model.1c </td>
    <td style="text-align:right;"> 10 </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 0.1483192 </td>
-   <td style="text-align:right;"> 0.1483192 </td>
+   <td style="text-align:right;"> 0.1892663 </td>
+   <td style="text-align:right;"> 0.1892663 </td>
   </tr>
 </tbody>
 </table>
@@ -5703,7 +5708,7 @@ ldh.cs.model.1a %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.072 0.052 0.076 0.152 0.944 0.512 0.9 0.864 0.708 0.692 0.436 0.66 0.764 0.924 0.984 0.272 0.136 0.388 1 0.868 ...
+## Scaled residual values: 0.08 0.024 0.036 0.08 0.92 0.436 0.876 0.856 0.728 0.668 0.384 0.612 0.756 0.92 0.96 0.3 0.16 0.404 1 0.84 ...
 ```
 
 ```r
@@ -5718,7 +5723,7 @@ ldh.cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.098, p-value = 0.1584
+## D = 0.097178, p-value = 0.1748
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -5728,7 +5733,7 @@ ldh.cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.91401, p-value = 0.624
+## dispersion = 0.9217, p-value = 0.648
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -5738,13 +5743,13 @@ ldh.cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 2, observations = 132, p-value = 0.2834
+## outliers at both margin(s) = 2, observations = 129, p-value = 0.2745
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.001840215 0.053659931
+##  0.001883137 0.054882570
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                             0.01515152
+##                                             0.01550388
 ```
 
 ```
@@ -5753,7 +5758,7 @@ ldh.cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.098, p-value = 0.1584
+## D = 0.097178, p-value = 0.1748
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -5763,7 +5768,7 @@ ldh.cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.91401, p-value = 0.624
+## dispersion = 0.9217, p-value = 0.648
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -5773,13 +5778,13 @@ ldh.cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 2, observations = 132, p-value = 0.2834
+## outliers at both margin(s) = 2, observations = 129, p-value = 0.2745
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.001840215 0.053659931
+##  0.001883137 0.054882570
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                             0.01515152
+##                                             0.01550388
 ```
 
 ##### {-}
@@ -5816,38 +5821,38 @@ The _ldh.cs.model.1a_ model looks good, and there seem to be no major violations
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 14.7100633 </td>
-   <td style="text-align:right;"> 3.9311867 </td>
-   <td style="text-align:right;"> 3.7418888 </td>
-   <td style="text-align:right;"> 0.0001826 </td>
+   <td style="text-align:right;"> 15.8739308 </td>
+   <td style="text-align:right;"> 4.0215424 </td>
+   <td style="text-align:right;"> 3.9472245 </td>
+   <td style="text-align:right;"> 0.0000791 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -3.3913653 </td>
-   <td style="text-align:right;"> 5.8092603 </td>
-   <td style="text-align:right;"> -0.5837861 </td>
-   <td style="text-align:right;"> 0.5593642 </td>
+   <td style="text-align:right;"> -4.7918249 </td>
+   <td style="text-align:right;"> 5.8522314 </td>
+   <td style="text-align:right;"> -0.8188030 </td>
+   <td style="text-align:right;"> 0.4128988 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> temperature </td>
-   <td style="text-align:right;"> 0.4426002 </td>
-   <td style="text-align:right;"> 0.0835813 </td>
-   <td style="text-align:right;"> 5.2954427 </td>
-   <td style="text-align:right;"> 0.0000001 </td>
+   <td style="text-align:right;"> 0.4469781 </td>
+   <td style="text-align:right;"> 0.0868763 </td>
+   <td style="text-align:right;"> 5.1449970 </td>
+   <td style="text-align:right;"> 0.0000003 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -0.4572146 </td>
-   <td style="text-align:right;"> 0.3990826 </td>
-   <td style="text-align:right;"> -1.1456642 </td>
-   <td style="text-align:right;"> 0.2519341 </td>
+   <td style="text-align:right;"> -0.7277932 </td>
+   <td style="text-align:right;"> 0.4117470 </td>
+   <td style="text-align:right;"> -1.7675738 </td>
+   <td style="text-align:right;"> 0.0771322 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:temperature </td>
-   <td style="text-align:right;"> -0.0132004 </td>
-   <td style="text-align:right;"> 0.1215385 </td>
-   <td style="text-align:right;"> -0.1086113 </td>
-   <td style="text-align:right;"> 0.9135108 </td>
+   <td style="text-align:right;"> -0.0180225 </td>
+   <td style="text-align:right;"> 0.1244268 </td>
+   <td style="text-align:right;"> -0.1448444 </td>
+   <td style="text-align:right;"> 0.8848338 </td>
   </tr>
 </tbody>
 </table>
@@ -5865,27 +5870,27 @@ The _ldh.cs.model.1a_ model looks good, and there seem to be no major violations
 <tbody>
   <tr>
    <td style="text-align:left;"> REGION </td>
-   <td style="text-align:right;"> 0.9281186 </td>
+   <td style="text-align:right;"> 1.8860596 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.3353523 </td>
+   <td style="text-align:right;"> 0.1696470 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> temperature </td>
-   <td style="text-align:right;"> 51.7028532 </td>
+   <td style="text-align:right;"> 49.6220472 </td>
    <td style="text-align:right;"> 1 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> 1.3125463 </td>
+   <td style="text-align:right;"> 3.1243173 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.2519341 </td>
+   <td style="text-align:right;"> 0.0771322 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGION:temperature </td>
-   <td style="text-align:right;"> 0.0117964 </td>
+   <td style="text-align:right;"> 0.0209799 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.9135108 </td>
+   <td style="text-align:right;"> 0.8848338 </td>
   </tr>
 </tbody>
 </table>
@@ -5903,39 +5908,39 @@ The _ldh.cs.model.1a_ model looks good, and there seem to be no major violations
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 7.0050790 </td>
-   <td style="text-align:right;"> 22.4150476 </td>
-   <td style="text-align:right;"> 14.7100633 </td>
+   <td style="text-align:right;"> 7.9918525 </td>
+   <td style="text-align:right;"> 23.7560091 </td>
+   <td style="text-align:right;"> 15.8739308 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -14.7773062 </td>
-   <td style="text-align:right;"> 7.9945757 </td>
-   <td style="text-align:right;"> -3.3913653 </td>
+   <td style="text-align:right;"> -16.2619877 </td>
+   <td style="text-align:right;"> 6.6783379 </td>
+   <td style="text-align:right;"> -4.7918249 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> temperature </td>
-   <td style="text-align:right;"> 0.2787838 </td>
-   <td style="text-align:right;"> 0.6064166 </td>
-   <td style="text-align:right;"> 0.4426002 </td>
+   <td style="text-align:right;"> 0.2767037 </td>
+   <td style="text-align:right;"> 0.6172524 </td>
+   <td style="text-align:right;"> 0.4469781 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -1.2394020 </td>
-   <td style="text-align:right;"> 0.3249729 </td>
-   <td style="text-align:right;"> -0.4572146 </td>
+   <td style="text-align:right;"> -1.5348025 </td>
+   <td style="text-align:right;"> 0.0792161 </td>
+   <td style="text-align:right;"> -0.7277932 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:temperature </td>
-   <td style="text-align:right;"> -0.2514115 </td>
-   <td style="text-align:right;"> 0.2250106 </td>
-   <td style="text-align:right;"> -0.0132004 </td>
+   <td style="text-align:right;"> -0.2618946 </td>
+   <td style="text-align:right;"> 0.2258496 </td>
+   <td style="text-align:right;"> -0.0180225 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Std.Dev.(Intercept)|fish_id </td>
-   <td style="text-align:right;"> 8.3080065 </td>
-   <td style="text-align:right;"> 14.5084898 </td>
-   <td style="text-align:right;"> 10.9789174 </td>
+   <td style="text-align:right;"> 7.8985911 </td>
+   <td style="text-align:right;"> 14.0163425 </td>
+   <td style="text-align:right;"> 10.5218514 </td>
   </tr>
 </tbody>
 </table>
@@ -5951,8 +5956,8 @@ The _ldh.cs.model.1a_ model looks good, and there seem to be no major violations
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:right;"> 0.7240186 </td>
-   <td style="text-align:right;"> 0.1483192 </td>
+   <td style="text-align:right;"> 0.7184249 </td>
+   <td style="text-align:right;"> 0.1892872 </td>
    <td style="text-align:left;"> FALSE </td>
   </tr>
 </tbody>
@@ -5972,7 +5977,7 @@ ldh.cs.model.1a  %>% emtrends(var = "temperature", type = "response") %>% pairs(
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Core TISSUE_MASS_CENTERED-0.0568949936743177) - (Leading TISSUE_MASS_CENTERED-0.0568949936743177)","2":"34.69697","3":"0.01320045","4":"0.1215385","5":"130","6":"-0.2272489","7":"0.2536498","8":"0.1086113","9":"0.9136783","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core TISSUE_MASS_CENTERED0.16960253979996 - Leading TISSUE_MASS_CENTERED0.16960253979996","2":"34.72868","3":"0.01802252","4":"0.1244268","5":"127","6":"-0.2281957","7":"0.2642407","8":"0.1448444","9":"0.8850634","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 SCROLL TO THE RIGHT -->
@@ -5987,7 +5992,7 @@ ldh.cs.model.1a  %>% emmeans(pairwise ~ temperature*REGION, type = "response") %
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core - Leading","2":"34.69697","3":"3.849381","4":"3.995653","5":"130","6":"-4.05554","7":"11.7543","8":"0.9633923","9":"0.3371393","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core - Leading","2":"34.72868","3":"5.417723","4":"3.94508","5":"127","6":"-2.388877","7":"13.22432","8":"1.373286","9":"0.172083","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -5999,7 +6004,7 @@ ldh.cs.model.1a  %>% emmeans(~ temperature*REGION, type = "response")  %>% summa
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["temperature"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"34.69697","2":"Core","3":"30.09296","4":"2.688071","5":"130","6":"24.77494","7":"35.41099","8":"11.195003","9":"8.713993e-21","_rn_":"1"},{"1":"34.69697","2":"Leading","3":"26.24358","4":"2.931887","5":"130","6":"20.44319","7":"32.04397","8":"8.951088","9":"3.118740e-15","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["temperature"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"34.72868","2":"Core","3":"31.27345","4":"2.676637","5":"127","6":"25.97687","7":"36.57004","8":"11.683860","9":"7.237193e-22","_rn_":"1"},{"1":"34.72868","2":"Leading","3":"25.85573","4":"2.843161","5":"127","6":"20.22963","7":"31.48183","8":"9.094009","9":"1.644770e-15","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -6013,7 +6018,7 @@ ldh.cs.model.1a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_C
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["REGION"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core","2":"20","3":"25.99718","4":"3.087940","5":"130","6":"19.88806","7":"32.10630","8":"8.418939","9":"6.027549e-14","_rn_":"1"},{"1":"Leading","2":"20","3":"21.05050","4":"3.380501","5":"130","6":"14.36258","7":"27.73841","8":"6.227034","9":"6.084480e-09","_rn_":"2"},{"1":"Core","2":"30","3":"24.43505","4":"3.051645","5":"130","6":"18.39773","7":"30.47236","8":"8.007171","9":"5.764411e-13","_rn_":"3"},{"1":"Leading","2":"30","3":"22.21218","4":"3.337492","5":"130","6":"15.60936","7":"28.81501","8":"6.655352","9":"7.168566e-10","_rn_":"4"},{"1":"Core","2":"40","3":"32.91604","4":"3.125105","5":"130","6":"26.73339","7":"39.09869","8":"10.532781","9":"3.900057e-19","_rn_":"5"},{"1":"Leading","2":"40","3":"29.39740","4":"3.337492","5":"130","6":"22.79457","7":"36.00023","8":"8.808230","9":"6.935583e-15","_rn_":"6"},{"1":"Core","2":"50","3":"37.99626","4":"3.165057","5":"130","6":"31.73457","7":"44.25795","8":"12.004921","9":"8.340406e-23","_rn_":"7"},{"1":"Leading","2":"50","3":"32.88610","4":"3.381830","5":"130","6":"26.19555","7":"39.57664","8":"9.724350","9":"3.952451e-17","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["REGION"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core","2":"20","3":"27.21733","4":"3.111540","5":"127","6":"21.06016","7":"33.37451","8":"8.747223","9":"1.127194e-14","_rn_":"1"},{"1":"Leading","2":"20","3":"20.65256","4":"3.310502","5":"127","6":"14.10168","7":"27.20345","8":"6.238499","9":"6.051043e-09","_rn_":"2"},{"1":"Core","2":"30","3":"25.50068","4":"3.068094","5":"127","6":"19.42948","7":"31.57189","8":"8.311571","9":"1.234365e-13","_rn_":"3"},{"1":"Leading","2":"30","3":"21.80277","4":"3.266376","5":"127","6":"15.33920","7":"28.26634","8":"6.674911","9":"6.915573e-10","_rn_":"4"},{"1":"Core","2":"40","3":"33.96180","4":"3.105229","5":"127","6":"27.81711","7":"40.10649","8":"10.936972","9":"5.021447e-20","_rn_":"5"},{"1":"Leading","2":"40","3":"28.98798","4":"3.266376","5":"127","6":"22.52441","7":"35.45155","8":"8.874662","9":"5.566809e-15","_rn_":"6"},{"1":"Core","2":"50","3":"39.38557","4":"3.197487","5":"127","6":"33.05832","7":"45.71281","8":"12.317664","9":"2.001470e-23","_rn_":"7"},{"1":"Leading","2":"50","3":"32.47390","4":"3.312480","5":"127","6":"25.91910","7":"39.02871","8":"9.803501","9":"3.079395e-17","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -6026,7 +6031,7 @@ ldh.cs.model.1a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_C
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"temperature20 - temperature30","2":"Core","3":"1.562136","4":"2.454442","5":"130","6":"-4.82573","7":"7.9500011","8":"0.6364525","9":"9.200496e-01","_rn_":"1"},{"1":"temperature20 - temperature40","2":"Core","3":"-6.918859","4":"2.545822","5":"130","6":"-13.54455","7":"-0.2931708","8":"-2.7177311","9":"3.704914e-02","_rn_":"2"},{"1":"temperature20 - temperature50","2":"Core","3":"-11.999080","4":"2.598723","5":"130","6":"-18.76245","7":"-5.2357135","8":"-4.6172992","9":"5.411437e-05","_rn_":"3"},{"1":"temperature30 - temperature40","2":"Core","3":"-8.480995","4":"2.502167","5":"130","6":"-14.99307","7":"-1.9689224","8":"-3.3894605","9":"5.075801e-03","_rn_":"4"},{"1":"temperature30 - temperature50","2":"Core","3":"-13.561216","4":"2.553529","5":"130","6":"-20.20696","7":"-6.9154685","8":"-5.3107738","9":"2.727373e-06","_rn_":"5"},{"1":"temperature40 - temperature50","2":"Core","3":"-5.080221","4":"2.649322","5":"130","6":"-11.97528","7":"1.8148338","8":"-1.9175553","9":"2.257644e-01","_rn_":"6"},{"1":"temperature20 - temperature30","2":"Leading","3":"-1.161688","4":"2.683602","5":"130","6":"-8.14596","7":"5.8225846","8":"-0.4328837","9":"9.727133e-01","_rn_":"7"},{"1":"temperature20 - temperature40","2":"Leading","3":"-8.346903","4":"2.683602","5":"130","6":"-15.33118","7":"-1.3626307","8":"-3.1103352","9":"1.216030e-02","_rn_":"8"},{"1":"temperature20 - temperature50","2":"Leading","3":"-11.835599","4":"2.740470","5":"130","6":"-18.96787","7":"-4.7033247","8":"-4.3188210","9":"1.794904e-04","_rn_":"9"},{"1":"temperature30 - temperature40","2":"Leading","3":"-7.185215","4":"2.627672","5":"130","6":"-14.02393","7":"-0.3465049","8":"-2.7344411","9":"3.543500e-02","_rn_":"10"},{"1":"temperature30 - temperature50","2":"Leading","3":"-10.673911","4":"2.683569","5":"130","6":"-17.65810","7":"-3.6897258","8":"-3.9775059","9":"6.584238e-04","_rn_":"11"},{"1":"temperature40 - temperature50","2":"Leading","3":"-3.488696","4":"2.683569","5":"130","6":"-10.47288","7":"3.4954895","8":"-1.3000210","9":"5.645823e-01","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"temperature20 - temperature30","2":"Core","3":"1.716648","4":"2.549340","5":"127","6":"-4.920236","7":"8.35353220","8":"0.6733698","9":"9.069843e-01","_rn_":"1"},{"1":"temperature20 - temperature40","2":"Core","3":"-6.744466","4":"2.596930","5":"127","6":"-13.505244","7":"0.01631195","8":"-2.5970923","9":"5.080492e-02","_rn_":"2"},{"1":"temperature20 - temperature50","2":"Core","3":"-12.168233","4":"2.708125","5":"127","6":"-19.218495","7":"-5.11797038","8":"-4.4932307","9":"9.117170e-05","_rn_":"3"},{"1":"temperature30 - temperature40","2":"Core","3":"-8.461114","4":"2.548971","5":"127","6":"-15.097037","7":"-1.82519148","8":"-3.3194240","9":"6.392717e-03","_rn_":"4"},{"1":"temperature30 - temperature50","2":"Core","3":"-13.884881","4":"2.658330","5":"127","6":"-20.805507","7":"-6.96425512","8":"-5.2231594","9":"4.150271e-06","_rn_":"5"},{"1":"temperature40 - temperature50","2":"Core","3":"-5.423767","4":"2.707844","5":"127","6":"-12.473296","7":"1.62576222","8":"-2.0029836","9":"1.923267e-01","_rn_":"6"},{"1":"temperature20 - temperature30","2":"Leading","3":"-1.150203","4":"2.710030","5":"127","6":"-8.205423","7":"5.90501764","8":"-0.4244244","9":"9.742089e-01","_rn_":"7"},{"1":"temperature20 - temperature40","2":"Leading","3":"-8.335418","4":"2.710030","5":"127","6":"-15.390639","7":"-1.28019765","8":"-3.0757660","9":"1.354173e-02","_rn_":"8"},{"1":"temperature20 - temperature50","2":"Leading","3":"-11.821340","4":"2.767261","5":"127","6":"-19.025555","7":"-4.61712565","8":"-4.2718556","9":"2.186211e-04","_rn_":"9"},{"1":"temperature30 - temperature40","2":"Leading","3":"-7.185215","4":"2.653709","5":"127","6":"-14.093812","7":"-0.27661887","8":"-2.7076121","9":"3.814853e-02","_rn_":"10"},{"1":"temperature30 - temperature50","2":"Leading","3":"-10.671138","4":"2.709979","5":"127","6":"-17.726225","7":"-3.61604976","8":"-3.9377196","9":"7.699516e-04","_rn_":"11"},{"1":"temperature40 - temperature50","2":"Leading","3":"-3.485922","4":"2.709979","5":"127","6":"-10.541010","7":"3.56916553","8":"-1.2863281","9":"5.733049e-01","_rn_":"12"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 ##### Effect size
@@ -6038,11 +6043,11 @@ eff_size(ldh.cs.emm, sigma = sigma(ldh.cs.model.1a), edf=df.residual(ldh.cs.mode
 
 ```
 ##  contrast                                                              
-##  Core temperature34.6969696969697 - Leading temperature34.6969696969697
+##  Core temperature34.7286821705426 - Leading temperature34.7286821705426
 ##  effect.size    SE  df lower.CL upper.CL
-##        0.506 0.527 130   -0.535     1.55
+##        0.706 0.516 127   -0.315     1.73
 ## 
-## sigma used for effect sizes: 7.602 
+## sigma used for effect sizes: 7.675 
 ## Confidence level used: 0.95
 ```
 #### {-}
@@ -7181,7 +7186,7 @@ The **Gamma** does a decent job of modelling our data and we can move forward wi
   <tr>
    <td style="text-align:left;"> Std.Dev.(Intercept)|POPULATION </td>
    <td style="text-align:right;"> 0.0000024 </td>
-   <td style="text-align:right;"> 691.9122734 </td>
+   <td style="text-align:right;"> 691.9123188 </td>
    <td style="text-align:right;"> 0.0410140 </td>
   </tr>
 </tbody>
@@ -7522,8 +7527,9 @@ hema.1c <- glmmTMB(PERC_RBC ~ REGION + (REGION|POPULATION),
 ```
 
 ```
-## Warning in fitTMB(TMBStruc): Model convergence problem; singular convergence
-## (7). See vignette('troubleshooting')
+## Warning in finalizeTMB(TMBStruc, obj, fit, h, data.tmb.old): Model convergence
+## problem; singular convergence (7). See vignette('troubleshooting'),
+## help('diagnose')
 ```
 
 ###### random factor model comparisons 
@@ -7980,13 +7986,13 @@ ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data
 
 ```r
 #---ldh---#
-ldh.emm <- emmeans(ldh.model.1.p3a, ~ temperature*REGION, 
+ldh.emm <- emmeans(ldh.model.1.p2a, ~ temperature*REGION, 
                    at = list(temperature = seq(from=20, to = 50, by=1)))
 ldh.emm.df=as.data.frame(ldh.emm)
 
 ldh.obs <- ldh.data %>% 
-  mutate(Pred = predict(ldh.model.1.p3a, re.form=NA), 
-         Resid = residuals(ldh.model.1.p3a, type = 'response'), 
+  mutate(Pred = predict(ldh.model.1.p2a, re.form=NA), 
+         Resid = residuals(ldh.model.1.p2a, type = 'response'), 
          Fit = Pred - Resid)
 
 cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGION, linetype=REGION)) + 

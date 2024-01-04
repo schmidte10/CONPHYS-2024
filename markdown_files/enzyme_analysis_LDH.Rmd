@@ -255,7 +255,8 @@ ldh.data <- final_table %>%
          ASSAY_VOL = 2.975, 
          SAMPLE_VOL = 0.025, 
          LDH_ACTIVITY = ((LDH_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))*-1) %>% 
-  filter(LDH_ACTIVITY >=0) 
+  filter(LDH_ACTIVITY >=0)%>% 
+  filter(FISH_ID != "CVLA047")
 
 
 ```

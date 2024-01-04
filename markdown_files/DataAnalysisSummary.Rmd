@@ -1499,7 +1499,7 @@ Now we can import that data. Two different data frames are being imported. The f
 ldh <- read_delim("./enzymes/LDH_LocalAdapt.txt", delim = "\t", 
                   escape_double = FALSE, col_types = cols(`Creation time` = col_datetime(format = "%d/%m/%Y %H:%M")), 
                   trim_ws = TRUE)
-tissue.mass <- read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/enzymes/tissue_mass.txt")
+tissue.mass <- read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/enzymes/tissue_mass.txt") 
 ```
 
 #### Data manipulation 
@@ -1672,7 +1672,8 @@ ldh.data <- final_table %>%
          ASSAY_VOL = 2.975, 
          SAMPLE_VOL = 0.025, 
          LDH_ACTIVITY = ((LDH_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))*-1) %>% 
-  filter(LDH_ACTIVITY >=0)
+  filter(LDH_ACTIVITY >=0) %>% 
+  filter(fish_id != "CVLA047")
 ```
 
 ```{r ldh-save-data-frame, echo=FALSE}
@@ -1785,7 +1786,7 @@ model.fit.table %>% knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
 ```
 
-From our model comparison we can see that the model that runs temperature as a third order polynomial performs the best. Therefore, moving forward we will use the third order polynomial model. 
+From our model comparison we can see that the model that runs temperature as a second order polynomial performs the best. Therefore, moving forward we will use the second order polynomial model. 
 
 #### Random factors 
 
@@ -1794,17 +1795,17 @@ Fish were repeatedly sampled over four different temperatures, therefore repeate
 ##### random factor models
 
 ```{r ldh-random-factors-1, warning=FALSE}
-ldh.model.1.p3a <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id), 
+ldh.model.1.p2a <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id), 
                        family=gaussian(), 
                        data = ldh.data, 
                        REML = TRUE) 
 
-ldh.model.1.p3b <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
+ldh.model.1.p2b <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
                   family=gaussian(), 
                   data = ldh.data, 
                   REML = TRUE) 
 
-ldh.model.1.p3c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
+ldh.model.1.p2c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
                        family=gaussian(), 
                        data = ldh.data, 
                        REML = TRUE) # convergence problem
@@ -1814,37 +1815,37 @@ ldh.model.1.p3c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISS
 ###### random factor model comparisons 
 
 ```{r ldh-random-factors-1.2, warning=FALSE, echo=FALSE}
-aic.c=AICc(ldh.model.1.p3a, ldh.model.1.p3b, ldh.model.1.p3c, k=2)
-bic=BIC(ldh.model.1.p3a, ldh.model.1.p3b, ldh.model.1.p3c)
+aic.c=AICc(ldh.model.1.p2a, ldh.model.1.p2b, ldh.model.1.p2c, k=2)
+bic=BIC(ldh.model.1.p2a, ldh.model.1.p2b, ldh.model.1.p2c)
 
 model.fit.table <- as.data.frame(aic.c) %>% 
   tibble::rownames_to_column("model") %>%
   mutate(BIC = bic$BIC, 
-         r2m = c(r.squaredGLMM(ldh.model.1.p3a)[1], r.squaredGLMM(ldh.model.1.p3b)[1], r.squaredGLMM(ldh.model.1.p3c)[1]), 
-         r2c = c(r.squaredGLMM(ldh.model.1.p3a)[1], r.squaredGLMM(ldh.model.1.p3b)[1], r.squaredGLMM(ldh.model.1.p3c)[1]))
+         r2m = c(r.squaredGLMM(ldh.model.1.p2a)[1], r.squaredGLMM(ldh.model.1.p2b)[1], r.squaredGLMM(ldh.model.1.p2c)[1]), 
+         r2c = c(r.squaredGLMM(ldh.model.1.p2a)[1], r.squaredGLMM(ldh.model.1.p2b)[1], r.squaredGLMM(ldh.model.1.p2c)[1]))
 model.fit.table %>% knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
 ```
 
-Model _ldh.model.1.p3a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
+Model _ldh.model.1.p2a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
 
 #### Model validation {.tabset .tabset-faded}
 
 ##### performance {.tabset .tabset-faded}
 
-###### ldh.model.1.p3a (3rd order polynomial)
+###### ldh.model.1.p2a (2nd order polynomial)
 ```{r ldh-model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-ldh.model.1.p3a %>% performance::check_model()
+ldh.model.1.p2a %>% performance::check_model()
 ```
 
-The _ldh.model.1.p3a_ model looks like it performs well.
+The _ldh.model.1.p2a_ model looks like it performs well.
 
 ##### DHARMa residuals {.tabset .tabset-faded}
 
-###### ldh.model.1.p3a (3rd order polynomial))
+###### ldh.model.1.p2a (3rd order polynomial))
 ```{r ldh-model-valid-2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
-ldh.model.1.p3a %>% simulateResiduals(plot=TRUE)
-ldh.model.1.p3a %>% DHARMa::testResiduals(plot=TRUE)
+ldh.model.1.p2a %>% simulateResiduals(plot=TRUE)
+ldh.model.1.p2a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
 ##### {-}
@@ -1858,13 +1859,13 @@ The model performs well and passes validation checks.
 ##### ggemmeans 
 
 ```{r ldh-partial-plots-1, message=FALSE, echo=FALSE, fig.width=8, fig.height=6}
-ldh.model.1.p3a %>% ggemmeans(~temperature|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+ldh.model.1.p2a %>% ggemmeans(~temperature|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
 ```
 
 ##### plot_model 
 
 ```{r ldh-partial-plots-2, echo=FALSE, fig.width=8, fig.height=6}
-ldh.model.1.p3a %>% plot_model(type='std', vline.color = "grey12", show.values=TRUE, sort.est = TRUE, transform = NULL, value.offset = 0.3)
+ldh.model.1.p2a %>% plot_model(type='std', vline.color = "grey12", show.values=TRUE, sort.est = TRUE, transform = NULL, value.offset = 0.3)
 ```
 
 #### {-} 
@@ -1873,7 +1874,7 @@ ldh.model.1.p3a %>% plot_model(type='std', vline.color = "grey12", show.values=T
 
 ##### summary 
 ```{r ldh-model-inv-1, echo=FALSE}
-as.data.frame(summary(ldh.model.1.p3a)$coefficients[1]) %>% 
+as.data.frame(summary(ldh.model.1.p2a)$coefficients[1]) %>% 
   dplyr::rename( 
     Estimate = cond.Estimate,
     StdError = cond.Std..Error,
@@ -1886,7 +1887,7 @@ as.data.frame(summary(ldh.model.1.p3a)$coefficients[1]) %>%
 
 ##### Anova 
 ```{r ldh-model-inv-2, echo=FALSE}
-ldh.model.1.p3a %>% Anova() %>% 
+ldh.model.1.p2a %>% Anova() %>% 
   as.data.frame() %>%
   knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
@@ -1894,7 +1895,7 @@ ldh.model.1.p3a %>% Anova() %>%
 
 ##### confint 
 ```{r ldh-model-inv-3, echo=FALSE}
-ldh.model.1.p3a %>% confint() %>% 
+ldh.model.1.p2a %>% confint() %>% 
   as.data.frame() %>%
   knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
@@ -1902,7 +1903,7 @@ ldh.model.1.p3a %>% confint() %>%
 
 ##### r-squared
 ```{r ldh-model-inv-4, echo=FALSE}
-ldh.model.1.p3a %>% performance::r2_nakagawa() %>% 
+ldh.model.1.p2a %>% performance::r2_nakagawa() %>% 
   as.data.frame() %>%
   knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
@@ -1916,7 +1917,7 @@ ldh.model.1.p3a %>% performance::r2_nakagawa() %>%
 
 
 ```{r ldh-pairwise-1}
-ldh.model.1.p3a  %>% emtrends(var = "temperature", type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+ldh.model.1.p2a  %>% emtrends(var = "temperature", type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 ```
 SCROLL TO THE RIGHT -->
 
@@ -1924,44 +1925,44 @@ The numbers in the left most column in the table just mention that the slopes ar
 
 ##### emmeans [latitudes]
 ```{r ldh-pairwise-2}
-ldh.model.1.p3a  %>% emmeans(pairwise ~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+ldh.model.1.p2a  %>% emmeans(pairwise ~ temperature*REGION, type = "response") %>% pairs(by = "temperature") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 ```
 
 ##### temperature 
 ```{r ldh-pairwise-3}
-ldh.model.1.p3a  %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer=TRUE)
+ldh.model.1.p2a  %>% emmeans(~ temperature*REGION, type = "response")  %>% summary(infer=TRUE)
 ```
 
 
 ##### Means - f(temperature)
 ```{r ldh-pairwise-4}
-ldh.model.1.p3a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
+ldh.model.1.p2a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
   emmeans(~REGION*temperature, type = "response") %>% summary(infer=TRUE)
 ```
 
 ##### Abs. diff - f(temperature)
 ```{r ldh-pairwise-5}
-ldh.model.1.p3a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
+ldh.model.1.p2a  %>% update(.~1+ REGION * as.factor(temperature) + TISSUE_MASS_CENTERED + (1|fish_id)) %>% 
   emmeans(~REGION*temperature, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
 ```
 
 ##### Effect size
 ```{r ldh-effect-size}
-ldh.emm <- ldh.model.1.p3a %>% emmeans(~REGION*temperature)
-eff_size(ldh.emm, sigma = sigma(ldh.model.1.p3a), edf=df.residual(ldh.model.1.p3a))
+ldh.emm <- ldh.model.1.p2a %>% emmeans(~REGION*temperature)
+eff_size(ldh.emm, sigma = sigma(ldh.model.1.p2a), edf=df.residual(ldh.model.1.p2a))
 ```
 #### {-}
 
 #### Summary figure 
 
 ```{r ldh-sum-fig, fig.width=8, fig.height=6, echo=FALSE}
-ldh.emm <- emmeans(ldh.model.1.p3a, ~ temperature*REGION, 
+ldh.emm <- emmeans(ldh.model.1.p2a, ~ temperature*REGION, 
                    at = list(temperature = seq(from=20, to = 50, by=1)))
 ldh.emm.df=as.data.frame(ldh.emm)
 
 ldh.obs <- ldh.data %>% 
-  mutate(Pred = predict(ldh.model.1.p3a, re.form=NA), 
-         Resid = residuals(ldh.model.1.p3a, type = 'response'), 
+  mutate(Pred = predict(ldh.model.1.p2a, re.form=NA), 
+         Resid = residuals(ldh.model.1.p2a, type = 'response'), 
          Fit = Pred - Resid)
 
 cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGION)) + 
@@ -2161,7 +2162,8 @@ CS.data <- final_table %>%
          TISSUE_CONCENTRATION = 0.01, 
          ASSAY_VOL = 0.930, 
          SAMPLE_VOL = 0.020, 
-         CS_ACTIVITY = ((CS_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL)))
+         CS_ACTIVITY = ((CS_ABSORBANCE/(PATH_LENGTH*EXTINCTION_COEFFICIENT*TISSUE_CONCENTRATION))*(ASSAY_VOL/SAMPLE_VOL))) %>% 
+  filter(FISH_ID != "CVLA047")
 ```
 
 ```{r save-data-frame, echo=FALSE}
@@ -2381,16 +2383,19 @@ cs.model.1a.inv %>% performance::check_model()
 
 ##### DHARMa {.tabset .tabset-faded}
 
+###### Gaussian (identity)
 ```{r model-valid-2.3a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
 cs.model.1a %>% simulateResiduals(plot=TRUE)
 cs.model.1a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
+###### Gaussian (log)
 ```{r model-valid-2.3b, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
 cs.model.1a.log %>% simulateResiduals(plot=TRUE)
 cs.model.1a.log %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
+###### Gaussian (inverse)
 ```{r model-valid-2.3c, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
 cs.model.1a.inv %>% simulateResiduals(plot=TRUE)
 cs.model.1a.inv %>% DHARMa::testResiduals(plot=TRUE)
@@ -3856,13 +3861,13 @@ ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data
 
 ```{r figure-4, echo=TRUE, eval=TRUE, cache=FALSE, warning=FALSE, results='hide'}
 #---ldh---#
-ldh.emm <- emmeans(ldh.model.1.p3a, ~ temperature*REGION, 
+ldh.emm <- emmeans(ldh.model.1.p2a, ~ temperature*REGION, 
                    at = list(temperature = seq(from=20, to = 50, by=1)))
 ldh.emm.df=as.data.frame(ldh.emm)
 
 ldh.obs <- ldh.data %>% 
-  mutate(Pred = predict(ldh.model.1.p3a, re.form=NA), 
-         Resid = residuals(ldh.model.1.p3a, type = 'response'), 
+  mutate(Pred = predict(ldh.model.1.p2a, re.form=NA), 
+         Resid = residuals(ldh.model.1.p2a, type = 'response'), 
          Fit = Pred - Resid)
 
 cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGION, linetype=REGION)) + 
