@@ -1,7 +1,7 @@
 ---
 title: "Data Overview"
 author: "Elliott Schmidt"
-date: "13 December, 2023"
+date: "15 December, 2023"
 output:
   html_document:
     keep_md: yes
@@ -51,7 +51,7 @@ Immunocompetence was tested via phytohaemaglutinin (PHA) swelling assays at the 
 ![Acanthochromis](C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/fish_polyacanthus_image.jpg)![map](C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/map/population_map.jpeg)
 
 
-# Glossary of Terms 
+# Glossary of respirometry terms 
 
 --------------------- ------------------------------------------------------------------
 **EXP_FISH_ID**       Combined FISH_ID with TEMPERATURE the fish was tested at
@@ -94,22 +94,21 @@ library(janitor) # data manipulation
 library(plyr) # data manipulation
 library(dplyr) # data manipulation
 library(lubridate) # data manipulation - specifically time data
-library(ggplot2) # plotting figures
+library(chron) # data manipulation - specifically time data
 library(glmmTMB) # running models
 library(performance) # model validation
-library(chron) # data manipulation - specifically time data
 library(DHARMa) # model validation
 library(MuMIn) # model validation
-library(kableExtra) # creating tables
-library(broom) # dependent
-library(emmeans) # post-hoc analysis
-library(ggeffects) # plotting models/model validation
-library(vtable) # creating tables
 library(modelr) # model validation
-library(kableExtra) # formatting output tables
+library(car) # used for Anova function
+library(emmeans) # post-hoc analysis
+library(kableExtra) # creating tables
+library(vtable) # creating tables
+library(ggplot2) # plotting figures
+library(ggeffects) # plotting models/model validation
 library(sjPlot) # plotting models 
-library(car) # used for Anova function 
 library(ggpubr) # plotting figures
+library(broom) # dependent
 ```
 # Results {.tabset .tabset-pills}
 
@@ -119,7 +118,7 @@ library(ggpubr) # plotting figures
 
 #### Scenario 
 
-For initial details on the experiment performed please read the **ReadMe** file. In breif, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. Individuals were tested at each temperature, resting oxygen consumption, maximum oxygen consumption. Absolute aerboic scope was calculated by using the following formula: 
+For details on the experiment performed please read the information at the top of this document. In brief, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. Individuals were tested at each temperature, resting oxygen consumption, maximum oxygen consumption. Absolute aerboic scope was calculated by using the following formula: 
 
 Absolute aerobic scope = (maximum oxygen consumption - resting oxygen consumption)
 
@@ -1116,7 +1115,7 @@ eff_size(rmr.emm, sigma = sigma(rmr.3.p2a), edf=df.residual(rmr.3.p2a))
 
 #### Scenario 
 
-For initial details on the experiment performed please read the **ReadMe** file. In breif, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. Individuals were tested at each temperature, resting oxygen consumption, maximum oxygen consumption. Absolute aerboic scope was calculated by using the following formula: 
+For details on the experiment performed please read the information at the top of this document. In brief, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. Individuals were tested at each temperature, resting oxygen consumption, maximum oxygen consumption. Absolute aerboic scope was calculated by using the following formula: 
 
 Absolute aerobic scope = (maximum oxygen consumption - resting oxygen consumption)
 
@@ -1194,7 +1193,7 @@ resp3 <- resp2 %>%
   ) 
 ```
 
-So far the analysis has been the same as the protocol outlined in the **aerobic physiology resting** data. One additional data removal step will take place in the maximum oxygen consumption analysis for samples where fish swam poorly and therefore their maximum oxygen consumption data is thought to be unreliable. This step is done before any data analysis has taken place. 
+So far the analysis has been the same as the protocol outlined in the **resting oxygen consumption** data. One additional data removal step will take place in the maximum oxygen consumption analysis for samples where fish swam poorly and therefore their maximum oxygen consumption data is thought to be unreliable. This step is done before any data analysis has taken place. 
 
 
 ```r
@@ -1217,7 +1216,7 @@ resp4 <- resp3 %>%
 
 #### Exploratory data analysis {.tabset}
 
-##### Mass v Rest
+##### Mass v Max
 
 
 ```r
@@ -1229,7 +1228,7 @@ ggplot(resp4, aes(MASS, MAX_MgO2.hr_RESPR)) +
 
 ![](DataAnalysisSummary_files/figure-html/max-eda-1-1.png)<!-- -->
 
-##### Mass v REST (LATITUDE)
+##### Mass v Max (LATITUDE)
 
 ```r
 ggplot(resp4, aes(MASS, MAX_MgO2.hr_RESPR, color = REGION)) + 
@@ -1240,7 +1239,7 @@ ggplot(resp4, aes(MASS, MAX_MgO2.hr_RESPR, color = REGION)) +
 
 ![](DataAnalysisSummary_files/figure-html/max-eda-2-1.png)<!-- -->
 
-##### TEMPERTURE v REST (LATITUDE)
+##### TEMPERTURE v Max (LATITUDE)
 
 ```r
 ggplot(resp4, aes(TEMPERATURE, MAX_MgO2.hr_RESPR, color = REGION)) + 
@@ -1254,9 +1253,7 @@ ggplot(resp4, aes(TEMPERATURE, MAX_MgO2.hr_RESPR, color = REGION)) +
 
 #### Fit the model 
 
-The model was fit using the **glm** and later **glmmTMB** package in R. A number of different models were tested to determine which hypothesis and associated variables best predicted resting oxygen consumption. Model fit was examined using AICc, BIC, and r-squared values. Additional model were examined via the validation diagonistics provided by the **performance** and **dHARMA** packages in R. 
-
-The first set of models tested looked at three different hypotheses including 1) that mass has a major impact of resting oxygen consumption of fish (this has been documented in the literature), 2) if variables related to time have an important impact on the resting oxygen consumption of fish. 
+The model was fit using the **glm** and later **glmmTMB** package in R. A number of different models were tested to determine which hypothesis and associated variables best predicted resting oxygen consumption. Model fit was examined using AICc, BIC, and r-squared values. Additional model were examined via the validation diagnostics provided by the **performance** and **dHARMA** packages in R. 
 
 ##### Fixed factors (linear regression models)
 
@@ -1441,7 +1438,7 @@ The model that contains **MASS_CENTERED** seems to do better than the model that
 
 ###### polynomial models 
 
-Note that the linear model has already been created via model _rmr.3_ in the previous section.
+Note that the linear model has already been created via model _mmr.1_ in the previous section.
 
 
 ```r
@@ -1494,7 +1491,7 @@ From our model comparison we can see the there is no additional benefit to the m
 
 ##### Random factors 
 
-Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run a compaired. 
+Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run a compared. 
 
 ###### random factor models
 
@@ -1557,7 +1554,7 @@ mmr.1c <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + 
 </tbody>
 </table>
 
-Model _rmr.3a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
+Model _mmr.1a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
 
 #### Model validation {.tabset .tabset-faded}
 
@@ -1566,7 +1563,7 @@ Model _rmr.3a_ appears to be the best model, however, there seems to be little d
 ###### rmr.3a (linear)
 ![](DataAnalysisSummary_files/figure-html/max-model-valid-1-1.png)<!-- -->
 
-The _mmr.3a_ model performs well, however, in the model validation performed by the **performance** model it looks like there are two variables that are highly correlated. If we expand the figure we can see that the highly correlated variables are REGION and REGION:TEMPERATURE. Perhaps this is unsurprising  but lets see what happens when we run the quadratic (2^nd^ polynomial) model to see if this helps deal with the high correlation between these two variables, as it performed very similarly to _mmr.3a_, and even had a higher r2 value. 
+The _mmr.1a_ model performs well, however, in the model validation performed by the **performance** model it looks like there are two variables that are highly correlated. If we expand the figure we can see that the highly correlated variables are REGION and REGION:TEMPERATURE. Perhaps this is unsurprising  but lets see what happens when we run the quadratic (2^nd^ polynomial) model to see if this helps deal with the high correlation between these two variables, as it performed very similarly to _mmr.1a_, and even had a higher r2 value. 
 
 ###### mmr.1.p2a (quadratic)
 
@@ -2083,13 +2080,15 @@ eff_size(mmr.emm, sigma = sigma(mmr.1.p2a), edf=df.residual(mmr.1.p2a))
 
 #### Scenario 
 
-For initial details on the experiment performed please read the **ReadMe** file. In breif, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. Individuals were tested at each temperature, resting oxygen consumption, maximum oxygen consumption. Absolute aerboic scope was calculated by using the following formula: 
+For details on the experiment performed please read the information at the top of this document. In brief, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. Individuals were tested at each temperature, resting oxygen consumption, maximum oxygen consumption. Absolute aerboic scope was calculated by using the following formula: 
 
 Absolute aerobic scope = (maximum oxygen consumption - resting oxygen consumption)
 
 Individuals were first tested at 27$^\circ$C. Water temperature was then increased at a rate of 0.5$^\circ$C Day^-1 until the next temperature was reached. Fish were then provided with an additional 5 day to adjust to the new temperature before aerobic physiology was tested again. 
 
-Three traits are included within the aerobic physiology analysis, resting oxygen consumption, maximum oxygen consumption, and absoulte aerboic scope. Data for each metric was collect from respiratory experiments that had data recorded via a combination of programs including, AquaResp and PyroScience. Slopes (i.e., resting and maximum oxygen consumption values) were then calculated via the **RespR** [https://januarharianto.github.io/respR/articles/respR.html] package.  
+Three traits are included within the aerobic physiology analysis, resting oxygen consumption, maximum oxygen consumption, and absolute aerobic scope. Data for each metric was collect from respiratory experiments that had data recorded via a combination of programs including, AquaResp3 and PyroScience. Slopes (i.e., resting and maximum oxygen consumption values) were then calculated via the **RespR** [https://januarharianto.github.io/respR/articles/respR.html] package.   
+
+**Note:** Absolute aerobic scope is sometime called net aerobic scope. When making the models labeling was done using 'net aerobic scope' (i.e., nas). 
 
 
 #### Read in the data
@@ -2160,7 +2159,7 @@ resp3 <- resp2 %>%
   ) 
 ```
 
-So far the analysis has been the same as the protocol outlined in the **aerobic physiology resting** data. One additional data removal step will take place in the maximum oxygen consumption analysis for samples where fish swam poorly and therefore their maximum oxygen consumption data is thought to be unreliable. This step is done before any data analysis has taken place. 
+So far the analysis has been the same as the protocol outlined in the **maximum oxygen consumption** data.  
 
 
 ```r
@@ -2220,9 +2219,8 @@ ggplot(resp4, aes(TEMPERATURE, MgO2.hr_Net, color = REGION)) +
 
 #### Fit the model 
 
-The model was fit using the **glm** and later **glmmTMB** package in R. A number of different models were tested to determine which hypothesis and associated variables best predicted resting oxygen consumption. Model fit was examined using AICc, BIC, and r-squared values. Additional model were examined via the validation diagonistics provided by the **performance** and **dHARMA** packages in R. 
+The model was fit using the **glm** and later **glmmTMB** package in R. A number of different models were tested to determine which hypothesis and associated variables best predicted resting oxygen consumption. Model fit was examined using AICc, BIC, and r-squared values. Additional model were examined via the validation diagnostics provided by the **performance** and **dHARMA** packages in R. 
 
-The first set of models tested looked at three different hypotheses including 1) that mass has a major impact of resting oxygen consumption of fish (this has been documented in the literature), 2) if variables related to time have an important impact on the resting oxygen consumption of fish. 
 
 ##### Fixed factors (linear regression models)
 
@@ -2400,7 +2398,7 @@ The model that contains **MASS_CENTERED** seems to do better than the model that
 
 ###### polynomial models 
 
-Note that the linear model has already been created via model _rmr.3_ in the previous section.
+Note that the linear model has already been created via model _nas.1_ in the previous section.
 
 
 ```r
@@ -2518,7 +2516,7 @@ nas.1c <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FIS
 </tbody>
 </table>
 
-Model _nas.3a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
+Model _nas.1a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
 
 #### Model validation {.tabset .tabset-faded}
 
@@ -2984,7 +2982,6 @@ nas.1.p2a %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infe
   </script>
 </div>
 
-
 ##### Means - f(temperature)
 
 ```r
@@ -3038,28 +3035,9 @@ eff_size(aas.emm, sigma = sigma(nas.1.p2a), edf=df.residual(nas.1.p2a))
 
 ![](DataAnalysisSummary_files/figure-html/aas-sum-fig-1.png)<!-- -->
 
-ggplot(rmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype=REGION))+
-  geom_jitter(data=rmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
-  stat_smooth(method = "lm", 
-              formula =y ~ poly(x, 2, raw=TRUE)) + 
-  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
-              alpha = 0.2, color=NA)+ 
-  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
-  scale_y_continuous(limits = c(2,12), breaks = seq(2, 12, by = 2)) +
-  theme_classic() + ylab(expression("RESTING METABOLIC RATE (MgO "[2]* " hr"^{-1} * ")")) + xlab("")+
-  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
-  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
-  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) + 
-  theme(legend.position = "top", 
-        legend.text = element_text(size = 10), 
-        legend.title = element_blank(), 
-        axis.title = element_text(size =12), 
-        axis.text = element_text(size=10)) + 
-  annotate("text", x=30, y= 11.5, label="P =0.51", fontface="italic", size=5)
-
 #### Conclusion 
 
-* In conclusion while maximum oxygen consumption is **significantly** positively correlated with temperature and fish from low latitudes have **significantly** higher maximum consumption at elevated temperatures compared to fish from high latitudes.
+* In conclusion while absolute aerobic scope is **significantly** positively correlated with temperature and fish from low latitudes have **significantly** higher maximum consumption at elevated temperatures compared to fish from high latitudes.
 
 
 
@@ -3070,7 +3048,7 @@ ggplot(rmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype=REGION))+
 
 #### Scenario 
 
-For initial details on the experiment performed please read the **ReadMe** file. In brief, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. After metabolic performance was tested blood and tissue samples were collected. White muscle tissue samples were used to look at the relationship between activity and temperature in two different enzymes, Lactate Dehydrogenase (LDH; anaerobic) and Citrate Synthase (CS: aerobic). Enzyme activity was measured over four different temperatures including 20$^\circ$C, 30$^\circ$C, 40$^\circ$C, and 50$^\circ$C. Enzyme activity was measured using a spectophotometer and wavelength absoprtion levels were recorded using the software program LabX. 
+For initial details at the top of this document. In brief, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. After metabolic performance was tested blood and tissue samples were collected. White muscle tissue samples were used to look at the relationship between activity and temperature in two different enzymes, Lactate Dehydrogenase (LDH; anaerobic) and Citrate Synthase (CS: aerobic). Enzyme activity was measured over four different temperatures including 20$^\circ$C, 30$^\circ$C, 40$^\circ$C, and 50$^\circ$C. Enzyme activity was measured using a spectrometer and wavelength absorption levels were recorded using the software program LabX. 
 
 #### Read in the data
 
@@ -4204,7 +4182,7 @@ By the end of this stage you should have a data frame that included a column cal
 
 #### Exploratory data analysis {.tabset}
 
-##### LDH v TEMPERATURE [LATITUDE]
+##### CS v TEMPERATURE [LATITUDE]
 
 ```r
 ggplot(CS.data, aes(x =as.numeric(TEMPERATURE), y= CS_ACTIVITY, color = REGION)) + 
@@ -4213,7 +4191,7 @@ ggplot(CS.data, aes(x =as.numeric(TEMPERATURE), y= CS_ACTIVITY, color = REGION))
 
 ![](DataAnalysisSummary_files/figure-html/eda-1-1.png)<!-- -->
 
-##### LDH V TEMPERATURE [DENSITY]
+##### CS V TEMPERATURE [DENSITY]
 
 ```r
 ggplot(CS.data, aes(x = CS_ACTIVITY, fill = TEMPERATURE, color = TEMPERATURE)) + 
@@ -4222,7 +4200,7 @@ ggplot(CS.data, aes(x = CS_ACTIVITY, fill = TEMPERATURE, color = TEMPERATURE)) +
 
 ![](DataAnalysisSummary_files/figure-html/eda-2-1.png)<!-- -->
 
-##### LDH v TISSUE MASS (LATITUDE)
+##### CS v TISSUE MASS (LATITUDE)
 
 ```r
 ggplot(CS.data, aes(x =TISSUE_MASS_CENTERED, y= CS_ACTIVITY, color = REGION)) + 
@@ -4508,12 +4486,12 @@ Model _cs.model.1a_ appears to be the best model, however, there seems to be lit
 
 ##### performance {.tabset .tabset-faded}
 
-###### rmr.3a (linear)
+###### cs.model.1a (linear)
 ![](DataAnalysisSummary_files/figure-html/model-valid-1-1.png)<!-- -->
 
 ##### DHARMa residuals {.tabset .tabset-faded}
 
-###### nas.1a (linear)
+###### cs.model.1a (linear)
 
 ```r
 cs.model.1a %>% simulateResiduals(plot=TRUE)
@@ -4925,14 +4903,7 @@ cs.model.1a.log <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CE
                        family=gaussian(link="log"), 
                        data = CS.data, 
                        REML = FALSE) 
-```
 
-```
-## Warning in (function (start, objective, gradient = NULL, hessian = NULL, :
-## NA/NaN function evaluation
-```
-
-```r
 cs.model.1a.log.p2 <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*poly(TEMPERATURE, 2) + TISSUE_MASS_CENTERED + (1|FISH_ID), 
                        family=gaussian(link="log"), 
                        data = CS.data, 
@@ -5415,7 +5386,7 @@ ldh.cs.data <- ldh.data %>%
 
 #### Exploratory data analysis {.tabset}
 
-##### LDH v TEMPERATURE [LATITUDE]
+##### LDH-CS v TEMPERATURE [LATITUDE]
 
 ```r
 ggplot(ldh.cs.data, aes(x =as.numeric(temperature), y= LCr, color = REGION)) + 
@@ -5424,7 +5395,7 @@ ggplot(ldh.cs.data, aes(x =as.numeric(temperature), y= LCr, color = REGION)) +
 
 ![](DataAnalysisSummary_files/figure-html/ldh-cs-eda-1-1.png)<!-- -->
 
-##### LDH V TEMPERATURE [DENSITY]
+##### LDH-CS V TEMPERATURE [DENSITY]
 
 ```r
 ggplot(ldh.cs.data, aes(x = LCr)) + 
@@ -5433,7 +5404,7 @@ ggplot(ldh.cs.data, aes(x = LCr)) +
 
 ![](DataAnalysisSummary_files/figure-html/ldh-cs-eda-2-1.png)<!-- -->
 
-##### LDH v TISSUE MASS (LATITUDE)
+##### LDH-CS v TISSUE MASS (LATITUDE)
 
 ```r
 ggplot(ldh.cs.data, aes(x =TISSUE_MASS_CENTERED, y= LCr, color = REGION)) + 
@@ -5444,7 +5415,7 @@ ggplot(ldh.cs.data, aes(x =TISSUE_MASS_CENTERED, y= LCr, color = REGION)) +
 
 #### Fit the model 
 
-The model was fit using the **glm** and later **glmmTMB** package in R. A number of different models were tested to determine which hypothesis and associated variables best predicted resting oxygen consumption. Model fit was examined using AICc, BIC, and r-squared values. Additional model were examined via the validation diagonistics provided by the **performance** and **dHARMA** packages in R. 
+The model was fit using the **glm** and later **glmmTMB** package in R. A number of different models were tested to determine which hypothesis and associated variables best predicted resting oxygen consumption. Model fit was examined using AICc, BIC, and r-squared values. Additional model were examined via the validation diagnostics provided by the **performance** and **dHARMA** packages in R. 
 
 ##### Fixed factors (linear regression models)
 
@@ -5647,7 +5618,7 @@ From our model comparison we can see that the model that runs temperature as a l
 
 ##### Random factors 
 
-Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run a compaired. 
+Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run and compared. 
 
 ###### random factor models
 
@@ -6094,7 +6065,7 @@ eff_size(ldh.cs.emm, sigma = sigma(ldh.cs.model.1a), edf=df.residual(ldh.cs.mode
 
 For initial details on the experiment performed please read the **ReadMe** file. In breif, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. 
 
-Immunocompetence was tested via phytohaemaglutinin (PHA) swelling assays at the same four experimental temperatures metabolic performance was tested at. To perform the assyu fish were injected with 0.03 mL of PHA subcutaneously in the caudal peduncle. Thickness of injection site was measured pre-injection as well as 18-24hour post-injection. PHA produces a localized, cell-mediated response (e.g., inflammation, T-cell proliferation, etc).  The change in thickness between measurement periods was used as an proxy for immunocompetence.
+Immunocompetence was tested via phytohaemaglutinin (PHA) swelling assays at the same four experimental temperatures metabolic performance was tested at. To perform the assay fish were injected with 0.03 mL of PHA subcutaneously in the caudal peduncle. Thickness of injection site was measured pre-injection as well as 18-24hour post-injection. PHA produces a localized, cell-mediated response (e.g., inflammation, T-cell proliferation, etc).  The change in thickness between measurement periods was used as an proxy for immunocompetence.
 
 
 ### Read in the data
@@ -6328,7 +6299,7 @@ pha.2 <- glm(IMMUNE_RESPONSE ~ 1 + REGION * TEMPERATURE,
 
 There is little difference between the two initial models, therefore, we will move forward with the model that has less terms. 
 
-It looks like the third model is better than the previous two. Next we will test to see if the variable temperature performs best as a 1^st (linear), 2^nd (quadratic), or 3^rd (cubic) order polynomial. As the relationship between temperature and resting oxygen consumption is predicted to be non-linear. 
+It looks like the third model is better than the previous two. Next we will test to see if the variable temperature performs best as a 1^st^ (linear), 2^nd^ (quadratic), or 3^rd^ (cubic) order polynomial. As the relationship between temperature and resting oxygen consumption is predicted to be non-linear. 
 
 #### Polynomials 
 
@@ -6387,7 +6358,7 @@ From our model comparison we can see that the model improves when TEMPERATURE is
 
 #### Random factors 
 
-Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run a compaired. 
+Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run and compared. 
 
 ##### random factor models
 
@@ -6928,7 +6899,7 @@ Looks better
 
 #### DHARMa {.tabset .tabset-faded}
 
-##### Gaussian (identity)
+##### Gamma distribution
 
 
 ```r
@@ -7524,7 +7495,7 @@ hema.2 <- glm(PERC_RBC ~ REGION + MASS_CENTERED,
 </tbody>
 </table>
 
-There is little difference between the two initial models, however, the model that does not include **MASS_CENTERED** prefers better via the model comparisons scores, therefore, we will move forward with the first and most simple model. 
+There is little difference between the two initial models, however, the model that does **not** include **MASS_CENTERED** prefers better via the model comparisons scores, therefore, we will move forward with the first and most simple model. 
 
 #### Random factors 
 
