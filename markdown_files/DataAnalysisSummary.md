@@ -1,7 +1,7 @@
 ---
 title: "Data Overview"
 author: "Elliott Schmidt"
-date: "04 January, 2024"
+date: "05 January, 2024"
 output:
   html_document:
     keep_md: yes
@@ -507,24 +507,24 @@ From our model comparison we can see the there is no additional benefit to the m
 
 ##### Random factors 
 
-Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run a compaired. 
+Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run and compared. 
 
 ###### random factor models
 
 
 ```r
-rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + RESTING_AM_PM + (1|FISH_ID), 
+rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
                   family=gaussian(),
                   data = resp3,
                   REML = TRUE) 
 
 
-rmr.3b <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + RESTING_AM_PM + (1|POPULATION/FISH_ID), 
+rmr.3b <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|POPULATION/FISH_ID), 
                   family=gaussian(),
                   data = resp3,
                   REML = TRUE)
 
-rmr.3c <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + RESTING_AM_PM + (1|FISH_ID) + (1|POPULATION), 
+rmr.3c <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID) + (1|POPULATION), 
                   family=gaussian(),
                   data = resp3,
                   REML = TRUE)
@@ -546,27 +546,27 @@ rmr.3c <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERE
 <tbody>
   <tr>
    <td style="text-align:left;"> rmr.3a </td>
-   <td style="text-align:right;"> 9 </td>
-   <td style="text-align:right;"> 559.5705 </td>
-   <td style="text-align:right;"> 587.6335 </td>
-   <td style="text-align:right;"> 0.6508181 </td>
-   <td style="text-align:right;"> 0.7311944 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 559.0743 </td>
+   <td style="text-align:right;"> 584.1142 </td>
+   <td style="text-align:right;"> 0.642662 </td>
+   <td style="text-align:right;"> 0.7293407 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> rmr.3b </td>
-   <td style="text-align:right;"> 10 </td>
-   <td style="text-align:right;"> 561.8036 </td>
-   <td style="text-align:right;"> 592.8646 </td>
-   <td style="text-align:right;"> 0.6508181 </td>
-   <td style="text-align:right;"> 0.7311944 </td>
+   <td style="text-align:right;"> 9 </td>
+   <td style="text-align:right;"> 561.2823 </td>
+   <td style="text-align:right;"> 589.3453 </td>
+   <td style="text-align:right;"> 0.642662 </td>
+   <td style="text-align:right;"> 0.7293407 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> rmr.3c </td>
-   <td style="text-align:right;"> 10 </td>
-   <td style="text-align:right;"> 561.8036 </td>
-   <td style="text-align:right;"> 592.8646 </td>
-   <td style="text-align:right;"> 0.6508181 </td>
-   <td style="text-align:right;"> 0.7311944 </td>
+   <td style="text-align:right;"> 9 </td>
+   <td style="text-align:right;"> 561.2823 </td>
+   <td style="text-align:right;"> 589.3453 </td>
+   <td style="text-align:right;"> 0.642662 </td>
+   <td style="text-align:right;"> 0.7293407 </td>
   </tr>
 </tbody>
 </table>
@@ -608,7 +608,7 @@ rmr.3a %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.464 0.76 0.164 0.916 0.844 0.804 0.772 0.816 0.748 0.848 0.328 0.152 0.096 0.14 0 0.308 0.236 0.304 0.372 0.028 ...
+## Scaled residual values: 0.516 0.716 0.216 0.896 0.868 0.824 0.736 0.764 0.756 0.852 0.384 0.136 0.128 0.1 0 0.344 0.184 0.336 0.324 0.016 ...
 ```
 
 ```r
@@ -623,7 +623,7 @@ rmr.3a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.040898, p-value = 0.9132
+## D = 0.042545, p-value = 0.8874
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -633,7 +633,7 @@ rmr.3a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.96366, p-value = 0.744
+## dispersion = 0.97177, p-value = 0.792
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -658,7 +658,7 @@ rmr.3a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.040898, p-value = 0.9132
+## D = 0.042545, p-value = 0.8874
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -668,7 +668,7 @@ rmr.3a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.96366, p-value = 0.744
+## dispersion = 0.97177, p-value = 0.792
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -3500,17 +3500,17 @@ Fish were repeatedly sampled over four different temperatures, therefore repeate
 
 
 ```r
-ldh.model.1.p2a <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id), 
+ldh.model.1.p2a <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 2) + TISSUE_MASS_CENTERED + (1|fish_id), 
                        family=gaussian(), 
                        data = ldh.data, 
                        REML = TRUE) 
 
-ldh.model.1.p2b <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
+ldh.model.1.p2b <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 2) + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
                   family=gaussian(), 
                   data = ldh.data, 
                   REML = TRUE) 
 
-ldh.model.1.p2c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
+ldh.model.1.p2c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 2) + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
                        family=gaussian(), 
                        data = ldh.data, 
                        REML = TRUE) # convergence problem
@@ -3532,27 +3532,27 @@ ldh.model.1.p2c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISS
 <tbody>
   <tr>
    <td style="text-align:left;"> ldh.model.1.p2a </td>
-   <td style="text-align:right;"> 11 </td>
-   <td style="text-align:right;"> 1315.961 </td>
-   <td style="text-align:right;"> 1346.900 </td>
-   <td style="text-align:right;"> 0.8321446 </td>
-   <td style="text-align:right;"> 0.8321446 </td>
+   <td style="text-align:right;"> 9 </td>
+   <td style="text-align:right;"> 1343.136 </td>
+   <td style="text-align:right;"> 1368.736 </td>
+   <td style="text-align:right;"> 0.8267269 </td>
+   <td style="text-align:right;"> 0.8267269 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ldh.model.1.p2b </td>
-   <td style="text-align:right;"> 12 </td>
-   <td style="text-align:right;"> 1318.334 </td>
-   <td style="text-align:right;"> 1351.891 </td>
-   <td style="text-align:right;"> 0.8321469 </td>
-   <td style="text-align:right;"> 0.8321469 </td>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 1345.439 </td>
+   <td style="text-align:right;"> 1373.726 </td>
+   <td style="text-align:right;"> 0.8267284 </td>
+   <td style="text-align:right;"> 0.8267284 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> ldh.model.1.p2c </td>
-   <td style="text-align:right;"> 14 </td>
+   <td style="text-align:right;"> 12 </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 0.8321443 </td>
-   <td style="text-align:right;"> 0.8321443 </td>
+   <td style="text-align:right;"> 0.8267268 </td>
+   <td style="text-align:right;"> 0.8267268 </td>
   </tr>
 </tbody>
 </table>
@@ -3581,7 +3581,7 @@ ldh.model.1.p2a %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.184 0.068 0.004 0.012 0.376 0.28 0.396 0.608 0.444 0.788 0.636 0.708 0.816 0.884 0.94 0.808 0.328 0.276 0.932 0.312 ...
+## Scaled residual values: 0.228 0.048 0.004 0.012 0.42 0.232 0.516 0.58 0.472 0.688 0.712 0.672 0.828 0.836 0.956 0.776 0.368 0.212 0.952 0.264 ...
 ```
 
 ```r
@@ -3596,7 +3596,7 @@ ldh.model.1.p2a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.088735, p-value = 0.1974
+## D = 0.091946, p-value = 0.1665
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -3606,7 +3606,7 @@ ldh.model.1.p2a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.93516, p-value = 0.776
+## dispersion = 0.94013, p-value = 0.784
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -3631,7 +3631,7 @@ ldh.model.1.p2a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.088735, p-value = 0.1974
+## D = 0.091946, p-value = 0.1665
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -3641,7 +3641,7 @@ ldh.model.1.p2a %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.93516, p-value = 0.776
+## dispersion = 0.94013, p-value = 0.784
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -3694,66 +3694,52 @@ The model performs well and passes validation checks.
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 124.555285 </td>
-   <td style="text-align:right;"> 6.679426 </td>
-   <td style="text-align:right;"> 18.6476039 </td>
+   <td style="text-align:right;"> 124.571841 </td>
+   <td style="text-align:right;"> 6.683209 </td>
+   <td style="text-align:right;"> 18.6395254 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -1.411446 </td>
-   <td style="text-align:right;"> 9.986395 </td>
-   <td style="text-align:right;"> -0.1413369 </td>
-   <td style="text-align:right;"> 0.8876038 </td>
+   <td style="text-align:right;"> -1.451179 </td>
+   <td style="text-align:right;"> 9.992478 </td>
+   <td style="text-align:right;"> -0.1452272 </td>
+   <td style="text-align:right;"> 0.8845315 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> poly(temperature, 3)1 </td>
-   <td style="text-align:right;"> 861.723891 </td>
-   <td style="text-align:right;"> 25.570654 </td>
-   <td style="text-align:right;"> 33.6997207 </td>
+   <td style="text-align:left;"> poly(temperature, 2)1 </td>
+   <td style="text-align:right;"> 861.389304 </td>
+   <td style="text-align:right;"> 27.180290 </td>
+   <td style="text-align:right;"> 31.6916893 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> poly(temperature, 3)2 </td>
-   <td style="text-align:right;"> 83.842778 </td>
-   <td style="text-align:right;"> 25.638721 </td>
-   <td style="text-align:right;"> 3.2701623 </td>
-   <td style="text-align:right;"> 0.0010749 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> poly(temperature, 3)3 </td>
-   <td style="text-align:right;"> -81.413847 </td>
-   <td style="text-align:right;"> 25.709496 </td>
-   <td style="text-align:right;"> -3.1666839 </td>
-   <td style="text-align:right;"> 0.0015419 </td>
+   <td style="text-align:left;"> poly(temperature, 2)2 </td>
+   <td style="text-align:right;"> 84.094574 </td>
+   <td style="text-align:right;"> 27.252744 </td>
+   <td style="text-align:right;"> 3.0857288 </td>
+   <td style="text-align:right;"> 0.0020305 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -1.406645 </td>
-   <td style="text-align:right;"> 1.044818 </td>
-   <td style="text-align:right;"> -1.3463059 </td>
-   <td style="text-align:right;"> 0.1782039 </td>
+   <td style="text-align:right;"> -1.403728 </td>
+   <td style="text-align:right;"> 1.045435 </td>
+   <td style="text-align:right;"> -1.3427216 </td>
+   <td style="text-align:right;"> 0.1793622 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)1 </td>
-   <td style="text-align:right;"> 56.873119 </td>
-   <td style="text-align:right;"> 38.086232 </td>
-   <td style="text-align:right;"> 1.4932724 </td>
-   <td style="text-align:right;"> 0.1353659 </td>
+   <td style="text-align:left;"> REGIONLeading:poly(temperature, 2)1 </td>
+   <td style="text-align:right;"> 57.643663 </td>
+   <td style="text-align:right;"> 40.481701 </td>
+   <td style="text-align:right;"> 1.4239437 </td>
+   <td style="text-align:right;"> 0.1544628 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)2 </td>
-   <td style="text-align:right;"> 43.574437 </td>
-   <td style="text-align:right;"> 38.029467 </td>
-   <td style="text-align:right;"> 1.1458072 </td>
-   <td style="text-align:right;"> 0.2518749 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)3 </td>
-   <td style="text-align:right;"> 14.222674 </td>
-   <td style="text-align:right;"> 37.970193 </td>
-   <td style="text-align:right;"> 0.3745747 </td>
-   <td style="text-align:right;"> 0.7079768 </td>
+   <td style="text-align:left;"> REGIONLeading:poly(temperature, 2)2 </td>
+   <td style="text-align:right;"> 42.994558 </td>
+   <td style="text-align:right;"> 40.422380 </td>
+   <td style="text-align:right;"> 1.0636325 </td>
+   <td style="text-align:right;"> 0.2874952 </td>
   </tr>
 </tbody>
 </table>
@@ -3771,27 +3757,27 @@ The model performs well and passes validation checks.
 <tbody>
   <tr>
    <td style="text-align:left;"> REGION </td>
-   <td style="text-align:right;"> 0.0197919 </td>
+   <td style="text-align:right;"> 0.0209293 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.8881199 </td>
+   <td style="text-align:right;"> 0.8849717 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> poly(temperature, 3) </td>
-   <td style="text-align:right;"> 2241.9339643 </td>
-   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:left;"> poly(temperature, 2) </td>
+   <td style="text-align:right;"> 1970.2750833 </td>
+   <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> 1.8125396 </td>
+   <td style="text-align:right;"> 1.8029012 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.1782039 </td>
+   <td style="text-align:right;"> 0.1793622 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> REGION:poly(temperature, 3) </td>
-   <td style="text-align:right;"> 3.6997580 </td>
-   <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 0.2957632 </td>
+   <td style="text-align:left;"> REGION:poly(temperature, 2) </td>
+   <td style="text-align:right;"> 3.1744294 </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.2044944 </td>
   </tr>
 </tbody>
 </table>
@@ -3809,63 +3795,51 @@ The model performs well and passes validation checks.
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> 111.463851 </td>
-   <td style="text-align:right;"> 137.6467184 </td>
-   <td style="text-align:right;"> 124.555285 </td>
+   <td style="text-align:right;"> 111.472992 </td>
+   <td style="text-align:right;"> 137.6706893 </td>
+   <td style="text-align:right;"> 124.571841 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -20.984421 </td>
-   <td style="text-align:right;"> 18.1615283 </td>
-   <td style="text-align:right;"> -1.411446 </td>
+   <td style="text-align:right;"> -21.036076 </td>
+   <td style="text-align:right;"> 18.1337176 </td>
+   <td style="text-align:right;"> -1.451179 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> poly(temperature, 3)1 </td>
-   <td style="text-align:right;"> 811.606331 </td>
-   <td style="text-align:right;"> 911.8414518 </td>
-   <td style="text-align:right;"> 861.723891 </td>
+   <td style="text-align:left;"> poly(temperature, 2)1 </td>
+   <td style="text-align:right;"> 808.116915 </td>
+   <td style="text-align:right;"> 914.6616938 </td>
+   <td style="text-align:right;"> 861.389304 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> poly(temperature, 3)2 </td>
-   <td style="text-align:right;"> 33.591808 </td>
-   <td style="text-align:right;"> 134.0937479 </td>
-   <td style="text-align:right;"> 83.842778 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> poly(temperature, 3)3 </td>
-   <td style="text-align:right;"> -131.803533 </td>
-   <td style="text-align:right;"> -31.0241611 </td>
-   <td style="text-align:right;"> -81.413847 </td>
+   <td style="text-align:left;"> poly(temperature, 2)2 </td>
+   <td style="text-align:right;"> 30.680179 </td>
+   <td style="text-align:right;"> 137.5089698 </td>
+   <td style="text-align:right;"> 84.094574 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> TISSUE_MASS_CENTERED </td>
-   <td style="text-align:right;"> -3.454451 </td>
-   <td style="text-align:right;"> 0.6411612 </td>
-   <td style="text-align:right;"> -1.406645 </td>
+   <td style="text-align:right;"> -3.452743 </td>
+   <td style="text-align:right;"> 0.6452869 </td>
+   <td style="text-align:right;"> -1.403728 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)1 </td>
-   <td style="text-align:right;"> -17.774525 </td>
-   <td style="text-align:right;"> 131.5207627 </td>
-   <td style="text-align:right;"> 56.873119 </td>
+   <td style="text-align:left;"> REGIONLeading:poly(temperature, 2)1 </td>
+   <td style="text-align:right;"> -21.699014 </td>
+   <td style="text-align:right;"> 136.9863399 </td>
+   <td style="text-align:right;"> 57.643663 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)2 </td>
-   <td style="text-align:right;"> -30.961948 </td>
-   <td style="text-align:right;"> 118.1108231 </td>
-   <td style="text-align:right;"> 43.574437 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> REGIONLeading:poly(temperature, 3)3 </td>
-   <td style="text-align:right;"> -60.197538 </td>
-   <td style="text-align:right;"> 88.6428847 </td>
-   <td style="text-align:right;"> 14.222674 </td>
+   <td style="text-align:left;"> REGIONLeading:poly(temperature, 2)2 </td>
+   <td style="text-align:right;"> -36.231850 </td>
+   <td style="text-align:right;"> 122.2209668 </td>
+   <td style="text-align:right;"> 42.994558 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Std.Dev.(Intercept)|fish_id </td>
-   <td style="text-align:right;"> 21.203654 </td>
-   <td style="text-align:right;"> 36.0995765 </td>
-   <td style="text-align:right;"> 27.666639 </td>
+   <td style="text-align:right;"> 20.967247 </td>
+   <td style="text-align:right;"> 35.9986249 </td>
+   <td style="text-align:right;"> 27.473480 </td>
   </tr>
 </tbody>
 </table>
@@ -3881,8 +3855,8 @@ The model performs well and passes validation checks.
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:right;"> 0.9465329 </td>
-   <td style="text-align:right;"> 0.8321446 </td>
+   <td style="text-align:right;"> 0.9395659 </td>
+   <td style="text-align:right;"> 0.8267269 </td>
    <td style="text-align:left;"> FALSE </td>
   </tr>
 </tbody>
@@ -3902,7 +3876,7 @@ ldh.model.1.p2a  %>% emtrends(var = "temperature", type = "response") %>% pairs(
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core TISSUE_MASS_CENTERED0.206432155367117 - Leading TISSUE_MASS_CENTERED0.206432155367117","2":"35.10204","3":"-0.06914598","4":"0.993288","5":"145","6":"-2.03234","7":"1.894048","8":"-0.06961323","9":"0.9445974","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core TISSUE_MASS_CENTERED0.206432155367117 - Leading TISSUE_MASS_CENTERED0.206432155367117","2":"35.10204","3":"-0.4317939","4":"0.2994834","5":"145","6":"-1.023711","7":"0.1601228","8":"-1.441796","9":"0.1515162","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 SCROLL TO THE RIGHT -->
@@ -3917,7 +3891,7 @@ ldh.model.1.p2a  %>% emmeans(pairwise ~ temperature*REGION, type = "response") %
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core - Leading","2":"35.10204","3":"5.914894","4":"10.7187","5":"145","6":"-15.27019","7":"27.09998","8":"0.5518293","9":"0.5819148","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["temperature"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core - Leading","2":"35.10204","3":"5.85964","4":"10.81538","5":"145","6":"-15.51652","7":"27.2358","8":"0.5417878","9":"0.5887962","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -3929,7 +3903,7 @@ ldh.model.1.p2a  %>% emmeans(~ temperature*REGION, type = "response")  %>% summa
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["temperature"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"35.10204","2":"Core","3":"115.8714","4":"7.145787","5":"145","6":"101.74808","7":"129.9948","8":"16.21535","9":"2.215130e-34","_rn_":"1"},{"1":"35.10204","2":"Leading","3":"109.9565","4":"7.781246","5":"145","6":"94.57722","7":"125.3359","8":"14.13097","9":"4.710313e-29","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["temperature"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["emmean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["lower.CL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["upper.CL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["t.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"35.10204","2":"Core","3":"115.6594","4":"7.212162","5":"145","6":"101.40486","7":"129.9139","8":"16.03672","9":"6.236422e-34","_rn_":"1"},{"1":"35.10204","2":"Leading","3":"109.7998","4":"7.853154","5":"145","6":"94.27832","7":"125.3212","8":"13.98161","9":"1.150440e-28","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -3971,9 +3945,9 @@ eff_size(ldh.emm, sigma = sigma(ldh.model.1.p2a), edf=df.residual(ldh.model.1.p2
 ##  contrast                                                              
 ##  Core temperature35.1020408163265 - Leading temperature35.1020408163265
 ##  effect.size    SE  df lower.CL upper.CL
-##        0.313 0.567 145   -0.808     1.43
+##        0.291 0.538 145   -0.772     1.36
 ## 
-## sigma used for effect sizes: 18.92 
+## sigma used for effect sizes: 20.11 
 ## Confidence level used: 0.95
 ```
 #### {-}
@@ -3982,7 +3956,7 @@ eff_size(ldh.emm, sigma = sigma(ldh.model.1.p2a), edf=df.residual(ldh.model.1.p2
 
 
 ```
-## Warning: Removed 5 rows containing missing values (`geom_point()`).
+## Warning: Removed 7 rows containing missing values (`geom_point()`).
 ```
 
 ![](DataAnalysisSummary_files/figure-html/ldh-sum-fig-1.png)<!-- -->
@@ -7186,7 +7160,7 @@ The **Gamma** does a decent job of modelling our data and we can move forward wi
   <tr>
    <td style="text-align:left;"> Std.Dev.(Intercept)|POPULATION </td>
    <td style="text-align:right;"> 0.0000024 </td>
-   <td style="text-align:right;"> 691.9123188 </td>
+   <td style="text-align:right;"> 691.9122734 </td>
    <td style="text-align:right;"> 0.0410140 </td>
   </tr>
 </tbody>
@@ -7876,8 +7850,8 @@ rmr.g2 <- ggplot(rmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10)) + 
-  annotate("text", x=30, y= 11.5, label="P =0.51", fontface="italic", size=5)
+        axis.text = element_text(size=10))  
+  #annotate("text", x=30, y= 11.5, label="P =0.51", fontface="italic", size=5)
 
 mmr.g2 <- ggplot(mmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype=REGION))+
   geom_jitter(data=mmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) + 
@@ -7895,8 +7869,8 @@ mmr.g2 <- ggplot(mmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10))+
-  annotate("text", x=30, y= 27, label="P =0.0010", fontface="italic", size=5) 
+        axis.text = element_text(size=10))
+  #annotate("text", x=30, y= 27, label="P =0.0010", fontface="italic", size=5) 
 
 nas.g2 <- ggplot(nas.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype=REGION)) + 
   geom_jitter(data=nas.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
@@ -7914,8 +7888,8 @@ nas.g2 <- ggplot(nas.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10)) + 
-  annotate("text", x=30, y= 19, label="P =0.0010", fontface="italic", size=5)
+        axis.text = element_text(size=10))  
+  #annotate("text", x=30, y= 19, label="P =0.0010", fontface="italic", size=5)
 ```
   
 
@@ -7966,8 +7940,8 @@ pha.g2 <- ggplot(pha.emm.df, aes(y=response, x=TEMPERATURE, color = REGION, line
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10)) + 
-  annotate("text", x=30, y=0.495, fontface="italic", size=5, label="P =0.85")
+        axis.text = element_text(size=10))  
+  #annotate("text", x=30, y=0.495, fontface="italic", size=5, label="P =0.85")
 ```
 
 
@@ -8010,8 +7984,8 @@ cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGI
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10)) + 
-  annotate("text", x=40, y=240, label="p =0.98", fontface = 'italic', size = 5)
+        axis.text = element_text(size=10))  
+  #annotate("text", x=40, y=240, label="p =0.98", fontface = 'italic', size = 5)
 
 #--- cs ---#
 cs.emm <- emmeans(cs.model.1a.log.p2, ~ TEMPERATURE*REGION, type='response',
@@ -8039,8 +8013,8 @@ cs.plot2 <- ggplot(cs.emm.df, aes(y=response, x=TEMPERATURE, color=REGION, fill=
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10))+
-  annotate("text", x=40, y=9.8, label="p =0.15", fontface = 'italic', size = 5)
+        axis.text = element_text(size=10))
+  #annotate("text", x=40, y=9.8, label="p =0.15", fontface = 'italic', size = 5)
 
 #--- ldh:cs ratio ---#
 ldh.cs.emm <- emmeans(ldh.cs.model.1a, ~ temperature*REGION, type='response',
@@ -8068,8 +8042,8 @@ ldh.cs.plot2 <- ggplot(ldh.cs.emm.df, aes(y=emmean, x=temperature, color=REGION,
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10))+
-  annotate("text", x=40, y=48, label="p =0.91", fontface = 'italic', size = 5)
+        axis.text = element_text(size=10))
+  #annotate("text", x=40, y=48, label="p =0.91", fontface = 'italic', size = 5)
 ```
 
 
@@ -8122,8 +8096,8 @@ hema.plot <- ggplot(hema.newdata, aes(y=predicted, x=REGION, color=REGION, linet
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10))  + 
-  annotate("text", x=1.5, y=0.275, fontface="italic", size=5, label="P =0.057")
+        axis.text = element_text(size=10))   
+  #annotate("text", x=1.5, y=0.275, fontface="italic", size=5, label="P =0.057")
 ```
 
 

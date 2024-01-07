@@ -333,23 +333,23 @@ From our model comparison we can see the there is no additional benefit to the m
 
 ##### Random factors 
 
-Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run a compaired. 
+Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run and compared. 
 
 ###### random factor models
 
 ```{r rest-random-factors-1}
-rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + RESTING_AM_PM + (1|FISH_ID), 
+rmr.3a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID), 
                   family=gaussian(),
                   data = resp3,
                   REML = TRUE) 
 
 
-rmr.3b <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + RESTING_AM_PM + (1|POPULATION/FISH_ID), 
+rmr.3b <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|POPULATION/FISH_ID), 
                   family=gaussian(),
                   data = resp3,
                   REML = TRUE)
 
-rmr.3c <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + RESTING_AM_PM + (1|FISH_ID) + (1|POPULATION), 
+rmr.3c <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID) + (1|POPULATION), 
                   family=gaussian(),
                   data = resp3,
                   REML = TRUE)
@@ -1795,17 +1795,17 @@ Fish were repeatedly sampled over four different temperatures, therefore repeate
 ##### random factor models
 
 ```{r ldh-random-factors-1, warning=FALSE}
-ldh.model.1.p2a <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id), 
+ldh.model.1.p2a <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 2) + TISSUE_MASS_CENTERED + (1|fish_id), 
                        family=gaussian(), 
                        data = ldh.data, 
                        REML = TRUE) 
 
-ldh.model.1.p2b <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
+ldh.model.1.p2b <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 2) + TISSUE_MASS_CENTERED + (1|POPULATION/fish_id), 
                   family=gaussian(), 
                   data = ldh.data, 
                   REML = TRUE) 
 
-ldh.model.1.p2c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 3) + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
+ldh.model.1.p2c <- glmmTMB(LDH_ACTIVITY ~ 1 + REGION*poly(temperature, 2) + TISSUE_MASS_CENTERED + (1|fish_id) + (1 + REGION|POPULATION), 
                        family=gaussian(), 
                        data = ldh.data, 
                        REML = TRUE) # convergence problem
@@ -3765,8 +3765,8 @@ rmr.g2 <- ggplot(rmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10)) + 
-  annotate("text", x=30, y= 11.5, label="P =0.51", fontface="italic", size=5)
+        axis.text = element_text(size=10))  
+  #annotate("text", x=30, y= 11.5, label="P =0.51", fontface="italic", size=5)
 
 mmr.g2 <- ggplot(mmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype=REGION))+
   geom_jitter(data=mmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) + 
@@ -3784,8 +3784,8 @@ mmr.g2 <- ggplot(mmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10))+
-  annotate("text", x=30, y= 27, label="P =0.0010", fontface="italic", size=5) 
+        axis.text = element_text(size=10))
+  #annotate("text", x=30, y= 27, label="P =0.0010", fontface="italic", size=5) 
 
 nas.g2 <- ggplot(nas.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype=REGION)) + 
   geom_jitter(data=nas.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
@@ -3803,8 +3803,8 @@ nas.g2 <- ggplot(nas.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10)) + 
-  annotate("text", x=30, y= 19, label="P =0.0010", fontface="italic", size=5)
+        axis.text = element_text(size=10))  
+  #annotate("text", x=30, y= 19, label="P =0.0010", fontface="italic", size=5)
 
 
 ```
@@ -3847,8 +3847,8 @@ pha.g2 <- ggplot(pha.emm.df, aes(y=response, x=TEMPERATURE, color = REGION, line
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10)) + 
-  annotate("text", x=30, y=0.495, fontface="italic", size=5, label="P =0.85")
+        axis.text = element_text(size=10))  
+  #annotate("text", x=30, y=0.495, fontface="italic", size=5, label="P =0.85")
 ```
 
 ```{r figure-3b, fig.width=6.6, fig.height=5, dpi = 1200, fig.cap= "Fig. 3: Thermal performance curve of swelling response of the caudal peduncle ~18-24 hours post injection of phytohemagglutinin across four different experimental temperatures. Solid red lines represent low-latitude populations. Dashed blue line represents high-latitude populations. Ribbon represents 95% confidence intervals."}
@@ -3885,8 +3885,8 @@ cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGI
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10)) + 
-  annotate("text", x=40, y=240, label="p =0.98", fontface = 'italic', size = 5)
+        axis.text = element_text(size=10))  
+  #annotate("text", x=40, y=240, label="p =0.98", fontface = 'italic', size = 5)
 
 #--- cs ---#
 cs.emm <- emmeans(cs.model.1a.log.p2, ~ TEMPERATURE*REGION, type='response',
@@ -3914,8 +3914,8 @@ cs.plot2 <- ggplot(cs.emm.df, aes(y=response, x=TEMPERATURE, color=REGION, fill=
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10))+
-  annotate("text", x=40, y=9.8, label="p =0.15", fontface = 'italic', size = 5)
+        axis.text = element_text(size=10))
+  #annotate("text", x=40, y=9.8, label="p =0.15", fontface = 'italic', size = 5)
 
 #--- ldh:cs ratio ---#
 ldh.cs.emm <- emmeans(ldh.cs.model.1a, ~ temperature*REGION, type='response',
@@ -3943,8 +3943,8 @@ ldh.cs.plot2 <- ggplot(ldh.cs.emm.df, aes(y=emmean, x=temperature, color=REGION,
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10))+
-  annotate("text", x=40, y=48, label="p =0.91", fontface = 'italic', size = 5)
+        axis.text = element_text(size=10))
+  #annotate("text", x=40, y=48, label="p =0.91", fontface = 'italic', size = 5)
 ```
 
 ```{r figure-4b, warning=FALSE, fig.width=6.6, fig.height=19.86, dpi = 1200, fig.cap= "Fig.4: Thermal performance curve of maximal activity of A) lactate dehydrogenase (LDH), B) citrate synthase (CS), and C) LDH:CS ratio of low- (solid red line) and high-latitudinal (dashed blue line) populations across four experimental temperatures (i.e., 20°C, 30°C, 40°C, 50°C). Ribbons represent 95% confidence intervals."}
@@ -3990,8 +3990,8 @@ hema.plot <- ggplot(hema.newdata, aes(y=predicted, x=REGION, color=REGION, linet
         legend.text = element_text(size = 10), 
         legend.title = element_blank(), 
         axis.title = element_text(size =12), 
-        axis.text = element_text(size=10))  + 
-  annotate("text", x=1.5, y=0.275, fontface="italic", size=5, label="P =0.057")
+        axis.text = element_text(size=10))   
+  #annotate("text", x=1.5, y=0.275, fontface="italic", size=5, label="P =0.057")
 ```
 
 ```{r Sfigure-4b, fig.width=6.6, fig.height=5, dpi = 1200, fig.cap= "Fig. 3: Comparison of hematocrit ratios, that were measured at 31.5°C, between low- (red) and high-latitudinal (blue) populations. No significant difference was observed between the different latitudes (p =0.058). Solid (low-latitude) and dashed (high-latitude) lines represent 95% confidence intervals."}
