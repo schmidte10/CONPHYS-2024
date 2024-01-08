@@ -1,7 +1,7 @@
 ---
 title: "Data Overview"
 author: "Elliott Schmidt"
-date: "05 January, 2024"
+date: "08 January, 2024"
 output:
   html_document:
     keep_md: yes
@@ -578,6 +578,11 @@ Model _rmr.3a_ appears to be the best model, however, there seems to be no diffe
 ##### performance {.tabset .tabset-faded}
 
 ###### rmr.3a (linear)
+
+```r
+rmr.3a %>% performance::check_model(detrend = FALSE)
+```
+
 ![](DataAnalysisSummary_files/figure-html/rest-model-valid-1-1.png)<!-- -->
 
 The _rmr.3a_ model performs well, however, in the model validation performed by the **performance** model it looks like there are two variables that are highly correlated. If we expand the figure we can see that the highly correlated variables are REGION and REGION:TEMPERATURE. Perhaps this is unsurprising  but lets see what happens when we run the quadratic (2^nd polynomial) model to see if this helps deal with the high correlation between these two variables, as it performed very similarly to _rmr.3a_, and even had a higher r2 value. 
@@ -687,7 +692,7 @@ rmr.3a %>% DHARMa::testResiduals(plot=TRUE)
 ##                                            0.005347594
 ```
 
-###### rmr.3.p2 (quadratic)
+###### rmr.3.p2a (quadratic)
 
 First we need to update the model by adding in the missing random factor
 

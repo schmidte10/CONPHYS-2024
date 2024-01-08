@@ -379,8 +379,8 @@ Model _rmr.3a_ appears to be the best model, however, there seems to be no diffe
 ##### performance {.tabset .tabset-faded}
 
 ###### rmr.3a (linear)
-```{r rest-model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-rmr.3a %>% performance::check_model()
+```{r rest-model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE}
+rmr.3a %>% performance::check_model(detrend = FALSE)
 ```
 
 The _rmr.3a_ model performs well, however, in the model validation performed by the **performance** model it looks like there are two variables that are highly correlated. If we expand the figure we can see that the highly correlated variables are REGION and REGION:TEMPERATURE. Perhaps this is unsurprising  but lets see what happens when we run the quadratic (2^nd polynomial) model to see if this helps deal with the high correlation between these two variables, as it performed very similarly to _rmr.3a_, and even had a higher r2 value. 
@@ -396,7 +396,7 @@ rmr.3.p2a <- glmmTMB(RESTING_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + 
 ```
 
 ```{r rest-model-valid-1.2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-rmr.3.p2a %>% performance::check_model()
+rmr.3.p2a %>% performance::check_model(detrend = FALSE) 
 ```
 
 ##### DHARMa residuals {.tabset .tabset-faded}
@@ -407,7 +407,7 @@ rmr.3a %>% simulateResiduals(plot=TRUE)
 rmr.3a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
-###### rmr.3.p2 (quadratic)
+###### rmr.3.p2a (quadratic)
 
 First we need to update the model by adding in the missing random factor
 ```{r rest-model-valid-2.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE}
@@ -830,7 +830,7 @@ Model _mmr.1a_ appears to be the best model, however, there seems to be little d
 
 ###### rmr.3a (linear)
 ```{r max-model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-mmr.1a %>% performance::check_model()
+mmr.1a %>% performance::check_model(detrend = FALSE)
 ```
 
 The _mmr.1a_ model performs well, however, in the model validation performed by the **performance** model it looks like there are two variables that are highly correlated. If we expand the figure we can see that the highly correlated variables are REGION and REGION:TEMPERATURE. Perhaps this is unsurprising  but lets see what happens when we run the quadratic (2^nd^ polynomial) model to see if this helps deal with the high correlation between these two variables, as it performed very similarly to _mmr.1a_, and even had a higher r2 value. 
@@ -846,7 +846,7 @@ mmr.1.p2a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS
 ```
 
 ```{r max-model-valid-1.2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-mmr.1.p2a %>% performance::check_model()
+mmr.1.p2a %>% performance::check_model(detrend = FALSE)
 ```
 
 ##### DHARMa residuals {.tabset .tabset-faded}
@@ -1284,7 +1284,7 @@ Model _nas.1a_ appears to be the best model, however, there seems to be little d
 
 ###### rmr.3a (linear)
 ```{r aas-model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-nas.1a %>% performance::check_model()
+nas.1a %>% performance::check_model(detrend = FALSE)
 ```
 
 The _nas.1a_ model performs well, however, in the model validation performed by the **performance** model it looks like there are two variables that are highly correlated. If we expand the figure we can see that the highly correlated variables are REGION and REGION:TEMPERATURE. Perhaps this is unsurprising  but lets see what happens when we run the quadratic (2^nd^ polynomial) model to see if this helps deal with the high correlation between these two variables, as it performed very similarly to _nas.1a_, and even had a higher r2 value. 
@@ -1300,7 +1300,7 @@ nas.1.p2a <- glmmTMB(MgO2.hr_Net ~ 1+ REGION * poly(TEMPERATURE,2) + MASS_CENTER
 ```
 
 ```{r aas-model-valid-1.2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-nas.1.p2a %>% performance::check_model()
+nas.1.p2a %>% performance::check_model(detrend = FALSE)
 ```
 
 ##### DHARMa residuals {.tabset .tabset-faded}
@@ -1835,7 +1835,7 @@ Model _ldh.model.1.p2a_ appears to be the best model, however, there seems to be
 
 ###### ldh.model.1.p2a (2nd order polynomial)
 ```{r ldh-model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-ldh.model.1.p2a %>% performance::check_model()
+ldh.model.1.p2a %>% performance::check_model(detrend = FALSE)
 ```
 
 The _ldh.model.1.p2a_ model looks like it performs well.
@@ -2325,7 +2325,7 @@ Model _cs.model.1a_ appears to be the best model, however, there seems to be lit
 
 ###### cs.model.1a (linear)
 ```{r model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-cs.model.1a %>% performance::check_model()
+cs.model.1a %>% performance::check_model(detrend = FALSE)
 ```
 
 ##### DHARMa residuals {.tabset .tabset-faded}
@@ -2368,17 +2368,17 @@ cs.model.1a.inv <- glmmTMB(CS_ACTIVITY ~ 1 + REGION*TEMPERATURE + TISSUE_MASS_CE
 ###### Gaussian (identity)
 
 ```{r model-valid-2.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-cs.model.1a %>% performance::check_model()
+cs.model.1a %>% performance::check_model(detrend = FALSE)
 ```
 
 ###### Gaussian (log)
 ```{r model-valid-2.2b, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-cs.model.1a.log %>% performance::check_model()
+cs.model.1a.log %>% performance::check_model(detrend = FALSE)
 ```
 
 ###### Gaussian (inverse)
 ```{r model-valid-2.2c, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-cs.model.1a.inv %>% performance::check_model()
+cs.model.1a.inv %>% performance::check_model(detrend = FALSE)
 ```
 
 ##### DHARMa {.tabset .tabset-faded}
@@ -2446,7 +2446,7 @@ From this model comparison we can see that the 2^nd^ order polynomial with the l
 
 ###### Gaussian (quadratic-log)
 ```{r model-valid-3.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-cs.model.1a.log.p2 %>% performance::check_model()
+cs.model.1a.log.p2 %>% performance::check_model(detrend = FALSE)
 ```
 
 ##### DHARMa {.tabset .tabset-faded}
@@ -2780,7 +2780,7 @@ Model _ldh.cs.model.1a_ appears to be the best model, however, there seems to be
 
 ###### ldh.cs.model.1a (linear)
 ```{r ldh-cs-model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-ldh.cs.model.1a %>% performance::check_model()
+ldh.cs.model.1a %>% performance::check_model(detrend = FALSE)
 ```
 
 ##### DHARMa residuals {.tabset .tabset-faded}
@@ -3154,7 +3154,7 @@ There is little difference between the models, however, the nest model does seem
 
 ##### pha.2.p3b 
 ```{r immuno-model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-pha.2.p3b  %>% performance::check_model()
+pha.2.p3b  %>% performance::check_model(detrend = FALSE)
 ```
 
 #### DHARMa residuals {.tabset .tabset-faded}
@@ -3197,17 +3197,17 @@ pha.2.p3b.inv <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (
 ##### Gaussian (identity)
 
 ```{r immuno-model-valid-2.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-pha.2.p3b %>% performance::check_model()
+pha.2.p3b %>% performance::check_model(detrend = FALSE)
 ```
 
 ##### Gaussian (log)
 ```{r immuno-model-valid-2.2b, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-pha.2.p3b.log %>% performance::check_model()
+pha.2.p3b.log %>% performance::check_model(detrend = FALSE)
 ```
 
 ##### Gaussian (inverse)
 ```{r immuno-model-valid-2.2c, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-pha.2.p3b.inv %>% performance::check_model()
+pha.2.p3b.inv %>% performance::check_model(detrend = FALSE)
 ```
 
 #### DHARMa {.tabset .tabset-faded}
@@ -3270,7 +3270,7 @@ From this model comparison we can see that the model fitted with the **Gamma** d
 
 ##### Gamma distribution
 ```{r immuno-model-valid-3.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-pha.2.p3b.gamma %>% performance::check_model()
+pha.2.p3b.gamma %>% performance::check_model(detrend = FALSE)
 ```
 
 Looks better
@@ -3600,7 +3600,7 @@ hema.1 <- glm(PERC_RBC ~ REGION,
 
 ### hema.1
 ```{r hema-model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-hema.1  %>% performance::check_model()
+hema.1  %>% performance::check_model(detrend = FALSE)
 ```
 
 #### DHARMa residuals {.tabset .tabset-faded}
