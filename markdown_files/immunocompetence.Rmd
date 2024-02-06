@@ -367,7 +367,7 @@ pha.2.p3b <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|PO
                   REML = FALSE) 
 
 pha.2.p3b.gamma <- glmmTMB(IMMUNE_RESPONSE~ 1 + REGION* poly(TEMPERATURE, 3) + (1|POPULATION/FISH_ID), 
-                       family=Gamma(link="log"), # default option
+                       family=Gamma(link="log"), 
                        data = pha2, 
                        REML = FALSE)
 ```

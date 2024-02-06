@@ -1971,13 +1971,13 @@ cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGI
   geom_ribbon(aes(x=temperature, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
               alpha = 0.2, color=NA) +
   geom_jitter(data=ldh.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
-  scale_y_continuous(limits = c(0,250), breaks = seq(0, 250, by =50)) + 
+  scale_x_continuous(limits = c(19,51), breaks = seq(20, 50, by =10)) +
+  scale_y_continuous(limits = c(0,300), breaks = seq(0, 300, by =50)) + 
   theme_classic() + ylab("LDH ACTIVITY SLOPE") + xlab("TEMPERATURE") +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
                      name = "Regions") +
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
                     name = "Regions")+
-  #scale_y_continuous(limits=c(0,7), breaks = seq(0,6,1.5))+
   theme(legend.position = 'none') + 
   annotate("text", x=40, y=240, label="p =0.98", fontface = 'italic', size = 5); cldh2
 ```
@@ -3870,23 +3870,20 @@ ldh.obs <- ldh.data %>%
          Resid = residuals(ldh.model.1.p2a, type = 'response'), 
          Fit = Pred - Resid)
 
-cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGION, linetype=REGION)) + 
-  stat_smooth(method = "lm", se=FALSE, 
+cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGION)) + 
+  stat_smooth(method = "lm", se=TRUE, 
               formula =y ~ poly(x, 3, raw=TRUE)) + 
   geom_ribbon(aes(x=temperature, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
               alpha = 0.2, color=NA) +
   geom_jitter(data=ldh.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
-  scale_y_continuous(limits = c(0,250), breaks = seq(0, 250, by =50)) + 
-  theme_classic() + ylab(expression("LDH ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("TEMPERATURE") +
-  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) + 
-  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
-  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
-  theme(legend.position = c(0.80,0.2), 
-        legend.text = element_text(size = 10), 
-        legend.title = element_blank(), 
-        axis.title = element_text(size =12), 
-        axis.text = element_text(size=10))  
-  #annotate("text", x=40, y=240, label="p =0.98", fontface = 'italic', size = 5)
+  scale_x_continuous(limits = c(19,51), breaks = seq(20, 50, by =10)) +
+  scale_y_continuous(limits = c(0,300), breaks = seq(0, 300, by =50)) + 
+  theme_classic() + ylab("LDH ACTIVITY SLOPE") + xlab("TEMPERATURE") +
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
+                     name = "Regions") +
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
+                    name = "Regions")+
+  theme(legend.position = 'none')
 
 #--- cs ---#
 cs.emm <- emmeans(cs.model.1a.log.p2, ~ TEMPERATURE*REGION, type='response',
