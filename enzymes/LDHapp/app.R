@@ -31,7 +31,7 @@ LDH_LocalAdapt2 <-
     mutate(Region = str_sub(FISH_ID, 1, 1),
          Population = str_sub(FISH_ID, 2, 4),
          ID = str_sub(FISH_ID, 5)) %>% 
-    rename(CUVETTE = `Sample index`, 
+    dplyr::rename(CUVETTE = `Sample index`, 
            DATETIME = `Creation time`) %>% 
     separate(DATETIME, into=c('DATE','TIME'), sep = " ", remove = FALSE) %>%  
     arrange(CUVETTE, TIME)
@@ -44,7 +44,7 @@ LDH_LocalAdapt3 <- LDH_LocalAdapt2 %>%
     mutate(TIME_DIFF_SECS = period_to_seconds(hms(TIME_DIFF))) %>% 
     mutate(MINUTES = TIME_DIFF_SECS/60) %>% 
     mutate(MINUTES = round(MINUTES, digits = 2)) %>% 
-    rename(POPULATION = Population)
+    dplyr::rename(POPULATION = Population)
 
 LDH_LocalAdapt3$CUVETTE <- paste("Cuvette", LDH_LocalAdapt3$CUVETTE, sep="_") 
 LDH_LocalAdapt3 <- LDH_LocalAdapt3 %>% 

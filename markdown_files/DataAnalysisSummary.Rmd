@@ -1571,7 +1571,9 @@ ldh3.filtered <- ldh3 %>%
   filter(!(UNIQUE_SAMPLE_ID %in% c("LCKM154_20_1", 
                                    "LKES143_30_3", 
                                    "LKES143_20_2", 
-                                   "CSUD010_40_2"))) %>% 
+                                   "CSUD010_40_2", 
+                                   "LCHA135_20_1", 
+                                   "LCHA135_20_2"))) %>% 
   group_by(UNIQUE_SAMPLE_ID) %>% 
   arrange(UNIQUE_SAMPLE_ID, TIME) %>% 
   filter(!(UNIQUE_SAMPLE_ID %in% grp1 & row_number() > (n() - 1))) %>% 
@@ -3878,12 +3880,12 @@ cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGI
   geom_jitter(data=ldh.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
   scale_x_continuous(limits = c(19,51), breaks = seq(20, 50, by =10)) +
   scale_y_continuous(limits = c(0,300), breaks = seq(0, 300, by =50)) + 
-  theme_classic() + ylab("LDH ACTIVITY SLOPE") + xlab("TEMPERATURE") +
-  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
-                     name = "Regions") +
-  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"),
-                    name = "Regions")+
-  theme(legend.position = 'none')
+  theme_classic() + ylab(expression("LDH ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("TEMPERATURE") +
+  scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
+  scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
+  scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"))+
+  theme(legend.position = 'none', 
+        legend.title = element_blank())
 
 #--- cs ---#
 cs.emm <- emmeans(cs.model.1a.log.p2, ~ TEMPERATURE*REGION, type='response',
