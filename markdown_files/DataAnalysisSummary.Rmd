@@ -3276,7 +3276,7 @@ From this model comparison we can see that the model fitted with the **Gamma** d
 
 ##### Gamma distribution
 ```{r immuno-model-valid-3.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-pha.2.p3b.gamma %>% performance::check_model(detrend = FALSE)
+#pha.2.p3b.gamma %>% performance::check_model(detrend = FALSE)
 ```
 
 Looks better
@@ -3801,7 +3801,9 @@ nas.g2 <- ggplot(nas.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype
               alpha = 0.2, color=NA)+
   scale_y_continuous(limits = c(4,20), breaks = seq(4, 20, by = 2)) + 
   scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
-  theme_classic() + ylab(expression("ABSOLUTE AEROBIC SCOPE (MgO "[2]* " hr"^{-1} * ")")) +
+  theme_classic() + 
+  ylab(expression("ABSOLUTE AEROBIC SCOPE (MgO "[2]* " hr"^{-1} * ")")) + 
+  xlab("TEMPERATURE (\u00B0C)") +
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) + 
@@ -3835,7 +3837,7 @@ pha.emm <- emmeans(pha.2.p3b.gamma, ~ TEMPERATURE*REGION,
 pha.emm.df=as.data.frame(pha.emm)
 
 pha.obs <-  pha2 %>% 
-  mutate(Pred=predict(pha.2.p3b.gamma, re.form=NA),
+  mutate(Pred=predict(pha.2.p3b.gamma, re.form=NA, type='response'),
          Resid = residuals(pha.2.p3b.gamma, type='response'),
          Fit = Pred + Resid)
 
@@ -3844,8 +3846,9 @@ pha.g2 <- ggplot(pha.emm.df, aes(y=response, x=TEMPERATURE, color = REGION, line
               formula =y ~ poly(x, 3, raw=TRUE)) +  
   geom_ribbon(aes(x=TEMPERATURE, ymin= asymp.LCL, ymax= asymp.UCL, fill = REGION), 
               alpha = 0.2, color=NA) + 
-  #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
-  theme_classic() + ylab("PHA RESPONSE (mm)") + 
+  geom_jitter(data=pha.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  scale_y_continuous(limits = c(0,1.4), breaks = seq(0, 1.4, by =0.2)) + 
+  theme_classic() + ylab("PHA RESPONSE (mm)") + xlab("TEMPERATURE (\u00B0C)") +
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) + 
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
@@ -3884,7 +3887,7 @@ cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGI
   geom_jitter(data=ldh.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
   scale_x_continuous(limits = c(19,51), breaks = seq(20, 50, by =10)) +
   scale_y_continuous(limits = c(0,300), breaks = seq(0, 300, by =50)) + 
-  theme_classic() + ylab(expression("LDH ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("TEMPERATURE") +
+  theme_classic() + ylab(expression("LDH ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("") +
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"))+
@@ -3909,7 +3912,7 @@ cs.plot2 <- ggplot(cs.emm.df, aes(y=response, x=TEMPERATURE, color=REGION, fill=
   geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
               alpha = 0.2, color=NA) +
   scale_y_continuous(limits = c(0,10), breaks = seq(0, 10, by =2)) + 
-  theme_classic() + ylab(expression("CS ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("TEMPERATURE") +
+  theme_classic() + ylab(expression("CS ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("") +
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"))+
@@ -3938,7 +3941,7 @@ ldh.cs.plot2 <- ggplot(ldh.cs.emm.df, aes(y=emmean, x=temperature, color=REGION,
   geom_ribbon(aes(x=temperature, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
               alpha = 0.2, color=NA) +
   scale_y_continuous(limits = c(0,50), breaks = seq(0, 50, by =10)) + 
-  theme_classic() + ylab("LDH:CS RATIO") + xlab("TEMPERATURE") +
+  theme_classic() + ylab("LDH:CS RATIO") + xlab("TEMPERATURE (\u00B0C)") +
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"))+
@@ -4009,7 +4012,7 @@ mass.distr <- resp4 %>% distinct(FISH_ID, .keep_all = TRUE) %>%
   mutate(CHAMBER_RATIO = 1.5/DRY_WEIGHT) %>%
   ggplot(aes(x=CHAMBER_RATIO, y=REGION, fill=REGION)) + 
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
-  ylab("")+ scale_x_continuous(limits = c(20,150), breaks = seq(20, 150, by =20)) + 
+  ylab("")+ xlab("CHAMBER:BODY SIZE RATIO (L/Kg)") + scale_x_continuous(limits = c(20,150), breaks = seq(20, 150, by =20)) + 
   geom_density_ridges(scale = 2, jittered_points=TRUE, position = position_points_jitter(height = 0),
                       point_shape = '|', point_size = 3, point_alpha = 1, alpha = 0.7) + 
   theme_classic() + 
