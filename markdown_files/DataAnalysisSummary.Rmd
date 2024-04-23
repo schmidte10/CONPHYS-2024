@@ -166,19 +166,19 @@ resp2 = resp %>%
          RESTING_SYSTEM = factor(RESTING_SYSTEM), 
          RESTING_SUMP = factor(RESTING_SUMP), 
          RESTING_AM_PM = factor(RESTING_AM_PM), 
-         RESTING_START_TIME = hms(RESTING_START_TIME),
-         RESTING_END_TIME = hms(RESTING_ENDTIME),
+         RESTING_START_TIME = lubridate::hms(RESTING_START_TIME),
+         RESTING_END_TIME =lubridate::hms(RESTING_ENDTIME),
          MAX_DATE = factor(MAX_DATE), 
          MAX_CHAMBER = factor(MAX_CHAMBER), 
          MAX_SYSTEM = factor(MAX_SYSTEM), 
          MAX_SUMP = factor(MAX_SUMP), 
          MAX_AM_PM = factor(MAX_AM_PM), 
-         MAX_START_TIME = hms(MAX_START_TIME), 
+         MAX_START_TIME = lubridate::hms(MAX_START_TIME), 
          Swim.performance = factor(Swim.performance), 
          NAS = as.numeric(NAS), 
          FAS = as.numeric(FAS), 
          MgO2.hr_Net = as.numeric(MgO2.hr_Net), 
-         RESTING_RUNTIME_SECONDS = as.numeric(hms(RESTING_RUNTIME))) %>% 
+         RESTING_RUNTIME_SECONDS = as.numeric(lubridate::hms(RESTING_RUNTIME))) %>% 
   dplyr::rename(MASS = WEIGHT) %>% 
   mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE))
 ```
@@ -191,7 +191,9 @@ resp3 <- resp2 %>%
     EXP_FISH_ID !="LCHA127_27" & # deceased during experiment
       EXP_FISH_ID !="LCHA132_27" & # deceased during experiment
       EXP_FISH_ID !="LKES168_27" # poor data quality
-  ) 
+  )  
+
+save(resp3, file="resp3.rmr.Rda")
 ```
 
 Great! That is everything for data manipulation 
@@ -668,6 +670,8 @@ resp4 <- resp3 %>%
       EXP_FISH_ID !="LCHA113_30" & # poor swim 
       EXP_FISH_ID !="LCHA127_27" # deceased during experiment
   ) 
+
+save(resp4, file="resp4.mmr_aas.Rda")
 ```
 
 #### Exploratory data analysis {.tabset}
@@ -3698,7 +3702,7 @@ obs <- hema %>%
          Fit = Pred + Resid)
 
 hema.plot <- ggplot(hema.newdata, aes(y=predicted, x=REGION, color=REGION))  + 
-  geom_jitter(data=obs, aes(y=Pred, x=REGION, color =REGION), 
+  geom_jitter(data=obs, aes(y=Fit, x=REGION, color =REGION), 
               width = 0.05, alpha=0.3)+
   geom_pointrange(aes(ymin=conf.low, 
                       ymax=conf.high), 
@@ -3972,7 +3976,7 @@ obs <- hema %>%
          Fit = Pred + Resid)
 
 hema.plot <- ggplot(hema.newdata, aes(y=predicted, x=REGION, color=REGION, linetype=REGION))  + 
-  geom_jitter(data=obs, aes(y=Pred, x=REGION, color =REGION), 
+  geom_jitter(data=obs, aes(y=Fit, x=REGION, color =REGION), 
               width = 0.05, alpha=0.3)+
   geom_pointrange(aes(ymin=conf.low, 
                       ymax=conf.high), 
