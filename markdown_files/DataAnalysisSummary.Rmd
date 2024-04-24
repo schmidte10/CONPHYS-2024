@@ -540,7 +540,7 @@ rmr.emm <- emmeans(rmr.3.p2a, ~ TEMPERATURE*REGION,
 rmr.emm.df=as.data.frame(rmr.emm)
 
 rmr.obs <-  resp3 %>% 
-  mutate(Pred=predict(rmr.3.p2a, re.form=NA),
+  mutate(Pred=predict(rmr.3.p2a, re.form=NA, type='response'),
          Resid = residuals(rmr.3.p2a, type='response'),
          Fit = Pred + Resid)
 
@@ -992,7 +992,7 @@ mmr.emm <- emmeans(mmr.1.p2a, ~ TEMPERATURE*REGION,
 mmr.emm.df=as.data.frame(mmr.emm)
 
 mmr.obs <-  resp4 %>% 
-  mutate(Pred=predict(mmr.1.p2a, re.form=NA),
+  mutate(Pred=predict(mmr.1.p2a, re.form=NA, type='response'),
          Resid = residuals(mmr.1.p2a, type='response'),
          Fit = Pred + Resid)
 
@@ -1445,7 +1445,7 @@ nas.emm <- emmeans(nas.1.p2a, ~ TEMPERATURE*REGION,
 nas.emm.df=as.data.frame(nas.emm)
 
 nas.obs <-  resp4 %>% 
-  mutate(Pred=predict(nas.1.p2a, re.form=NA),
+  mutate(Pred=predict(nas.1.p2a, re.form=NA, type='response'),
          Resid = residuals(nas.1.p2a, type='response'),
          Fit = Pred + Resid)
 
@@ -3875,7 +3875,7 @@ ldh.emm <- emmeans(ldh.model.1.p2a, ~ temperature*REGION,
 ldh.emm.df=as.data.frame(ldh.emm)
 
 ldh.obs <- ldh.data %>% 
-  mutate(Pred = predict(ldh.model.1.p2a, re.form=NA), 
+  mutate(Pred = predict(ldh.model.1.p2a, re.form=NA, type = 'response'), 
          Resid = residuals(ldh.model.1.p2a, type = 'response'), 
          Fit = Pred - Resid)
 
@@ -3969,26 +3969,26 @@ ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data
 
 ## Supplemental figure 4
 ```{r Sfigure-4, echo=TRUE, eval=TRUE, cache=FALSE, warning=FALSE, results='hide'}
-hema.newdata <-  hema.1 %>% ggemmeans(~REGION) %>% 
-  as.data.frame() %>% 
-  dplyr::rename(REGION = x)
+hema.newdata <-  hema.1 %>% emmeans(~REGION) %>% 
+  as.data.frame() #%>%
+  #dplyr::rename(REGION = x)
 
 obs <- hema %>% 
-  mutate(Pred = predict(hema.1, re.form=NA), 
+  mutate(Pred = predict(hema.1, re.form=NA, type="response"), 
          Resid = residuals(hema.1, type = "response"), 
          Fit = Pred + Resid)
 
-hema.plot <- ggplot(hema.newdata, aes(y=predicted, x=REGION, color=REGION, linetype=REGION))  + 
+hema.plot <- ggplot(hema.newdata, aes(y=emmean, x=REGION, color=REGION, linetype=REGION))  + 
   geom_jitter(data=obs, aes(y=Fit, x=REGION, color =REGION), 
               width = 0.05, alpha=0.3)+
-  geom_pointrange(aes(ymin=conf.low, 
-                      ymax=conf.high), 
+  geom_pointrange(aes(ymin=lower.CL, 
+                      ymax=upper.CL), 
                   shape = 19, 
                   size = 1, 
                   position = position_dodge(0.2)) + 
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
-  ylab("HEMATOCRIT RATIO") +
+  ylab("HEMATOCRIT") +
   scale_x_discrete(name = "", 
                    labels = c("Low-latitude","High-latitude"))+
   theme_classic() + 
