@@ -3160,15 +3160,15 @@ There is little difference between the models, however, the nest model does seem
 
 ##### pha.2.p3b 
 ```{r immuno-model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-pha.2.p3b  %>% performance::check_model(detrend = FALSE)
+pha.2.p3a  %>% performance::check_model(detrend = FALSE)
 ```
 
 #### DHARMa residuals {.tabset .tabset-faded}
 
 ##### pha.2.p3b 
 ```{r immuno-model-valid-2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
-pha.2.p3b %>% simulateResiduals(plot=TRUE)
-pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
+pha.2.p3a %>% simulateResiduals(plot=TRUE)
+pha.2.p3a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
 #### {-}
@@ -3180,17 +3180,17 @@ The _pha.2.p3b_ model performs well, however, in the model validation performed 
 ### Fit the model (link transformations)
 
 ```{r immuno-fit-model-2.1}
-pha.2.p3b <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|POPULATION/FISH_ID), 
+pha.2.p3a <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|FISH_ID), 
                   family=gaussian(),
                   data = pha2,
                   REML = FALSE)
 
-pha.2.p3b.log <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|POPULATION/FISH_ID), 
+pha.2.p3a.log <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|FISH_ID), 
                   family=gaussian(link="log"),
                   data = pha2,
                   REML = FALSE) 
 
-pha.2.p3b.inv <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|POPULATION/FISH_ID), 
+pha.2.p3a.inv <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|FISH_ID), 
                   family=gaussian(link="inverse"),
                   data = pha2,
                   REML = FALSE)
@@ -3203,17 +3203,17 @@ pha.2.p3b.inv <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (
 ##### Gaussian (identity)
 
 ```{r immuno-model-valid-2.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-pha.2.p3b %>% performance::check_model(detrend = FALSE)
+pha.2.p3a %>% performance::check_model(detrend = FALSE)
 ```
 
 ##### Gaussian (log)
 ```{r immuno-model-valid-2.2b, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-pha.2.p3b.log %>% performance::check_model(detrend = FALSE)
+pha.2.p3a.log %>% performance::check_model(detrend = FALSE)
 ```
 
 ##### Gaussian (inverse)
 ```{r immuno-model-valid-2.2c, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-pha.2.p3b.inv %>% performance::check_model(detrend = FALSE)
+pha.2.p3a.inv %>% performance::check_model(detrend = FALSE)
 ```
 
 #### DHARMa {.tabset .tabset-faded}
@@ -3244,26 +3244,26 @@ Adding **log** or **inverse** link functions to the model does not help. In fact
 ### Fit model - alternative distributions 
 
 ```{r immuno-model-fit-poly-link-1}
-pha.2.p3b <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|POPULATION/FISH_ID), 
+pha.2.p3a <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|FISH_ID), 
                   family=gaussian(),
                   data = pha2,
                   REML = FALSE) 
 
-pha.2.p3b.gamma <- glmmTMB(IMMUNE_RESPONSE~ 1 + REGION* poly(TEMPERATURE, 3) + (1|POPULATION/FISH_ID), 
+pha.2.p3a.gamma <- glmmTMB(IMMUNE_RESPONSE~ 1 + REGION* poly(TEMPERATURE, 3) + (1|FISH_ID), 
                        family=Gamma(link="log"), # default option
                        data = pha2, 
                        REML = FALSE)
 ```
 
 ```{r immuno-model-comp-3.1, warning=FALSE, echo=FALSE}
-aic.c=AICc(pha.2.p3b, pha.2.p3b.gamma, k=2)
-bic=BIC(pha.2.p3b, pha.2.p3b.gamma)
+aic.c=AICc(pha.2.p3a, pha.2.p3a.gamma, k=2)
+bic=BIC(pha.2.p3a, pha.2.p3a.gamma)
 
 model.fit.table <- as.data.frame(aic.c) %>% 
   tibble::rownames_to_column("model") %>%
   mutate(BIC = bic$BIC, 
-         r2m = c(r.squaredGLMM(pha.2.p3b)[1], r.squaredGLMM(pha.2.p3b.gamma)[1]), 
-         r2c = c(r.squaredGLMM(pha.2.p3b)[1], r.squaredGLMM(pha.2.p3b.gamma)[1]))
+         r2m = c(r.squaredGLMM(pha.2.p3a)[1], r.squaredGLMM(pha.2.p3a.gamma)[1]), 
+         r2c = c(r.squaredGLMM(pha.2.p3a)[1], r.squaredGLMM(pha.2.p3a.gamma)[1]))
 model.fit.table %>% knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
 ```
@@ -3276,7 +3276,7 @@ From this model comparison we can see that the model fitted with the **Gamma** d
 
 ##### Gamma distribution
 ```{r immuno-model-valid-3.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
-#pha.2.p3b.gamma %>% performance::check_model(detrend = FALSE)
+#pha.2.p3a.gamma %>% performance::check_model(detrend = FALSE)
 ```
 
 Looks better
@@ -3286,8 +3286,8 @@ Looks better
 ##### Gamma distribution
 
 ```{r immuno-model-valid-3.2b, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
-pha.2.p3b.gamma %>% simulateResiduals(plot=TRUE)
-pha.2.p3b.gamma %>% DHARMa::testResiduals(plot=TRUE)
+pha.2.p3a.gamma %>% simulateResiduals(plot=TRUE)
+pha.2.p3a.gamma %>% DHARMa::testResiduals(plot=TRUE)
 ```
 Looks much better!
 
@@ -3301,13 +3301,13 @@ The **Gamma** does a decent job of modelling our data and we can move forward wi
 #### ggemmeans 
 
 ```{r immuno-partial-plots-1, message=FALSE, echo=FALSE, fig.width=8, fig.height=6}
-pha.2.p3b.gamma %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+pha.2.p3a.gamma %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
 ```
 
 #### plot_model 
 
 ```{r immuno-partial-plots-2, echo=FALSE, fig.width=8, fig.height=6}
-pha.2.p3b.gamma %>% plot_model(type='std', vline.color = "grey12", show.values=TRUE, sort.est = TRUE, transform = NULL, value.offset = 0.3)
+pha.2.p3a.gamma %>% plot_model(type='std', vline.color = "grey12", show.values=TRUE, sort.est = TRUE, transform = NULL, value.offset = 0.3)
 ```
 
 ### {-} 
@@ -3316,7 +3316,7 @@ pha.2.p3b.gamma %>% plot_model(type='std', vline.color = "grey12", show.values=T
 
 #### summary 
 ```{r immuno-model-inv-1, echo=FALSE}
-as.data.frame(summary(pha.2.p3b.gamma)$coefficients[1]) %>% 
+as.data.frame(summary(pha.2.p3a.gamma)$coefficients[1]) %>% 
   dplyr::rename( 
     Estimate = cond.Estimate,
     StdError = cond.Std..Error,
@@ -3329,7 +3329,7 @@ as.data.frame(summary(pha.2.p3b.gamma)$coefficients[1]) %>%
 
 #### Anova 
 ```{r immuno-model-inv-2, echo=FALSE}
-pha.2.p3b.gamma %>% Anova() %>% 
+pha.2.p3a.gamma %>% Anova() %>% 
   as.data.frame() %>%
   knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
@@ -3337,7 +3337,7 @@ pha.2.p3b.gamma %>% Anova() %>%
 
 #### confint 
 ```{r immuno-model-inv-3, echo=FALSE}
-pha.2.p3b.gamma %>% confint() %>% 
+pha.2.p3a.gamma %>% confint() %>% 
   as.data.frame() %>%
   knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
@@ -3345,7 +3345,7 @@ pha.2.p3b.gamma %>% confint() %>%
 
 #### r-squared
 ```{r immuno-model-inv-4, echo=FALSE}
-pha.2.p3b.gamma %>% performance::r2_nakagawa(tolerance=1e-09) %>% 
+pha.2.p3a.gamma %>% performance::r2_nakagawa(tolerance=1e-09) %>% 
   as.data.frame() %>%
   knitr::kable(format = "html")  %>%
   kable_paper(full_width = TRUE)
@@ -3361,7 +3361,7 @@ Note that the random effects within this model are explaining very little varian
 
 
 ```{r immuno-pairwise-1}
-pha.2.p3b.gamma %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+pha.2.p3a.gamma %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 ```
 SCROLL TO THE RIGHT -->
 
@@ -3369,31 +3369,31 @@ The numbers in the left most column in the table just mention that the slopes ar
 
 #### emmeans [latitudes]
 ```{r immuno-pairwise-2}
-pha.2.p3b.gamma %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+pha.2.p3a.gamma %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 ```
 
 #### temperature 
 ```{r immuno-pairwise-3}
-pha.2.p3b.gamma %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
+pha.2.p3a.gamma %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
 ```
 
 
 #### Means - f(temperature)
 ```{r immuno-pairwise-4}
-pha.2.p3b.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION/FISH_ID)) %>% 
+pha.2.p3a.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION/FISH_ID)) %>% 
   emmeans(~REGION*TEMPERATURE, type = "response") %>% summary(infer=TRUE)
 ```
 
 #### Abs. diff - f(temperature)
 ```{r immuno-pairwise-5}
-pha.2.p3b.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION/FISH_ID)) %>% 
+pha.2.p3a.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION/FISH_ID)) %>% 
   emmeans(~REGION*TEMPERATURE, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
 ```
 
 #### effect size [latitudes]
 ```{r immuno-effect-size}
-immuno.emm <- pha.2.p3b.gamma %>% emmeans(~REGION*TEMPERATURE)
-eff_size(immuno.emm, sigma = sigma(pha.2.p3b.gamma), edf=df.residual(pha.2.p3b.gamma))
+immuno.emm <- pha.2.p3a.gamma %>% emmeans(~REGION*TEMPERATURE)
+eff_size(immuno.emm, sigma = sigma(pha.2.p3a.gamma), edf=df.residual(pha.2.p3a.gamma))
 ```
 
 ### {-}
@@ -3402,14 +3402,14 @@ eff_size(immuno.emm, sigma = sigma(pha.2.p3b.gamma), edf=df.residual(pha.2.p3b.g
 
 ```{r immuno-sum-fig, fig.width=8, fig.height=6, echo=FALSE}
 
-pha.emm <- emmeans(pha.2.p3b.gamma, ~ TEMPERATURE*REGION, 
+pha.emm <- emmeans(pha.2.p3a.gamma, ~ TEMPERATURE*REGION, 
                at = list(TEMPERATURE = seq(from=27, to = 31.5, by=.1)), 
                type='response')
 pha.emm.df=as.data.frame(pha.emm)
 
 pha.obs <-  pha2 %>% 
-  mutate(Pred=predict(pha.2.p3b.gamma, re.form=NA),
-         Resid = residuals(pha.2.p3b.gamma, type='response'),
+  mutate(Pred=predict(pha.2.p3a.gamma, re.form=NA),
+         Resid = residuals(pha.2.p3a.gamma, type='response'),
          Fit = Pred + Resid)
 
 pha.g2 <- ggplot(pha.emm.df, aes(y=response, x=TEMPERATURE, color = REGION)) + 
@@ -3831,14 +3831,14 @@ ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data
 ## Figure 3
 
 ```{r figure-3, echo=TRUE, eval=TRUE, cache=FALSE, warning=FALSE, results='hide'}
-pha.emm <- emmeans(pha.2.p3b.gamma, ~ TEMPERATURE*REGION, 
+pha.emm <- emmeans(pha.2.p3a.gamma, ~ TEMPERATURE*REGION, 
                at = list(TEMPERATURE = seq(from=27, to = 31.5, by=.1)), 
                type='response')
 pha.emm.df=as.data.frame(pha.emm)
 
 pha.obs <-  pha2 %>% 
-  mutate(Pred=predict(pha.2.p3b.gamma, re.form=NA, type='response'),
-         Resid = residuals(pha.2.p3b.gamma, type='response'),
+  mutate(Pred=predict(pha.2.p3a.gamma, re.form=NA, type='response'),
+         Resid = residuals(pha.2.p3a.gamma, type='response'),
          Fit = Pred + Resid)
 
 pha.g2 <- ggplot(pha.emm.df, aes(y=response, x=TEMPERATURE, color = REGION, linetype=REGION)) + 
