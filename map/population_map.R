@@ -14,7 +14,7 @@ GBR_data <- st_read("C:/Users/jc527762/OneDrive - James Cook University/PhD diss
 class(GBR_data)
 
 #--- set working directory ---# 
-setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation")
+setwd("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation")
 
 #--- Filtering islands in Australia only ---#
 #--- GBR data ---#
@@ -52,7 +52,13 @@ myreefs.leading <- GBR_data %>%
            QLD_NAME != "U/N Rock") %>% 
   filter(GBR_ID == "20308")%>% 
   add_row(GBR_NAME = "Cockermouth Island", X_COORD = 149.398, Y_COORD =-20.772)  %>% 
-  add_row(GBR_NAME = "Keswick Island", X_COORD = 149.406, Y_COORD =-20.908)
+  add_row(GBR_NAME = "Keswick Island", X_COORD = 149.406, Y_COORD =-20.908) 
+
+myreefs.stations <- GBR_data %>% 
+  filter(QLD_NAME == "Heron Island" | 
+           QLD_NAME =="Lizard Island" | 
+           QLD_NAME =="Great Palm Island") 
+       
 
 
 
@@ -91,9 +97,14 @@ p1 <- ggplot() +
              shape = 21, fill = "#B2182B")+ 
   geom_point(data = myreefs.leading, aes(x = X_COORD, y = Y_COORD), size = 3, 
              shape = 21, fill = "#4393C3") + 
+  geom_point(data= myreefs.stations, aes(x = X_COORD, y = Y_COORD), size =3, 
+             shape =21, fill="black", color ="black") +
   geom_rect(aes(xmin=145, xmax=147, ymin=-17.5, ymax=-16),fill="transparent", linetype = "dotted", color="#B2182B") + 
   geom_rect(aes(xmin=148.5, xmax=151, ymin=-21.7, ymax=-20.2),fill="transparent", linetype = "dotted", color="#4393C3") + 
-  annotate("text", x = 149.8, y = -14, label = "Coral \nSea", fontface = "italic", size = 6);p1 
+  annotate("text", x = 149.8, y = -14, label = "Coral \nSea", fontface = "italic", size = 6) + 
+  annotate("text", x =146.6384, y =-18.73829, label ="P", color="white", size =2) + 
+  annotate("text", x =145.4804, y =-14.66714, label ="L", color="white", size =2) + 
+  annotate("text", x =151.9254, y =-23.44291, label ="H", color="white", size =2);p1 
 
 insert1 <- ggplot() +
   geom_sf(data = coords,fill = "gray90", color = "grey20", size = 0.5) +
