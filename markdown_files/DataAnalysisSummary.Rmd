@@ -3220,20 +3220,20 @@ pha.2.p3a.inv %>% performance::check_model(detrend = FALSE)
 
 ##### Gaussian (identity)
 ```{r immuno-model-valid-2.3a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
-pha.2.p3b %>% simulateResiduals(plot=TRUE)
-pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
+pha.2.p3a %>% simulateResiduals(plot=TRUE)
+pha.2.p3a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
 ##### Gaussian (log)
 ```{r immuno-model-valid-2.3b, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
-pha.2.p3b.log %>% simulateResiduals(plot=TRUE)
-pha.2.p3b.log %>% DHARMa::testResiduals(plot=TRUE)
+pha.2.p3a.log %>% simulateResiduals(plot=TRUE)
+pha.2.p3a.log %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
 ##### Gaussian (inverse)
 ```{r immuno-model-valid-2.3c, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
-pha.2.p3b.inv %>% simulateResiduals(plot=TRUE)
-pha.2.p3b.inv %>% DHARMa::testResiduals(plot=TRUE)
+pha.2.p3a.inv %>% simulateResiduals(plot=TRUE)
+pha.2.p3a.inv %>% DHARMa::testResiduals(plot=TRUE)
 ```
 #### {-}
 

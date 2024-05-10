@@ -1,7 +1,7 @@
 ---
 title: "Data Overview"
 author: "Elliott Schmidt"
-date: "08 February, 2024"
+date: "10 May, 2024"
 output:
   html_document:
     keep_md: yes
@@ -166,19 +166,19 @@ resp2 = resp %>%
          RESTING_SYSTEM = factor(RESTING_SYSTEM), 
          RESTING_SUMP = factor(RESTING_SUMP), 
          RESTING_AM_PM = factor(RESTING_AM_PM), 
-         RESTING_START_TIME = hms(RESTING_START_TIME),
-         RESTING_END_TIME = hms(RESTING_ENDTIME),
+         RESTING_START_TIME = lubridate::hms(RESTING_START_TIME),
+         RESTING_END_TIME =lubridate::hms(RESTING_ENDTIME),
          MAX_DATE = factor(MAX_DATE), 
          MAX_CHAMBER = factor(MAX_CHAMBER), 
          MAX_SYSTEM = factor(MAX_SYSTEM), 
          MAX_SUMP = factor(MAX_SUMP), 
          MAX_AM_PM = factor(MAX_AM_PM), 
-         MAX_START_TIME = hms(MAX_START_TIME), 
+         MAX_START_TIME = lubridate::hms(MAX_START_TIME), 
          Swim.performance = factor(Swim.performance), 
          NAS = as.numeric(NAS), 
          FAS = as.numeric(FAS), 
          MgO2.hr_Net = as.numeric(MgO2.hr_Net), 
-         RESTING_RUNTIME_SECONDS = as.numeric(hms(RESTING_RUNTIME))) %>% 
+         RESTING_RUNTIME_SECONDS = as.numeric(lubridate::hms(RESTING_RUNTIME))) %>% 
   dplyr::rename(MASS = WEIGHT) %>% 
   mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE))
 ```
@@ -192,7 +192,9 @@ resp3 <- resp2 %>%
     EXP_FISH_ID !="LCHA127_27" & # deceased during experiment
       EXP_FISH_ID !="LCHA132_27" & # deceased during experiment
       EXP_FISH_ID !="LKES168_27" # poor data quality
-  ) 
+  )  
+
+save(resp3, file="resp3.rmr.Rda")
 ```
 
 Great! That is everything for data manipulation 
@@ -1217,6 +1219,8 @@ resp4 <- resp3 %>%
       EXP_FISH_ID !="LCHA113_30" & # poor swim 
       EXP_FISH_ID !="LCHA127_27" # deceased during experiment
   ) 
+
+save(resp4, file="resp4.mmr_aas.Rda")
 ```
 
 #### Exploratory data analysis {.tabset}
@@ -3035,7 +3039,8 @@ eff_size(aas.emm, sigma = sigma(nas.1.p2a), edf=df.residual(nas.1.p2a))
 
 
 ```
-## Warning: Removed 4 rows containing missing values (`geom_point()`).
+## Warning: Removed 4 rows containing missing values or values outside the scale range
+## (`geom_point()`).
 ```
 
 ![](DataAnalysisSummary_files/figure-html/aas-sum-fig-1.png)<!-- -->
@@ -3963,7 +3968,8 @@ eff_size(ldh.emm, sigma = sigma(ldh.model.1.p2a), edf=df.residual(ldh.model.1.p2
 
 
 ```
-## Warning: Removed 2 rows containing missing values (`geom_point()`).
+## Warning: Removed 2 rows containing missing values or values outside the scale range
+## (`geom_point()`).
 ```
 
 ![](DataAnalysisSummary_files/figure-html/ldh-sum-fig-1.png)<!-- -->
@@ -5332,6 +5338,16 @@ eff_size(cs.emm, sigma = sigma(cs.model.1a.log.p2), edf=df.residual(cs.model.1a.
 
 #### Summary figure 
 
+
+```
+## Warning: A numeric `legend.position` argument in `theme()` was deprecated in ggplot2
+## 3.5.0.
+## ℹ Please use the `legend.position.inside` argument of `theme()` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.
+```
+
 ![](DataAnalysisSummary_files/figure-html/sum-fig-1.png)<!-- -->
 
 #### Conclusion 
@@ -6422,7 +6438,7 @@ There is little difference between the models, however, the nest model does seem
 ##### pha.2.p3b 
 
 ```r
-pha.2.p3b %>% simulateResiduals(plot=TRUE)
+pha.2.p3a %>% simulateResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/immuno-model-valid-2-1.png)<!-- -->
@@ -6430,11 +6446,11 @@ pha.2.p3b %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.336 0.116 0.828 0.4 0.232 0.192 0.504 0.036 0.284 0.42 0.42 0.52 0.476 0.648 0.536 0.192 0.172 0.52 0.44 0.74 ...
+## Scaled residual values: 0.28 0.104 0.872 0.408 0.244 0.168 0.588 0.04 0.364 0.396 0.444 0.588 0.38 0.636 0.508 0.216 0.124 0.628 0.472 0.776 ...
 ```
 
 ```r
-pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
+pha.2.p3a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/immuno-model-valid-2-2.png)<!-- -->
@@ -6445,7 +6461,7 @@ pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.10325, p-value = 0.06743
+## D = 0.10382, p-value = 0.06491
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -6455,7 +6471,7 @@ pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.94119, p-value = 0.656
+## dispersion = 0.95238, p-value = 0.664
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -6480,7 +6496,7 @@ pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.10325, p-value = 0.06743
+## D = 0.10382, p-value = 0.06491
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -6490,7 +6506,7 @@ pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.94119, p-value = 0.656
+## dispersion = 0.95238, p-value = 0.664
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -6519,17 +6535,17 @@ The _pha.2.p3b_ model performs well, however, in the model validation performed 
 
 
 ```r
-pha.2.p3b <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|POPULATION/FISH_ID), 
+pha.2.p3a <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|FISH_ID), 
                   family=gaussian(),
                   data = pha2,
                   REML = FALSE)
 
-pha.2.p3b.log <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|POPULATION/FISH_ID), 
+pha.2.p3a.log <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|FISH_ID), 
                   family=gaussian(link="log"),
                   data = pha2,
                   REML = FALSE) 
 
-pha.2.p3b.inv <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|POPULATION/FISH_ID), 
+pha.2.p3a.inv <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|FISH_ID), 
                   family=gaussian(link="inverse"),
                   data = pha2,
                   REML = FALSE)
@@ -6554,7 +6570,7 @@ pha.2.p3b.inv <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (
 ##### Gaussian (identity)
 
 ```r
-pha.2.p3b %>% simulateResiduals(plot=TRUE)
+pha.2.p3a %>% simulateResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/immuno-model-valid-2.3a-1.png)<!-- -->
@@ -6562,11 +6578,11 @@ pha.2.p3b %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.34 0.104 0.84 0.396 0.228 0.192 0.496 0.032 0.284 0.428 0.408 0.536 0.464 0.652 0.544 0.188 0.172 0.536 0.44 0.748 ...
+## Scaled residual values: 0.28 0.1 0.872 0.404 0.232 0.164 0.588 0.032 0.36 0.396 0.444 0.588 0.38 0.636 0.508 0.212 0.124 0.628 0.472 0.776 ...
 ```
 
 ```r
-pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
+pha.2.p3a %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/immuno-model-valid-2.3a-2.png)<!-- -->
@@ -6577,7 +6593,7 @@ pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.096377, p-value = 0.1043
+## D = 0.10211, p-value = 0.07261
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -6587,7 +6603,7 @@ pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.0064, p-value = 0.912
+## dispersion = 1.0028, p-value = 0.904
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -6612,7 +6628,7 @@ pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.096377, p-value = 0.1043
+## D = 0.10211, p-value = 0.07261
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -6622,7 +6638,7 @@ pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.0064, p-value = 0.912
+## dispersion = 1.0028, p-value = 0.904
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -6644,7 +6660,7 @@ pha.2.p3b %>% DHARMa::testResiduals(plot=TRUE)
 ##### Gaussian (log)
 
 ```r
-pha.2.p3b.log %>% simulateResiduals(plot=TRUE)
+pha.2.p3a.log %>% simulateResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/immuno-model-valid-2.3b-1.png)<!-- -->
@@ -6652,11 +6668,11 @@ pha.2.p3b.log %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.34 0.096 0.856 0.384 0.28 0.172 0.564 0.024 0.324 0.448 0.376 0.568 0.524 0.692 0.632 0.188 0.18 0.556 0.532 0.82 ...
+## Scaled residual values: 0.332 0.104 0.924 0.396 0.28 0.16 0.66 0.012 0.416 0.4 0.412 0.632 0.464 0.664 0.604 0.18 0.148 0.64 0.496 0.824 ...
 ```
 
 ```r
-pha.2.p3b.log %>% DHARMa::testResiduals(plot=TRUE)
+pha.2.p3a.log %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/immuno-model-valid-2.3b-2.png)<!-- -->
@@ -6667,7 +6683,7 @@ pha.2.p3b.log %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.070591, p-value = 0.4065
+## D = 0.060528, p-value = 0.6049
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -6677,7 +6693,7 @@ pha.2.p3b.log %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.0116, p-value = 0.88
+## dispersion = 1.0146, p-value = 0.904
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -6702,7 +6718,7 @@ pha.2.p3b.log %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.070591, p-value = 0.4065
+## D = 0.060528, p-value = 0.6049
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -6712,7 +6728,7 @@ pha.2.p3b.log %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 1.0116, p-value = 0.88
+## dispersion = 1.0146, p-value = 0.904
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -6734,7 +6750,7 @@ pha.2.p3b.log %>% DHARMa::testResiduals(plot=TRUE)
 ##### Gaussian (inverse)
 
 ```r
-pha.2.p3b.inv %>% simulateResiduals(plot=TRUE)
+pha.2.p3a.inv %>% simulateResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/immuno-model-valid-2.3c-1.png)<!-- -->
@@ -6742,11 +6758,11 @@ pha.2.p3b.inv %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.352 0.128 0.9 0.372 0.236 0.212 0.596 0.032 0.312 0.424 0.42 0.596 0.54 0.688 0.636 0.208 0.196 0.548 0.484 0.84 ...
+## Scaled residual values: 0.3 0.1 0.924 0.368 0.24 0.172 0.636 0.02 0.36 0.38 0.468 0.64 0.424 0.656 0.576 0.256 0.104 0.656 0.492 0.856 ...
 ```
 
 ```r
-pha.2.p3b.inv %>% DHARMa::testResiduals(plot=TRUE)
+pha.2.p3a.inv %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/immuno-model-valid-2.3c-2.png)<!-- -->
@@ -6757,7 +6773,7 @@ pha.2.p3b.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.080302, p-value = 0.2568
+## D = 0.062591, p-value = 0.5617
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -6767,7 +6783,7 @@ pha.2.p3b.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.099362, p-value = 0.872
+## dispersion = 0.32113, p-value = 0.976
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -6777,13 +6793,13 @@ pha.2.p3b.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 0, observations = 159, p-value = 0.6421
+## outliers at both margin(s) = 1, observations = 159, p-value = 1
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.00000000 0.02293344
+##  0.0001592188 0.0345421401
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                                      0
+##                                            0.006289308
 ```
 
 ```
@@ -6792,7 +6808,7 @@ pha.2.p3b.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.080302, p-value = 0.2568
+## D = 0.062591, p-value = 0.5617
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -6802,7 +6818,7 @@ pha.2.p3b.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.099362, p-value = 0.872
+## dispersion = 0.32113, p-value = 0.976
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -6812,13 +6828,13 @@ pha.2.p3b.inv %>% DHARMa::testResiduals(plot=TRUE)
 ## 	expectations
 ## 
 ## data:  simulationOutput
-## outliers at both margin(s) = 0, observations = 159, p-value = 0.6421
+## outliers at both margin(s) = 1, observations = 159, p-value = 1
 ## alternative hypothesis: true probability of success is not equal to 0.007968127
 ## 95 percent confidence interval:
-##  0.00000000 0.02293344
+##  0.0001592188 0.0345421401
 ## sample estimates:
 ## frequency of outliers (expected: 0.00796812749003984 ) 
-##                                                      0
+##                                            0.006289308
 ```
 #### {-}
 
@@ -6830,12 +6846,12 @@ Adding **log** or **inverse** link functions to the model does not help. In fact
 
 
 ```r
-pha.2.p3b <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|POPULATION/FISH_ID), 
+pha.2.p3a <- glmmTMB(IMMUNE_RESPONSE ~ 1 + REGION * poly(TEMPERATURE, 3) + (1|FISH_ID), 
                   family=gaussian(),
                   data = pha2,
                   REML = FALSE) 
 
-pha.2.p3b.gamma <- glmmTMB(IMMUNE_RESPONSE~ 1 + REGION* poly(TEMPERATURE, 3) + (1|POPULATION/FISH_ID), 
+pha.2.p3a.gamma <- glmmTMB(IMMUNE_RESPONSE~ 1 + REGION* poly(TEMPERATURE, 3) + (1|FISH_ID), 
                        family=Gamma(link="log"), # default option
                        data = pha2, 
                        REML = FALSE)
@@ -6854,20 +6870,20 @@ pha.2.p3b.gamma <- glmmTMB(IMMUNE_RESPONSE~ 1 + REGION* poly(TEMPERATURE, 3) + (
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> pha.2.p3b </td>
-   <td style="text-align:right;"> 11 </td>
-   <td style="text-align:right;"> -32.7787 </td>
-   <td style="text-align:right;"> -0.8166702 </td>
-   <td style="text-align:right;"> 0.2153506 </td>
-   <td style="text-align:right;"> 0.2153506 </td>
+   <td style="text-align:left;"> pha.2.p3a </td>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> -34.18692 </td>
+   <td style="text-align:right;"> -4.984364 </td>
+   <td style="text-align:right;"> 0.2177043 </td>
+   <td style="text-align:right;"> 0.2177043 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> pha.2.p3b.gamma </td>
-   <td style="text-align:right;"> 11 </td>
-   <td style="text-align:right;"> -136.0719 </td>
-   <td style="text-align:right;"> -104.1099081 </td>
-   <td style="text-align:right;"> 0.2635317 </td>
-   <td style="text-align:right;"> 0.2635317 </td>
+   <td style="text-align:left;"> pha.2.p3a.gamma </td>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> -138.37045 </td>
+   <td style="text-align:right;"> -109.167899 </td>
+   <td style="text-align:right;"> 0.2642437 </td>
+   <td style="text-align:right;"> 0.2642437 </td>
   </tr>
 </tbody>
 </table>
@@ -6879,7 +6895,7 @@ From this model comparison we can see that the model fitted with the **Gamma** d
 #### performance {.tabset .tabset-faded}
 
 ##### Gamma distribution
-![](DataAnalysisSummary_files/figure-html/immuno-model-valid-3.2a-1.png)<!-- -->
+
 
 Looks better
 
@@ -6889,7 +6905,7 @@ Looks better
 
 
 ```r
-pha.2.p3b.gamma %>% simulateResiduals(plot=TRUE)
+pha.2.p3a.gamma %>% simulateResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/immuno-model-valid-3.2b-1.png)<!-- -->
@@ -6897,11 +6913,11 @@ pha.2.p3b.gamma %>% simulateResiduals(plot=TRUE)
 ```
 ## Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
 ##  
-## Scaled residual values: 0.288 0.176 0.888 0.212 0.16 0.3 0.664 0.008 0.388 0.504 0.6 0.676 0.6 0.888 0.656 0.368 0.012 0.736 0.552 0.86 ...
+## Scaled residual values: 0.264 0.172 0.912 0.204 0.232 0.372 0.668 0.008 0.4 0.512 0.568 0.612 0.532 0.912 0.604 0.348 0.02 0.808 0.492 0.856 ...
 ```
 
 ```r
-pha.2.p3b.gamma %>% DHARMa::testResiduals(plot=TRUE)
+pha.2.p3a.gamma %>% DHARMa::testResiduals(plot=TRUE)
 ```
 
 ![](DataAnalysisSummary_files/figure-html/immuno-model-valid-3.2b-2.png)<!-- -->
@@ -6912,7 +6928,7 @@ pha.2.p3b.gamma %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.059044, p-value = 0.6364
+## D = 0.058465, p-value = 0.6487
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -6922,7 +6938,7 @@ pha.2.p3b.gamma %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.7999, p-value = 0.4
+## dispersion = 0.80474, p-value = 0.472
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -6947,7 +6963,7 @@ pha.2.p3b.gamma %>% DHARMa::testResiduals(plot=TRUE)
 ## 	Asymptotic one-sample Kolmogorov-Smirnov test
 ## 
 ## data:  simulationOutput$scaledResiduals
-## D = 0.059044, p-value = 0.6364
+## D = 0.058465, p-value = 0.6487
 ## alternative hypothesis: two-sided
 ## 
 ## 
@@ -6957,7 +6973,7 @@ pha.2.p3b.gamma %>% DHARMa::testResiduals(plot=TRUE)
 ## 	simulated
 ## 
 ## data:  simulationOutput
-## dispersion = 0.7999, p-value = 0.4
+## dispersion = 0.80474, p-value = 0.472
 ## alternative hypothesis: two.sided
 ## 
 ## 
@@ -7010,59 +7026,59 @@ The **Gamma** does a decent job of modelling our data and we can move forward wi
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> -1.3847661 </td>
-   <td style="text-align:right;"> 0.0907111 </td>
-   <td style="text-align:right;"> -15.2656703 </td>
+   <td style="text-align:right;"> -1.3847741 </td>
+   <td style="text-align:right;"> 0.0876364 </td>
+   <td style="text-align:right;"> -15.8013572 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -0.1636031 </td>
-   <td style="text-align:right;"> 0.1348218 </td>
-   <td style="text-align:right;"> -1.2134770 </td>
-   <td style="text-align:right;"> 0.2249475 </td>
+   <td style="text-align:right;"> -0.1646872 </td>
+   <td style="text-align:right;"> 0.1302835 </td>
+   <td style="text-align:right;"> -1.2640678 </td>
+   <td style="text-align:right;"> 0.2062057 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 3)1 </td>
-   <td style="text-align:right;"> -4.8549609 </td>
-   <td style="text-align:right;"> 1.1206614 </td>
-   <td style="text-align:right;"> -4.3322281 </td>
-   <td style="text-align:right;"> 0.0000148 </td>
+   <td style="text-align:right;"> -4.8623676 </td>
+   <td style="text-align:right;"> 1.1194817 </td>
+   <td style="text-align:right;"> -4.3434096 </td>
+   <td style="text-align:right;"> 0.0000140 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 3)2 </td>
-   <td style="text-align:right;"> -2.6825503 </td>
-   <td style="text-align:right;"> 1.1140906 </td>
-   <td style="text-align:right;"> -2.4078385 </td>
-   <td style="text-align:right;"> 0.0160473 </td>
+   <td style="text-align:right;"> -2.6714160 </td>
+   <td style="text-align:right;"> 1.1100889 </td>
+   <td style="text-align:right;"> -2.4064885 </td>
+   <td style="text-align:right;"> 0.0161067 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 3)3 </td>
-   <td style="text-align:right;"> 1.1279198 </td>
-   <td style="text-align:right;"> 1.1107719 </td>
-   <td style="text-align:right;"> 1.0154378 </td>
-   <td style="text-align:right;"> 0.3098972 </td>
+   <td style="text-align:right;"> 1.1277919 </td>
+   <td style="text-align:right;"> 1.1116952 </td>
+   <td style="text-align:right;"> 1.0144794 </td>
+   <td style="text-align:right;"> 0.3103540 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 3)1 </td>
-   <td style="text-align:right;"> 1.3686326 </td>
-   <td style="text-align:right;"> 1.6384364 </td>
-   <td style="text-align:right;"> 0.8353285 </td>
-   <td style="text-align:right;"> 0.4035328 </td>
+   <td style="text-align:right;"> 1.3729881 </td>
+   <td style="text-align:right;"> 1.6394432 </td>
+   <td style="text-align:right;"> 0.8374722 </td>
+   <td style="text-align:right;"> 0.4023272 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 3)2 </td>
-   <td style="text-align:right;"> -2.4701223 </td>
-   <td style="text-align:right;"> 1.6562860 </td>
-   <td style="text-align:right;"> -1.4913622 </td>
-   <td style="text-align:right;"> 0.1358664 </td>
+   <td style="text-align:right;"> -2.4941186 </td>
+   <td style="text-align:right;"> 1.6418364 </td>
+   <td style="text-align:right;"> -1.5191030 </td>
+   <td style="text-align:right;"> 0.1287366 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 3)3 </td>
-   <td style="text-align:right;"> 0.3600876 </td>
-   <td style="text-align:right;"> 1.6536806 </td>
-   <td style="text-align:right;"> 0.2177492 </td>
-   <td style="text-align:right;"> 0.8276245 </td>
+   <td style="text-align:right;"> 0.3821701 </td>
+   <td style="text-align:right;"> 1.6406497 </td>
+   <td style="text-align:right;"> 0.2329383 </td>
+   <td style="text-align:right;"> 0.8158093 </td>
   </tr>
 </tbody>
 </table>
@@ -7080,21 +7096,21 @@ The **Gamma** does a decent job of modelling our data and we can move forward wi
 <tbody>
   <tr>
    <td style="text-align:left;"> REGION </td>
-   <td style="text-align:right;"> 1.421053 </td>
+   <td style="text-align:right;"> 1.589313 </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0.2332302 </td>
+   <td style="text-align:right;"> 0.2074243 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 3) </td>
-   <td style="text-align:right;"> 50.414204 </td>
+   <td style="text-align:right;"> 50.877530 </td>
    <td style="text-align:right;"> 3 </td>
    <td style="text-align:right;"> 0.0000000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGION:poly(TEMPERATURE, 3) </td>
-   <td style="text-align:right;"> 2.933305 </td>
+   <td style="text-align:right;"> 3.044615 </td>
    <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 0.4020230 </td>
+   <td style="text-align:right;"> 0.3847974 </td>
   </tr>
 </tbody>
 </table>
@@ -7112,80 +7128,87 @@ The **Gamma** does a decent job of modelling our data and we can move forward wi
 <tbody>
   <tr>
    <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> -1.5625566 </td>
-   <td style="text-align:right;"> -1.2069755 </td>
-   <td style="text-align:right;"> -1.3847661 </td>
+   <td style="text-align:right;"> -1.5565383 </td>
+   <td style="text-align:right;"> -1.2130099 </td>
+   <td style="text-align:right;"> -1.3847741 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading </td>
-   <td style="text-align:right;"> -0.4278489 </td>
-   <td style="text-align:right;"> 0.1006427 </td>
-   <td style="text-align:right;"> -0.1636031 </td>
+   <td style="text-align:right;"> -0.4200382 </td>
+   <td style="text-align:right;"> 0.0906638 </td>
+   <td style="text-align:right;"> -0.1646872 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 3)1 </td>
-   <td style="text-align:right;"> -7.0514170 </td>
-   <td style="text-align:right;"> -2.6585049 </td>
-   <td style="text-align:right;"> -4.8549609 </td>
+   <td style="text-align:right;"> -7.0565115 </td>
+   <td style="text-align:right;"> -2.6682238 </td>
+   <td style="text-align:right;"> -4.8623676 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 3)2 </td>
-   <td style="text-align:right;"> -4.8661279 </td>
-   <td style="text-align:right;"> -0.4989728 </td>
-   <td style="text-align:right;"> -2.6825503 </td>
+   <td style="text-align:right;"> -4.8471502 </td>
+   <td style="text-align:right;"> -0.4956818 </td>
+   <td style="text-align:right;"> -2.6714160 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> poly(TEMPERATURE, 3)3 </td>
-   <td style="text-align:right;"> -1.0491531 </td>
-   <td style="text-align:right;"> 3.3049927 </td>
-   <td style="text-align:right;"> 1.1279198 </td>
+   <td style="text-align:right;"> -1.0510906 </td>
+   <td style="text-align:right;"> 3.3066744 </td>
+   <td style="text-align:right;"> 1.1277919 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 3)1 </td>
-   <td style="text-align:right;"> -1.8426438 </td>
-   <td style="text-align:right;"> 4.5799090 </td>
-   <td style="text-align:right;"> 1.3686326 </td>
+   <td style="text-align:right;"> -1.8402615 </td>
+   <td style="text-align:right;"> 4.5862377 </td>
+   <td style="text-align:right;"> 1.3729881 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 3)2 </td>
-   <td style="text-align:right;"> -5.7163832 </td>
-   <td style="text-align:right;"> 0.7761385 </td>
-   <td style="text-align:right;"> -2.4701223 </td>
+   <td style="text-align:right;"> -5.7120589 </td>
+   <td style="text-align:right;"> 0.7238217 </td>
+   <td style="text-align:right;"> -2.4941186 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> REGIONLeading:poly(TEMPERATURE, 3)3 </td>
-   <td style="text-align:right;"> -2.8810668 </td>
-   <td style="text-align:right;"> 3.6012420 </td>
-   <td style="text-align:right;"> 0.3600876 </td>
+   <td style="text-align:right;"> -2.8334441 </td>
+   <td style="text-align:right;"> 3.5977844 </td>
+   <td style="text-align:right;"> 0.3821701 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> Std.Dev.(Intercept)|FISH_ID:POPULATION </td>
+   <td style="text-align:left;"> Std.Dev.(Intercept)|FISH_ID </td>
    <td style="text-align:right;"> 0.0000000 </td>
    <td style="text-align:right;"> Inf </td>
-   <td style="text-align:right;"> 0.0000462 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Std.Dev.(Intercept)|POPULATION </td>
-   <td style="text-align:right;"> 0.0000024 </td>
-   <td style="text-align:right;"> 691.9122734 </td>
-   <td style="text-align:right;"> 0.0410140 </td>
+   <td style="text-align:right;"> 0.0000168 </td>
   </tr>
 </tbody>
 </table>
 
 #### r-squared
+
+```
+## Warning: Can't compute random effect variances. Some variance components equal
+##   zero. Your model may suffer from singularity (see `?lme4::isSingular`
+##   and `?performance::check_singularity`).
+##   Solution: Respecify random structure! You may also decrease the
+##   `tolerance` level to enforce the calculation of random effect variances.
+```
+
+```
+## Random effect variances not available. Returned R2 does not account for random effects.
+```
+
 <table class=" lightable-paper" style='font-family: "Arial Narrow", arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;'>
  <thead>
   <tr>
-   <th style="text-align:right;"> R2_conditional </th>
+   <th style="text-align:left;"> R2_conditional </th>
    <th style="text-align:right;"> R2_marginal </th>
    <th style="text-align:left;"> optional </th>
   </tr>
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:right;"> 0.265392 </td>
-   <td style="text-align:right;"> 0.2635317 </td>
+   <td style="text-align:left;"> NA </td>
+   <td style="text-align:right;"> 0.2642437 </td>
    <td style="text-align:left;"> FALSE </td>
   </tr>
 </tbody>
@@ -7202,12 +7225,12 @@ Note that the random effects within this model are explaining very little varian
 
 
 ```r
-pha.2.p3b.gamma %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+pha.2.p3a.gamma %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 ```
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["asymp.LCL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["asymp.UCL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["z.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core - Leading","2":"28.93396","3":"-0.04913999","4":"0.2681054","5":"Inf","6":"-0.5746169","7":"0.476337","8":"-0.1832861","9":"0.8545736","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["estimate"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["asymp.LCL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["asymp.UCL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["z.ratio"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core - Leading","2":"28.93396","3":"-0.04631121","4":"0.2668275","5":"Inf","6":"-0.5692835","7":"0.4766611","8":"-0.1735624","9":"0.8622094","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 SCROLL TO THE RIGHT -->
@@ -7217,24 +7240,24 @@ The numbers in the left most column in the table just mention that the slopes ar
 #### emmeans [latitudes]
 
 ```r
-pha.2.p3b.gamma %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+pha.2.p3a.gamma %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
 ```
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["asymp.LCL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["asymp.UCL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["z.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core / Leading","2":"28.9339622641509","3":"0.9176346","4":"0.1984969","5":"Inf","6":"0.6005418","7":"1.402156","8":"1","9":"-0.3973676","10":"0.6910964","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["contrast"],"name":[1],"type":["fct"],"align":["left"]},{"label":["TEMPERATURE"],"name":[2],"type":["fct"],"align":["left"]},{"label":["ratio"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["asymp.LCL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["asymp.UCL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["z.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"Core / Leading","2":"28.9339622641509","3":"0.9158189","4":"0.1950513","5":"Inf","6":"0.6032822","7":"1.390269","8":"1","9":"-0.4128865","10":"0.6796898","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
 #### temperature 
 
 ```r
-pha.2.p3b.gamma %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
+pha.2.p3a.gamma %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
 ```
 
 <div data-pagedtable="false">
   <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["TEMPERATURE"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["response"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["asymp.LCL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["asymp.UCL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["z.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"28.93396","2":"Core","3":"0.3367694","4":"0.04797364","5":"Inf","6":"0.2547281","7":"0.4452341","8":"1","9":"-7.640139","10":"2.169876e-14","_rn_":"1"},{"1":"28.93396","2":"Leading","3":"0.3669973","4":"0.05954336","5":"Inf","6":"0.2670299","7":"0.5043892","8":"1","9":"-6.178327","10":"6.478437e-10","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["TEMPERATURE"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["REGION"],"name":[2],"type":["fct"],"align":["left"]},{"label":["response"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["SE"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["df"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["asymp.LCL"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["asymp.UCL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["null"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["z.ratio"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["p.value"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"28.93396","2":"Core","3":"0.3364054","4":"0.04716757","5":"Inf","6":"0.2555734","7":"0.4428028","8":"1","9":"-7.770019","10":"7.847444e-15","_rn_":"1"},{"1":"28.93396","2":"Leading","3":"0.3673275","4":"0.05888890","5":"Inf","6":"0.2682818","7":"0.5029394","8":"1","9":"-6.247001","10":"4.184079e-10","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 
@@ -7242,7 +7265,7 @@ pha.2.p3b.gamma %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summar
 #### Means - f(temperature)
 
 ```r
-pha.2.p3b.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION/FISH_ID)) %>% 
+pha.2.p3a.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION/FISH_ID)) %>% 
   emmeans(~REGION*TEMPERATURE, type = "response") %>% summary(infer=TRUE)
 ```
 
@@ -7255,7 +7278,7 @@ pha.2.p3b.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION
 #### Abs. diff - f(temperature)
 
 ```r
-pha.2.p3b.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION/FISH_ID)) %>% 
+pha.2.p3a.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION/FISH_ID)) %>% 
   emmeans(~REGION*TEMPERATURE, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
 ```
 
@@ -7268,17 +7291,17 @@ pha.2.p3b.gamma %>% update(.~ 1 + REGION* as.factor(TEMPERATURE) + (1|POPULATION
 #### effect size [latitudes]
 
 ```r
-immuno.emm <- pha.2.p3b.gamma %>% emmeans(~REGION*TEMPERATURE)
-eff_size(immuno.emm, sigma = sigma(pha.2.p3b.gamma), edf=df.residual(pha.2.p3b.gamma))
+immuno.emm <- pha.2.p3a.gamma %>% emmeans(~REGION*TEMPERATURE)
+eff_size(immuno.emm, sigma = sigma(pha.2.p3a.gamma), edf=df.residual(pha.2.p3a.gamma))
 ```
 
 ```
 ##  contrast                                                              
 ##  Core TEMPERATURE28.9339622641509 - Leading TEMPERATURE28.9339622641509
 ##  effect.size    SE  df asymp.LCL asymp.UCL
-##       -0.105 0.265 Inf    -0.626     0.415
+##       -0.108 0.261 Inf     -0.62     0.404
 ## 
-## sigma used for effect sizes: 0.815 
+## sigma used for effect sizes: 0.8159 
 ## Confidence level used: 0.95
 ```
 
@@ -7887,7 +7910,9 @@ nas.g2 <- ggplot(nas.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION, linetype
               alpha = 0.2, color=NA)+
   scale_y_continuous(limits = c(4,20), breaks = seq(4, 20, by = 2)) + 
   scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+
-  theme_classic() + ylab(expression("ABSOLUTE AEROBIC SCOPE (MgO "[2]* " hr"^{-1} * ")")) +
+  theme_classic() + 
+  ylab(expression("ABSOLUTE AEROBIC SCOPE (MgO "[2]* " hr"^{-1} * ")")) + 
+  xlab("TEMPERATURE (\u00B0C)") +
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) + 
@@ -7910,7 +7935,8 @@ fig2 <- ggarrange(rmr.g2, mmr.g2, nas.g2,
 ```
 
 ```
-## Warning: Removed 4 rows containing missing values (`geom_point()`).
+## Warning: Removed 4 rows containing missing values or values outside the scale range
+## (`geom_point()`).
 ```
 
 ![Fig. 2: Thermal performance curves of resting oxygen performance (A), maximum oxygen performance (B), and absolute aerobic scope (C) of fish from low- (solid red lines) and high-latitudinal (dashed blue line) regions across four different temperatures. Ribbon represent 95% confidence intervals.](DataAnalysisSummary_files/figure-html/figure-2b-1.png)
@@ -7923,14 +7949,14 @@ ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data
 
 
 ```r
-pha.emm <- emmeans(pha.2.p3b.gamma, ~ TEMPERATURE*REGION, 
+pha.emm <- emmeans(pha.2.p3a.gamma, ~ TEMPERATURE*REGION, 
                at = list(TEMPERATURE = seq(from=27, to = 31.5, by=.1)), 
                type='response')
 pha.emm.df=as.data.frame(pha.emm)
 
 pha.obs <-  pha2 %>% 
-  mutate(Pred=predict(pha.2.p3b.gamma, re.form=NA),
-         Resid = residuals(pha.2.p3b.gamma, type='response'),
+  mutate(Pred=predict(pha.2.p3a.gamma, re.form=NA, type='response'),
+         Resid = residuals(pha.2.p3a.gamma, type='response'),
          Fit = Pred + Resid)
 
 pha.g2 <- ggplot(pha.emm.df, aes(y=response, x=TEMPERATURE, color = REGION, linetype=REGION)) + 
@@ -7938,8 +7964,9 @@ pha.g2 <- ggplot(pha.emm.df, aes(y=response, x=TEMPERATURE, color = REGION, line
               formula =y ~ poly(x, 3, raw=TRUE)) +  
   geom_ribbon(aes(x=TEMPERATURE, ymin= asymp.LCL, ymax= asymp.UCL, fill = REGION), 
               alpha = 0.2, color=NA) + 
-  #scale_y_continuous(limits = c(0,0.9), breaks = seq(0, 0.9, by =0.15)) + 
-  theme_classic() + ylab("PHA RESPONSE (mm)") + 
+  geom_jitter(data=pha.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
+  scale_y_continuous(limits = c(0,1.4), breaks = seq(0, 1.4, by =0.2)) + 
+  theme_classic() + ylab("PHA RESPONSE (mm)") + xlab("TEMPERATURE (\u00B0C)") +
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) + 
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
@@ -7972,7 +7999,7 @@ ldh.emm <- emmeans(ldh.model.1.p2a, ~ temperature*REGION,
 ldh.emm.df=as.data.frame(ldh.emm)
 
 ldh.obs <- ldh.data %>% 
-  mutate(Pred = predict(ldh.model.1.p2a, re.form=NA), 
+  mutate(Pred = predict(ldh.model.1.p2a, re.form=NA, type = 'response'), 
          Resid = residuals(ldh.model.1.p2a, type = 'response'), 
          Fit = Pred - Resid)
 
@@ -7984,7 +8011,7 @@ cldh2 <- ggplot(ldh.emm.df, aes(y=emmean, x=temperature, color=REGION, fill=REGI
   geom_jitter(data=ldh.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) +
   scale_x_continuous(limits = c(19,51), breaks = seq(20, 50, by =10)) +
   scale_y_continuous(limits = c(0,300), breaks = seq(0, 300, by =50)) + 
-  theme_classic() + ylab(expression("LDH ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("TEMPERATURE") +
+  theme_classic() + ylab(expression("LDH ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("") +
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"))+
@@ -8009,7 +8036,7 @@ cs.plot2 <- ggplot(cs.emm.df, aes(y=response, x=TEMPERATURE, color=REGION, fill=
   geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
               alpha = 0.2, color=NA) +
   scale_y_continuous(limits = c(0,10), breaks = seq(0, 10, by =2)) + 
-  theme_classic() + ylab(expression("CS ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("TEMPERATURE") +
+  theme_classic() + ylab(expression("CS ACTIVITY (U mg "^{-1}*" tissue)")) + xlab("") +
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"))+
@@ -8038,7 +8065,7 @@ ldh.cs.plot2 <- ggplot(ldh.cs.emm.df, aes(y=emmean, x=temperature, color=REGION,
   geom_ribbon(aes(x=temperature, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
               alpha = 0.2, color=NA) +
   scale_y_continuous(limits = c(0,50), breaks = seq(0, 50, by =10)) + 
-  theme_classic() + ylab("LDH:CS RATIO") + xlab("TEMPERATURE") +
+  theme_classic() + ylab("LDH:CS RATIO") + xlab("TEMPERATURE (\u00B0C)") +
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude"))+
@@ -8073,26 +8100,26 @@ ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data
 ## Supplemental figure 4
 
 ```r
-hema.newdata <-  hema.1 %>% ggemmeans(~REGION) %>% 
-  as.data.frame() %>% 
-  dplyr::rename(REGION = x)
+hema.newdata <-  hema.1 %>% emmeans(~REGION) %>% 
+  as.data.frame() #%>%
+  #dplyr::rename(REGION = x)
 
 obs <- hema %>% 
-  mutate(Pred = predict(hema.1, re.form=NA), 
+  mutate(Pred = predict(hema.1, re.form=NA, type="response"), 
          Resid = residuals(hema.1, type = "response"), 
          Fit = Pred + Resid)
 
-hema.plot <- ggplot(hema.newdata, aes(y=predicted, x=REGION, color=REGION, linetype=REGION))  + 
-  geom_jitter(data=obs, aes(y=Pred, x=REGION, color =REGION), 
+hema.plot <- ggplot(hema.newdata, aes(y=emmean, x=REGION, color=REGION, linetype=REGION))  + 
+  geom_jitter(data=obs, aes(y=Fit, x=REGION, color =REGION), 
               width = 0.05, alpha=0.3)+
-  geom_pointrange(aes(ymin=conf.low, 
-                      ymax=conf.high), 
+  geom_pointrange(aes(ymin=lower.CL, 
+                      ymax=upper.CL), 
                   shape = 19, 
                   size = 1, 
                   position = position_dodge(0.2)) + 
   scale_linetype_manual(values = c("solid", "dashed"), labels = c("Low-latitude","High-latitude")) +
   scale_color_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
-  ylab("HEMATOCRIT RATIO") +
+  ylab("HEMATOCRIT") +
   scale_x_discrete(name = "", 
                    labels = c("Low-latitude","High-latitude"))+
   theme_classic() + 
@@ -8123,7 +8150,7 @@ mass.distr <- resp4 %>% distinct(FISH_ID, .keep_all = TRUE) %>%
   mutate(CHAMBER_RATIO = 1.5/DRY_WEIGHT) %>%
   ggplot(aes(x=CHAMBER_RATIO, y=REGION, fill=REGION)) + 
   scale_fill_manual(values=c("#B2182B", "#4393C3"), labels = c("Low-latitude","High-latitude")) +
-  ylab("")+ scale_x_continuous(limits = c(20,150), breaks = seq(20, 150, by =20)) + 
+  ylab("")+ xlab("CHAMBER:BODY SIZE RATIO (L/Kg)") + scale_x_continuous(limits = c(20,150), breaks = seq(20, 150, by =20)) + 
   geom_density_ridges(scale = 2, jittered_points=TRUE, position = position_points_jitter(height = 0),
                       point_shape = '|', point_size = 3, point_alpha = 1, alpha = 0.7) + 
   theme_classic() + 
