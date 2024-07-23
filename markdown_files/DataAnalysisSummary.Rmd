@@ -3953,7 +3953,7 @@ ldh.cs.plot2 <- ggplot(ldh.cs.emm.df, aes(y=emmean, x=temperature, color=REGION,
   #annotate("text", x=40, y=48, label="p =0.91", fontface = 'italic', size = 5)
 ```
 
-```{r figure-4b, warning=FALSE, fig.width=6.6, fig.height=19.86, dpi = 1200, fig.cap= "Fig.4: Thermal performance curve of maximal activity of A) lactate dehydrogenase (LDH), B) citrate synthase (CS), and C) LDH:CS ratio of low- (solid red line) and high-latitudinal (dashed blue line) populations across four experimental temperatures (i.e., 20°C, 30°C, 40°C, 50°C). Ribbons represent 95% confidence intervals."}
+```{r figure-4b, warning=FALSE, fig.width=6.6, fig.height=19.86, dpi = 1200, fig.cap= 'Fig.4: Thermal performance curve of maximal activity of A) lactate dehydrogenase (LDH), B) citrate synthase (CS), and C) LDH:CS ratio of low- (solid red line) and high-latitudinal (dashed blue line) populations across four experimental temperatures (i.e., 20°C, 30°C, 40°C, 50°C). Ribbons represent 95% confidence intervals.'}
 fig4 <- ggarrange(cldh2, cs.plot2, ldh.cs.plot2, 
           nrow = 3, 
           ncol=1, 
@@ -3962,13 +3962,14 @@ fig4 <- ggarrange(cldh2, cs.plot2, ldh.cs.plot2,
           common.legend = TRUE)
 
 fig4
-ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/figures/Figure4.pdf", fig4, device="pdf", width=6.6, height = 19.86, units = "in", dpi=1200)
+#ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/figures/Figure4.pdf", fig4, #device="pdf", width=6.6, height = 19.86, units = "in", dpi=1200)
 ``` 
 
 # Supplemental figures for manuscript {.tabset .tabset-pills}
 
 ## Supplemental figure 4
 ```{r Sfigure-4, echo=TRUE, eval=TRUE, cache=FALSE, warning=FALSE, results='hide'}
+library("ggtext")
 hema.newdata <-  hema.1 %>% emmeans(~REGION) %>% 
   as.data.frame() #%>%
   #dplyr::rename(REGION = x)
@@ -4000,8 +4001,12 @@ hema.plot <- ggplot(hema.newdata, aes(y=emmean, x=REGION, color=REGION, linetype
   #annotate("text", x=1.5, y=0.275, fontface="italic", size=5, label="P =0.057")
 ```
 
-```{r Sfigure-4b, fig.width=6.6, fig.height=5, dpi = 1200, fig.cap= "Fig. 3: Comparison of hematocrit ratios, that were measured at 31.5°C, between low- (red) and high-latitudinal (blue) populations. No significant difference was observed between the different latitudes (p =0.058). Solid (low-latitude) and dashed (high-latitude) lines represent 95% confidence intervals."}
-hema.plot
+```{r Sfigure-4b, fig.width=6.6, fig.height=5, dpi = 1200, fig.cap= "\\label{Supplemental figure 4}: Comparison of hematocrit ratios, that were measured at 31.5°C, between low- (red) and high-latitudinal (blue) populations. No significant difference was observed between the different latitudes (p =0.058). Solid (low-latitude) and dashed (high-latitude) lines represent 95% confidence intervals."}
+caption_text <- "<br> Supplemental figure 4: Comparison of hematocrit ratios, that were measured at 31.5°C, between low- (red) and high-latitudinal (blue) populations. No significant difference was observed between the different latitudes (p =0.058). Solid (low-latitude) and dashed (high-latitude) lines represent 95% confidence intervals."
+
+hema.plot <- hema.plot + labs(caption = caption_text) + 
+  theme(plot.caption=element_textbox_simple(padding = margin(0,10,5,0))); hema.plot
+
 ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/supplemental_figures/Supplemental_figure4.pdf", hema.plot, device="pdf", width=6.6, height = 5, units = "in", dpi=1200)
 ``` 
 
@@ -4018,10 +4023,17 @@ mass.distr <- resp4 %>% distinct(FISH_ID, .keep_all = TRUE) %>%
   theme_classic() + 
   theme(axis.title.y=element_blank(),
         axis.text.y=element_blank(), 
-        axis.ticks.y=element_blank())
+        axis.ticks.y=element_blank(), 
+        legend.position = c(0.95,0.95),
+    legend.justification = c("right", "top"),
+    legend.box.just = "right",
+    legend.margin = margin(6, 6, 6, 6))
 ```
 
 ```{r Sfigure-3b, fig.width=6.6, fig.height=5, dpi = 1200, fig.cap= "Fig. 3: Density plots displayed fish body size to chamber ratios. Fish that were sampled for aerobic physiology from the low-latitude region are represented in red; fish from the high-latitude region are represent in blue."}
-mass.distr
+caption_text <- "<br> Supplemental figure 3: Density plots displayed fish body size to chamber ratios. Fish that were sampled for aerobic physiology from the low-latitude region are represented in red; fish from the high-latitude region are represent in blue."
+
+mass.distr <- mass.distr + labs(caption = caption_text) + 
+  theme(plot.caption=element_textbox_simple(padding = margin(0,10,5,0)))
 ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/supplemental_figures/Supplemental_figure3.pdf",mass.distr, device="pdf", width=6.6, height = 5, units = "in", dpi=1200)
 ```

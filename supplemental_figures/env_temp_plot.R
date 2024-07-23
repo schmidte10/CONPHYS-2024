@@ -70,6 +70,12 @@ env.temp.plot2 <- ggpubr::ggarrange(temperature.plot3, yplot, range.plot3, yplot
                                     widths = c(4, 1, 4, 1), heights = c(1, 1, 2, 2),
                                     common.legend = TRUE, labels = c("A","","B","")); env.temp.plot2
 
+caption_text <- "<br> Supplemental figure 1: Seasonal temperature profile for reefs within the low- and high-latitude region of the Great Barrier Reef (see Stab.2 for list of reefs names). A) mean daily temperature and B) mean daily range are shown for both low- (solids red line) and high-latitudinal (dashed blue line) regions, as well as density plots identifying the most frequently experienced temperatures or ranges experienced. Data was obtained via the Australian Institute of Marine Science Temperature Logger dataset (AIMS 2020)."
+
+env.temp.plot2 <- env.temp.plot2 + labs(caption = caption_text) + 
+  theme(plot.caption=element_textbox_simple(padding = margin(0,10,5,0)))
+
+
 ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/supplemental_figures/Supplemental_figure1.pdf", env.temp.plot2 , device="pdf", width=8.6, height = 7, units = "in", dpi=1200)
 
 range.plot2 <- ggplot(reefs2, aes(x=cal_range, fill=REGION)) + 

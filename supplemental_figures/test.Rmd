@@ -1,0 +1,10 @@
+---
+
+output: pdf_document
+---
+
+```{r Sfigure-4b, fig.width=6.6, fig.height=5, dpi = 1200, fig.cap= "\\label{Supplemental figure 4}: Comparison of hematocrit ratios, that were measured at 31.5°C, between low- (red) and high-latitudinal (blue) populations. No significant difference was observed between the different latitudes (p =0.058). Solid (low-latitude) and dashed (high-latitude) lines represent 95% confidence intervals."}
+ggarrange(hema.plot)
+
+ggsave("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/supplemental_figures/Supplemental_figure4.pdf", hema.plot, device="pdf", width=6.6, height = 5, units = "in", dpi=1200)
+``` 
