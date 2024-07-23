@@ -40,8 +40,5 @@ vignettes/*.pdf
 .Renviron
 
 # data files 
-*.txt
-*.xlsx
-C:/Users/Elliott/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/import_files/
-*.vcf
-C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Local_adaptation/Chapter1_LocalAdaptation/genetic_data/
+#*.txt
+#*.xlsx

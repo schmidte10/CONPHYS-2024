@@ -1,0 +1,245 @@
+FISH_ID	TANK	REGION	POPULATION 	MASS	STANDARD_LENGTH	PLATE	WELL_ROW	WELL_COLUMN	TIME	ABSORBANCE
+LCKM163	1	Leading	Cockermouth Island	18.44	72.96	1	C	1	0.h	1.4912
+LCKM163	1	Leading	Cockermouth Island	18.44	72.96	1	C	2	0.h	1.5456
+LCKM163	1	Leading	Cockermouth Island	18.44	72.96	1	C	3	0.h	1.5648
+CSUD010	3	Core	Sudbury Reef 	24.98	80.52	1	D	1	0.h	1.4323
+CSUD010	3	Core	Sudbury Reef 	24.98	80.52	1	D	2	0.h	1.3938
+CSUD010	3	Core	Sudbury Reef 	24.98	80.52	1	D	3	0.h	1.5209
+CSUD014	4	Core	Sudbury Reef 	38.29	95.22	1	E	1	0.h	1.4619
+CSUD014	4	Core	Sudbury Reef 	38.29	95.22	1	E	2	0.h	1.5058
+CSUD014	4	Core	Sudbury Reef 	38.29	95.22	1	E	3	0.h	1.5558
+CTONO60	6	Core	Tongue Reef	40.11	94.88	1	F	1	0.h	1.4524
+CTONO60	6	Core	Tongue Reef	40.11	94.88	1	F	2	0.h	1.428
+CTONO60	6	Core	Tongue Reef	40.11	94.88	1	F	3	0.h	1.5068
+CSUD085	7	Core	Sudbury Reef 	26.03	86.46	1	G	1	0.h	1.4171
+CSUD085	7	Core	Sudbury Reef 	26.03	86.46	1	G	2	0.h	1.5159
+CSUD085	7	Core	Sudbury Reef 	26.03	86.46	1	G	3	0.h	1.5119
+CSUD074	8	Core	Sudbury Reef 	36.76	92.28	1	H	1	0.h	1.5055
+CSUD074	8	Core	Sudbury Reef 	36.76	92.28	1	H	2	0.h	1.5654
+CSUD074	8	Core	Sudbury Reef 	36.76	92.28	1	H	3	0.h	1.4407
+CTON069	10	Core	Tongue Reef	29.06	86.96	1	A	4	0.h	1.449
+CTON069	10	Core	Tongue Reef	29.06	86.96	1	A	5	0.h	1.4242
+CTON069	10	Core	Tongue Reef	29.06	86.96	1	A	6	0.h	1.4751
+LCKM154	11	Leading	Cockermouth Island	23.03	79.00	1	B	4	0.h	1.4371
+LCKM154	11	Leading	Cockermouth Island	23.03	79.00	1	B	5	0.h	1.4987
+LCKM154	11	Leading	Cockermouth Island	23.03	79.00	1	B	6	0.h	1.4255
+LCKM166	13	Leading	Cockermouth Island	20.56	74.84	0	C	5	0.h	1.3807
+LCKM166	13	Leading	Cockermouth Island	20.56	74.84	0	C	6	0.h	1.4644
+LCHA136	15	Leading	Chauvel Reef 	25.61	80.90	1	C	4	0.h	1.4954
+LCHA136	15	Leading	Chauvel Reef 	25.61	80.90	1	C	5	0.h	1.5535
+LCHA136	15	Leading	Chauvel Reef 	25.61	80.90	1	C	6	0.h	1.4566
+CTON061	16	Core	Tongue Reef	18.16	76.32	1	D	4	0.h	1.4822
+CTON061	16	Core	Tongue Reef	18.16	76.32	1	D	5	0.h	1.4781
+CTON061	16	Core	Tongue Reef	18.16	76.32	1	D	6	0.h	1.5008
+CTON068	20	Core	Tongue Reef	31.03	89.20	1	E	4	0.h	1.4693
+CTON068	20	Core	Tongue Reef	31.03	89.20	1	E	5	0.h	1.4591
+CTON068	20	Core	Tongue Reef	31.03	89.20	1	E	6	0.h	1.5024
+LCKM174	23	Leading	Cockermouth Island	23.05	82.10	1	F	4	0.h	1.5478
+LCKM174	23	Leading	Cockermouth Island	23.05	82.10	1	F	5	0.h	1.5704
+LCKM174	23	Leading	Cockermouth Island	23.05	82.10	1	F	6	0.h	1.4679
+LCHA119	24	Leading	Chauvel Reef 	19.99	72.74	0		9	0.h	1.464
+LCHA119	24	Leading	Chauvel Reef 	19.99	72.74	0		10	0.h	1.4734
+LCHA119	24	Leading	Chauvel Reef 	19.99	72.74	0		11	0.h	1.4817
+LKES143	25	Leading	Keswick Island 	29.16	90.02	1	G	7	0.h	1.4245
+LKES143	25	Leading	Keswick Island 	29.16	90.02	1	G	8	0.h	1.4448
+LKES143	25	Leading	Keswick Island 	29.16	90.02	1	G	9	0.h	1.5226
+CTON110	28	Core	Tongue Reef	39.01	95.02	1	H	7	0.h	1.381
+CTON110	28	Core	Tongue Reef	39.01	95.02	1	H	8	0.h	1.4624
+CTON110	28	Core	Tongue Reef	39.01	95.02	1	H	9	0.h	1.4512
+LKES145	33	Leading	Keswick Island 	30.36	85.00	1	A	7	0.h	1.5123
+LKES145	33	Leading	Keswick Island 	30.36	85.00	1	A	8	0.h	1.6717
+LKES145	33	Leading	Keswick Island 	30.36	85.00	1	A	9	0.h	1.3928
+CVLA045	34	Core	Vlassof Cay	36.86	90.20	1	B	7	0.h	1.4861
+CVLA045	34	Core	Vlassof Cay	36.86	90.20	1	B	8	0.h	1.5369
+CVLA045	34	Core	Vlassof Cay	36.86	90.20	1	B	9	0.h	1.4577
+CSUD006	35	Core	Sudbury Reef 	27.98	84.50	1	C	7	0.h	1.4946
+CSUD006	35	Core	Sudbury Reef 	27.98	84.50	1	C	8	0.h	1.5451
+CSUD006	35	Core	Sudbury Reef 	27.98	84.50	1	C	9	0.h	1.499
+CSUD008	36	Core	Sudbury Reef 	36.91	95.14	1	D	7	0.h	1.4787
+CSUD008	36	Core	Sudbury Reef 	36.91	95.14	1	D	8	0.h	1.4331
+CSUD008	36	Core	Sudbury Reef 	36.91	95.14	1	D	9	0.h	1.4822
+LKES172	37	Leading	Keswick Island 	13.50	67.96	1	E	7	0.h	1.4456
+LKES172	37	Leading	Keswick Island 	13.50	67.96	1	E	8	0.h	1.5092
+LKES172	37	Leading	Keswick Island 	13.50	67.96	1	E	9	0.h	2.3502
+LCKM158	38	Leading	Cockermouth Island	23.67	80.84	1	F	7	0.h	1.4872
+LCKM158	38	Leading	Cockermouth Island	23.67	80.84	1	F	8	0.h	1.4087
+LCKM158	38	Leading	Cockermouth Island	23.67	80.84	1	F	9	0.h	1.9238
+CVLA047	43	Core	Vlassof Cay	25.66	82.42	1	G	7	0.h	1.4813
+CVLA047	43	Core	Vlassof Cay	25.66	82.42	1	G	8	0.h	1.4463
+CVLA047	43	Core	Vlassof Cay	25.66	82.42	1	G	9	0.h	1.6751
+CVLA104	44	Core	Vlassof Cay	38.51	95.50	1	H	7	0.h	1.5104
+CVLA104	44	Core	Vlassof Cay	38.51	95.50	1	H	8	0.h	1.4737
+CVLA104	44	Core	Vlassof Cay	38.51	95.50	1	H	9	0.h	2.69
+LCKM180	45	Leading	Cockermouth Island	20.31	77.38	1	A	10	0.h	1.4155
+LCKM180	45	Leading	Cockermouth Island	20.31	77.38	1	A	11	0.h	1.5466
+LCKM180	45	Leading	Cockermouth Island	20.31	77.38	1	A	12	0.h	1.789
+CVLA053	46	Core	Vlassof Cay	38.87	93.76	1	B	10	0.h	1.2942
+CVLA053	46	Core	Vlassof Cay	38.87	93.76	1	B	11	0.h	1.3188
+CVLA053	46	Core	Vlassof Cay	38.87	93.76	1	B	12	0.h	1.4107
+LCHA135	48	Leading	Chauvel Reef 	26.99	84.70	1	C	10	0.h	1.4403
+LCHA135	48	Leading	Chauvel Reef 	26.99	84.70	1	C	11	0.h	1.4651
+LCHA135	48	Leading	Chauvel Reef 	26.99	84.70	1	C	12	0.h	1.6723
+CSUD018	49	Core	Sudbury Reef 	24.79	82.62	1	D	10	0.h	1.5168
+CSUD018	49	Core	Sudbury Reef 	24.79	82.62	1	D	11	0.h	1.3959
+CSUD018	49	Core	Sudbury Reef 	24.79	82.62	1	D	12	0.h	1.3629
+LCKM176	51	Leading	Cockermouth Island	12.19	64.62	1	E	10	0.h	1.5113
+LCKM176	51	Leading	Cockermouth Island	12.19	64.62	1	E	11	0.h	1.6425
+LCKM176	51	Leading	Cockermouth Island	12.19	64.62	1	E	12	0.h	1.6394
+CVLA046	52	Core	Vlassof Cay	23.61	80.02	1	F	10	0.h	1.4814
+CVLA046	52	Core	Vlassof Cay	23.61	80.02	1	F	11	0.h	1.4288
+CVLA046	52	Core	Vlassof Cay	23.61	80.02	1	F	12	0.h	1.4873
+CVLA057	55	Core	Vlassof Cay	34.46	89.10	1	G	10	0.h	1.6502
+CVLA057	55	Core	Vlassof Cay	34.46	89.10	1	G	11	0.h	1.4675
+CVLA057	55	Core	Vlassof Cay	34.46	89.10	1	G	12	0.h	1.3986
+LKES142	56	Leading	Keswick Island 	29.11	87.70	1	H	10	0.h	1.5098
+LKES142	56	Leading	Keswick Island 	29.11	87.70	1	H	11	0.h	1.4934
+LKES142	56	Leading	Keswick Island 	29.11	87.70	1	H	12	0.h	1.4094
+LCHA114	57	Leading	Chauvel Reef 	28.88	84.86	2	A	1	0.h	1.7425
+LCHA114	57	Leading	Chauvel Reef 	28.88	84.86	2	A	2	0.h	1.666
+LCHA114	57	Leading	Chauvel Reef 	28.88	84.86	2	A	3	0.h	2.233
+LCKM165	58	Leading	Cockermouth Island	25.72	83.40	2	B	1	0.h	1.4654
+LCKM165	58	Leading	Cockermouth Island	25.72	83.40	2	B	2	0.h	1.6451
+LCKM165	58	Leading	Cockermouth Island	25.72	83.40	2	B	3	0.h	1.3672
+CSUD076	60	Core	Sudbury Reef 	25.94	80.60	2	C	1	0.h	1.5138
+CSUD076	60	Core	Sudbury Reef 	25.94	80.60	2	C	2	0.h	1.5506
+CSUD076	60	Core	Sudbury Reef 	25.94	80.60	2	C	3	0.h	1.4474
+CSUD079	61	Core	Sudbury Reef 	34.40	88.36	2	D	1	0.h	1.5025
+CSUD079	61	Core	Sudbury Reef 	34.40	88.36	2	D	2	0.h	1.5513
+CSUD079	61	Core	Sudbury Reef 	34.40	88.36	2	D	3	0.h	1.4693
+CTON065	62	Core	Tongue Reef	35.64	94.00	2	E	1	0.h	1.4846
+CTON065	62	Core	Tongue Reef	35.64	94.00	2	E	2	0.h	1.6131
+CTON065	62	Core	Tongue Reef	35.64	94.00	2	E	3	0.h	1.4184
+positive.control	NA	NA	NA	NA	NA	1	A	1	0.h	1.4975
+positive.control	NA	NA	NA	NA	NA	1	A	2	0.h	1.3893
+positive.control	NA	NA	NA	NA	NA	1	A	3	0.h	1.4914
+positive.control	NA	NA	NA	NA	NA	2	F	1	0.h	1.3482
+positive.control	NA	NA	NA	NA	NA	2	F	2	0.h	1.3834
+positive.control	NA	NA	NA	NA	NA	2	F	3	0.h	1.4374
+positive.control	NA	NA	NA	NA	NA	1	A	1	12.h	2.8698
+positive.control	NA	NA	NA	NA	NA	1	A	2	12.h	2.8528
+positive.control	NA	NA	NA	NA	NA	1	A	3	12.h	2.8557
+positive.control	NA	NA	NA	NA	NA	2	F	1	12.h	2.8719
+positive.control	NA	NA	NA	NA	NA	2	F	2	12.h	2.8473
+positive.control	NA	NA	NA	NA	NA	2	F	3	12.h	2.7866
+LCKM163	1	Leading	Cockermouth Island	18.44	72.96	1	C	1	12.h	2.9334
+LCKM163	1	Leading	Cockermouth Island	18.44	72.96	1	C	2	12.h	2.839
+LCKM163	1	Leading	Cockermouth Island	18.44	72.96	1	C	3	12.h	1.9032
+CSUD010	3	Core	Sudbury Reef 	24.98	80.52	1	D	1	12.h	1.4396
+CSUD010	3	Core	Sudbury Reef 	24.98	80.52	1	D	2	12.h	1.3757
+CSUD010	3	Core	Sudbury Reef 	24.98	80.52	1	D	3	12.h	1.4766
+CSUD014	4	Core	Sudbury Reef 	38.29	95.22	1	E	1	12.h	2.6609
+CSUD014	4	Core	Sudbury Reef 	38.29	95.22	1	E	2	12.h	1.7653
+CSUD014	4	Core	Sudbury Reef 	38.29	95.22	1	E	3	12.h	1.5798
+CTONO60	6	Core	Tongue Reef	40.11	94.88	1	F	1	12.h	1.4117
+CTONO60	6	Core	Tongue Reef	40.11	94.88	1	F	2	12.h	2.7581
+CTONO60	6	Core	Tongue Reef	40.11	94.88	1	F	3	12.h	2.7758
+CSUD085	7	Core	Sudbury Reef 	26.03	86.46	1	G	1	12.h	2.9918
+CSUD085	7	Core	Sudbury Reef 	26.03	86.46	1	G	2	12.h	2.9107
+CSUD085	7	Core	Sudbury Reef 	26.03	86.46	1	G	3	12.h	2.9332
+CSUD074	8	Core	Sudbury Reef 	36.76	92.28	1	H	1	12.h	1.5426
+CSUD074	8	Core	Sudbury Reef 	36.76	92.28	1	H	2	12.h	2.7295
+CSUD074	8	Core	Sudbury Reef 	36.76	92.28	1	H	3	12.h	2.7152
+CTON069	10	Core	Tongue Reef	29.06	86.96	1	A	4	12.h	2.8077
+CTON069	10	Core	Tongue Reef	29.06	86.96	1	A	5	12.h	2.7237
+CTON069	10	Core	Tongue Reef	29.06	86.96	1	A	6	12.h	2.8141
+LCKM154	11	Leading	Cockermouth Island	23.03	79.00	1	B	4	12.h	1.4239
+LCKM154	11	Leading	Cockermouth Island	23.03	79.00	1	B	5	12.h	1.4465
+LCKM154	11	Leading	Cockermouth Island	23.03	79.00	1	B	6	12.h	1.3947
+LCKM166	13	Leading	Cockermouth Island	20.56	74.84	0	C	5	12.h	1.3796
+LCKM166	13	Leading	Cockermouth Island	20.56	74.84	0	C	6	12.h	1.4492
+LCHA136	15	Leading	Chauvel Reef 	25.61	80.90	1	C	4	12.h	2.8704
+LCHA136	15	Leading	Chauvel Reef 	25.61	80.90	1	C	5	12.h	2.8596
+LCHA136	15	Leading	Chauvel Reef 	25.61	80.90	1	C	6	12.h	2.847
+CTON061	16	Core	Tongue Reef	18.16	76.32	1	D	4	12.h	2.8051
+CTON061	16	Core	Tongue Reef	18.16	76.32	1	D	5	12.h	2.7454
+CTON061	16	Core	Tongue Reef	18.16	76.32	1	D	6	12.h	2.8
+CTON068	20	Core	Tongue Reef	31.03	89.20	1	E	4	12.h	2.8486
+CTON068	20	Core	Tongue Reef	31.03	89.20	1	E	5	12.h	1.4603
+CTON068	20	Core	Tongue Reef	31.03	89.20	1	E	6	12.h	1.951
+LCKM174	23	Leading	Cockermouth Island	23.05	82.10	1	F	4	12.h	2.798
+LCKM174	23	Leading	Cockermouth Island	23.05	82.10	1	F	5	12.h	2.8627
+LCKM174	23	Leading	Cockermouth Island	23.05	82.10	1	F	6	12.h	2.8709
+LCHA119	24	Leading	Chauvel Reef 	19.99	72.74	0	C	9	12.h	2.6611
+LCHA119	24	Leading	Chauvel Reef 	19.99	72.74	0	C	10	12.h	1.515
+LCHA119	24	Leading	Chauvel Reef 	19.99	72.74	0	C	11	12.h	2.8279
+LKES143	25	Leading	Keswick Island 	29.16	90.02	1	G	4	12.h	1.3642
+LKES143	25	Leading	Keswick Island 	29.16	90.02	1	G	5	12.h	1.4531
+LKES143	25	Leading	Keswick Island 	29.16	90.02	1	G	6	12.h	1.5393
+CTON110	28	Core	Tongue Reef	39.01	95.02	1	H	4	12.h	1.3373
+CTON110	28	Core	Tongue Reef	39.01	95.02	1	H	5	12.h	1.4082
+CTON110	28	Core	Tongue Reef	39.01	95.02	1	H	6	12.h	1.3779
+LKES145	33	Leading	Keswick Island 	30.36	85.00	1	A	7	12.h	2.7716
+LKES145	33	Leading	Keswick Island 	30.36	85.00	1	A	8	12.h	1.5594
+LKES145	33	Leading	Keswick Island 	30.36	85.00	1	A	9	12.h	2.7763
+CVLA045	34	Core	Vlassof Cay	36.86	90.20	1	B	7	12.h	1.4093
+CVLA045	34	Core	Vlassof Cay	36.86	90.20	1	B	8	12.h	1.4639
+CVLA045	34	Core	Vlassof Cay	36.86	90.20	1	B	9	12.h	2.7746
+CSUD006	35	Core	Sudbury Reef 	27.98	84.50	1	C	7	12.h	2.8172
+CSUD006	35	Core	Sudbury Reef 	27.98	84.50	1	C	8	12.h	1.588
+CSUD006	35	Core	Sudbury Reef 	27.98	84.50	1	C	9	12.h	2.7976
+CSUD008	36	Core	Sudbury Reef 	36.91	95.14	1	D	7	12.h	2.8082
+CSUD008	36	Core	Sudbury Reef 	36.91	95.14	1	D	8	12.h	2.71
+CSUD008	36	Core	Sudbury Reef 	36.91	95.14	1	D	9	12.h	2.7955
+LKES172	37	Leading	Keswick Island 	13.50	67.96	1	E	7	12.h	1.5063
+LKES172	37	Leading	Keswick Island 	13.50	67.96	1	E	8	12.h	2.8425
+LKES172	37	Leading	Keswick Island 	13.50	67.96	1	E	9	12.h	2.147
+LCKM158	38	Leading	Cockermouth Island	23.67	80.84	1	F	7	12.h	2.5093
+LCKM158	38	Leading	Cockermouth Island	23.67	80.84	1	F	8	12.h	2.7866
+LCKM158	38	Leading	Cockermouth Island	23.67	80.84	1	F	9	12.h	2.8501
+CVLA047	43	Core	Vlassof Cay	25.66	82.42	1	G	7	12.h	2.6478
+CVLA047	43	Core	Vlassof Cay	25.66	82.42	1	G	8	12.h	1.4728
+CVLA047	43	Core	Vlassof Cay	25.66	82.42	1	G	9	12.h	2.1889
+CVLA104	44	Core	Vlassof Cay	38.51	95.50	1	H	7	12.h	2.8749
+CVLA104	44	Core	Vlassof Cay	38.51	95.50	1	H	8	12.h	2.9337
+CVLA104	44	Core	Vlassof Cay	38.51	95.50	1	H	9	12.h	3.2701
+LCKM180	45	Leading	Cockermouth Island	20.31	77.38	1	A	10	12.h	1.4369
+LCKM180	45	Leading	Cockermouth Island	20.31	77.38	1	A	11	12.h	1.5414
+LCKM180	45	Leading	Cockermouth Island	20.31	77.38	1	A	12	12.h	1.9477
+CVLA053	46	Core	Vlassof Cay	38.87	93.76	1	B	10	12.h	1.3568
+CVLA053	46	Core	Vlassof Cay	38.87	93.76	1	B	11	12.h	1.4024
+CVLA053	46	Core	Vlassof Cay	38.87	93.76	1	B	12	12.h	2.4364
+LCHA135	48	Leading	Chauvel Reef 	26.99	84.70	1	C	10	12.h	2.5159
+LCHA135	48	Leading	Chauvel Reef 	26.99	84.70	1	C	11	12.h	1.5026
+LCHA135	48	Leading	Chauvel Reef 	26.99	84.70	1	C	12	12.h	2.1657
+CSUD018	49	Core	Sudbury Reef 	24.79	82.62	1	D	10	12.h	2.8286
+CSUD018	49	Core	Sudbury Reef 	24.79	82.62	1	D	11	12.h	1.7919
+CSUD018	49	Core	Sudbury Reef 	24.79	82.62	1	D	12	12.h	1.3315
+LCKM176	51	Leading	Cockermouth Island	12.19	64.62	1	E	10	12.h	2.9736
+LCKM176	51	Leading	Cockermouth Island	12.19	64.62	1	E	11	12.h	2.9938
+LCKM176	51	Leading	Cockermouth Island	12.19	64.62	1	E	12	12.h	3.1712
+CVLA046	52	Core	Vlassof Cay	23.61	80.02	1	F	10	12.h	1.5496
+CVLA046	52	Core	Vlassof Cay	23.61	80.02	1	F	11	12.h	2.8527
+CVLA046	52	Core	Vlassof Cay	23.61	80.02	1	F	12	12.h	1.4346
+CVLA057	55	Core	Vlassof Cay	34.46	89.10	1	G	10	12.h	2.9037
+CVLA057	55	Core	Vlassof Cay	34.46	89.10	1	G	11	12.h	1.5538
+CVLA057	55	Core	Vlassof Cay	34.46	89.10	1	G	12	12.h	1.4449
+LKES142	56	Leading	Keswick Island 	29.11	87.70	1	H	10	12.h	1.4917
+LKES142	56	Leading	Keswick Island 	29.11	87.70	1	H	11	12.h	1.523
+LKES142	56	Leading	Keswick Island 	29.11	87.70	1	H	12	12.h	1.4433
+LCHA114	57	Leading	Chauvel Reef 	28.88	84.86	2	A	1	12.h	2.9648
+LCHA114	57	Leading	Chauvel Reef 	28.88	84.86	2	A	2	12.h	2.9469
+LCHA114	57	Leading	Chauvel Reef 	28.88	84.86	2	A	3	12.h	3.0856
+LCKM165	58	Leading	Cockermouth Island	25.72	83.40	2	B	1	12.h	1.4301
+LCKM165	58	Leading	Cockermouth Island	25.72	83.40	2	B	2	12.h	1.5514
+LCKM165	58	Leading	Cockermouth Island	25.72	83.40	2	B	3	12.h	1.3522
+CSUD076	60	Core	Sudbury Reef 	25.94	80.60	2	C	1	12.h	2.9247
+CSUD076	60	Core	Sudbury Reef 	25.94	80.60	2	C	2	12.h	2.9556
+CSUD076	60	Core	Sudbury Reef 	25.94	80.60	2	C	3	12.h	2.8333
+CSUD079	61	Core	Sudbury Reef 	34.40	88.36	2	D	1	12.h	1.4574
+CSUD079	61	Core	Sudbury Reef 	34.40	88.36	2	D	2	12.h	1.4961
+CSUD079	61	Core	Sudbury Reef 	34.40	88.36	2	D	3	12.h	1.4095
+CTON065	62	Core	Tongue Reef	35.64	94.00	2	E	1	12.h	2.8832
+CTON065	62	Core	Tongue Reef	35.64	94.00	2	E	2	12.h	1.6181
+CTON065	62	Core	Tongue Reef	35.64	94.00	2	E	3	12.h	1.5409
+negative.control	NA	NA	NA	NA	NA	1	B	1	12.h	1.2924
+negative.control	NA	NA	NA	NA	NA	1	B	2	12.h	1.2709
+negative.control	NA	NA	NA	NA	NA	1	B	3	12.h	1.2424
+negative.control	NA	NA	NA	NA	NA	2	F	1	12.h	1.2755
+negative.control	NA	NA	NA	NA	NA	2	F	2	12.h	1.3029
+negative.control	NA	NA	NA	NA	NA	2	F	3	12.h	1.3097
+negative.control	NA	NA	NA	NA	NA	1	B	1	0.h	1.2981
+negative.control	NA	NA	NA	NA	NA	1	B	2	0.h	1.2892
+negative.control	NA	NA	NA	NA	NA	1	B	3	0.h	1.2584
+negative.control	NA	NA	NA	NA	NA	2	F	1	0.h	1.3625
+negative.control	NA	NA	NA	NA	NA	2	F	2	0.h	1.3211
+negative.control	NA	NA	NA	NA	NA	2	F	3	0.h	1.3711

@@ -1,0 +1,497 @@
+---
+title: "Maximum Oxygen Consumption"
+author: "Elliott Schmidt"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    keep_md: yes
+    code_folding: show
+    collapse: no
+    df_print: paged
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 6
+    highlight: monochrome
+    theme: flatly
+    latex_engine: xelatex
+    toc: yes
+    toc_float: yes
+    css: styles.css
+  pdf_document:
+    df_print: default
+    fig_caption: yes
+    fig_height: 4
+    fig_width: 4
+    highlight: tango
+    latex_engine: xelatex
+    number_sections: yes
+    toc_depth: 2
+documentclass: article
+fontsize: 12pt
+mainfont: Arial
+mathfont: LiberationMono
+classoption: a4paper
+--- 
+
+# Scenario 
+
+For initial details on the experiment performed please read the **ReadMe** file. In breif, _Acanthochromis polyacanthus_ from two different regions on the Great Barrier Reef (GBR) were tested for metabolic performance at four different temperatures, 27$^\circ$C, 28.5$^\circ$C, 30$^\circ$C, and 31.5$^\circ$C. Fish used in this study were collected from two different regions, low- (i.e. Cairns) and high-latitude (i.e., Mackay), within each region fish were collected from a total of three different populations. Individuals were tested at each temperature, resting oxygen consumption, maximum oxygen consumption. Absolute aerboic scope was calculated by using the following formula: 
+
+Absolute aerobic scope = (maximum oxygen consumption - resting oxygen consumption)
+
+Individuals were first tested at 27$^\circ$C. Water temperature was then increased at a rate of 0.5$^\circ$C Day^-1 until the next temperature was reached. Fish were then provided with an additional 5 day to adjust to the new temperature before aerobic physiology was tested again. 
+
+Three traits are included within the aerobic physiology analysis, resting oxygen consumption, maximum oxygen consumption, and absoulte aerboic scope. Data for each metric was collect from respiratory experiments that had data recorded via a combination of programs including, AquaResp and PyroScience. Slopes (i.e., resting and maximum oxygen consumption values) were then calculated via the **RespR** [https://januarharianto.github.io/respR/articles/respR.html] package.  
+
+
+# Read in the data
+
+Before beginning always make sure that you are working in the correct directory 
+
+```{r set-dir-hide, include=FALSE}
+working.dir = "C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/respirometry/MMR/"
+```
+
+```{r set_dir}
+knitr::opts_knit$set(root.dir=working.dir)
+```
+
+Lets start by loading the packages that are needed 
+
+## Load packages 
+
+```{r load-packages, warning=FALSE, message=FALSE}
+library(tidyverse) # data manipulation
+library(plyr) # data manipulation
+library(dplyr) # data manipulation
+library(lubridate) # data manipulation - specifically time data
+library(ggplot2) # plotting figures
+library(glmmTMB) # running models
+library(performance) # model validation
+library(car) # dependent
+library(DHARMa) # model validation
+library(MuMIn) # model validation
+library(kableExtra) # creating tables
+library(broom) # dependent
+library(emmeans) # post-hoc analysis
+library(ggeffects) # plotting models/model validation
+library(vtable) # creating tables
+library(modelr) # model validation
+library(kableExtra) # formatting output tables
+library(sjPlot) # plotting models
+```
+
+
+
+Now we can import that data. Replace import data with the PATH to your data file. I have secretly labelled my PATH import.data (i.e. import.data = "PATH TO MY FILE")
+
+## Load data 
+```{r import-data-hide, include=FALSE}
+import.data = read.delim("C:/Users/jc527762/OneDrive - James Cook University/PhD dissertation/Data/Chapter1_LocalAdaptation/import_files/SummaryData_2022_resp_updated.txt")
+```
+
+```{r load-data}
+resp <- import.data
+``` 
+
+# Data manipulation 
+
+Before the data can be analysed it is important to clean up the data file. Below a number of adjustments are made, primarily making sure that columns are being treated appropriately as either factors, numeric, or as time, as well as the renaming of some columns. Once these changes are made the data is being saved into a new dataframe called **resp2** 
+
+```{r data-manipulation-1, warning=FALSE, message=FALSE, class.source="style"}
+resp2 = resp %>% 
+  dplyr::rename(EXP_FISH_ID = FISH_ID) %>%
+  separate(EXP_FISH_ID, c("FISH_ID"), remove = FALSE) %>%
+  mutate(FISH_ID = factor(FISH_ID), 
+         POPULATION = factor(POPULATION), 
+         REGION = factor(REGION), 
+         TEMPERATURE = as.numeric(TEMPERATURE), #run with temperature as a factor
+         RESTING_DATE = factor(RESTING_DATE), 
+         RESTING_CHAMBER = factor(RESTING_CHAMBER), 
+         RESTING_SYSTEM = factor(RESTING_SYSTEM), 
+         RESTING_SUMP = factor(RESTING_SUMP), 
+         RESTING_AM_PM = factor(RESTING_AM_PM), 
+         RESTING_START_TIME = hms(RESTING_START_TIME),
+         RESTING_END_TIME = hms(RESTING_ENDTIME),
+         MAX_DATE = factor(MAX_DATE), 
+         MAX_CHAMBER = factor(MAX_CHAMBER), 
+         MAX_SYSTEM = factor(MAX_SYSTEM), 
+         MAX_SUMP = factor(MAX_SUMP), 
+         MAX_AM_PM = factor(MAX_AM_PM), 
+         MAX_START_TIME = hms(MAX_START_TIME), 
+         Swim.performance = factor(Swim.performance), 
+         NAS = as.numeric(NAS), 
+         FAS = as.numeric(FAS), 
+         MgO2.hr_Net = as.numeric(MgO2.hr_Net), 
+         RESTING_RUNTIME_SECONDS = as.numeric(hms(RESTING_RUNTIME))) %>% 
+  dplyr::rename(MASS = WEIGHT) %>% 
+  mutate(MASS_CENTERED = scale(MASS, scale = FALSE, center = TRUE))
+```
+
+Next select data points will be removed. Beside the removed data points I have provided reasoning for their exclusion, such as fish died during the experiment, or data quailty was poor - which likely indicated that there was an issue with the equipment during the trial. 
+
+```{r data-manipulation-2, warning=FALSE, message=FALSE} 
+resp3 <- resp2 %>% 
+  subset(  
+    EXP_FISH_ID !="LCHA127_27" & # deceased during experiment
+      EXP_FISH_ID !="LCHA132_27" & # deceased during experiment
+      EXP_FISH_ID !="LKES168_27" # poor data quality
+  ) 
+```
+
+So far the analysis has been the same as the protocol outlined in the **aerobic physiology resting** data. One additional data removal step will take place in the maximum oxygen consumption analysis for samples where fish swam poorly and therefore their maximum oxygen consumption data is thought to be unreliable. This step is done before any data analysis has taken place. 
+
+```{r data-manipulation-3, warning=FALSE, message=FALSE}
+resp4 <- resp3 %>% 
+  subset(
+    EXP_FISH_ID !="CSUD008_27" &  # poor swim
+      EXP_FISH_ID !="CSUD008_30" &  # poor swim 
+      EXP_FISH_ID !="CSUD008_28.5" & # poor swim
+      EXP_FISH_ID !="CSUD018_31.5" & # poor swim 
+      EXP_FISH_ID !="CSUD026_30" & # max. value low 
+      EXP_FISH_ID !="CSUD074_28.5" & # fas value low 
+      EXP_FISH_ID !="CSUD079_30" &
+      EXP_FISH_ID !="CVLA052_27" & #nas value low 
+      EXP_FISH_ID !="CVLA054_28.5" & # low max value? 
+      EXP_FISH_ID !="LCHA113_27" & # poor data quality 
+      EXP_FISH_ID !="LCHA113_30" & # poor swim 
+      EXP_FISH_ID !="LCHA127_27" # deceased during experiment
+  ) 
+```
+
+# Exploratory data analysis {.tabset}
+
+## MASS v MAX
+
+```{r eda-1, warning=FALSE, message=FALSE}
+ggplot(resp4, aes(MASS, MAX_MgO2.hr_RESPR)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  theme_classic()
+```
+
+## MASS v MAX (LATITUDE)
+```{r eda-2, warning=FALSE, message=FALSE}
+ggplot(resp4, aes(MASS, MAX_MgO2.hr_RESPR, color = REGION)) + 
+  geom_point() +
+  theme_classic() + 
+  geom_smooth(method = "lm")
+```
+
+## TEMPERTURE v MAX (LATITUDE)
+```{r eda-3, warning=FALSE, message=FALSE}
+ggplot(resp4, aes(TEMPERATURE, MAX_MgO2.hr_RESPR, color = REGION)) + 
+  geom_point() +
+  theme_classic()
+``` 
+
+## {-}
+
+# Fit the model 
+
+The model was fit using the **glm** and later **glmmTMB** package in R. A number of different models were tested to determine which hypothesis and associated variables best predicted resting oxygen consumption. Model fit was examined using AICc, BIC, and r-squared values. Additional model were examined via the validation diagonistics provided by the **performance** and **dHARMA** packages in R. 
+
+The first set of models tested looked at three different hypotheses including 1) that mass has a major impact of resting oxygen consumption of fish (this has been documented in the literature), 2) if variables related to time have an important impact on the resting oxygen consumption of fish. 
+
+## Fixed factors (linear regression models)
+
+### model 1
+```{r model-fit-1, warning=FALSE}
+#--- base model ---#
+mmr.1 <- glm(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp4)  
+```
+#### summary
+```{r model-fit-1.2, warning=FALSE, echo=FALSE}
+as.data.frame(summary(mmr.1)$coefficients) %>% 
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+
+```
+
+### model 2
+```{r model-fit-2, warning=FALSE}
+#--- experimental rmr equipment hypothesis ---#
+mmr.2 <- glm(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MAX_SUMP + MAX_CHAMBER + 
+                   MAX_AM_PM, 
+                 family=gaussian(),
+                 data = resp4) 
+```
+
+#### summary
+```{r model-fit-2.2, warning=FALSE, echo=FALSE}
+as.data.frame(summary(mmr.2)$coefficients) %>% 
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+
+```
+
+### model comparison table
+```{r model-fit-3, warning=FALSE, echo=FALSE}
+aic.c=AICc(mmr.1, mmr.2, k=2) 
+bic=BIC(mmr.1, mmr.2)
+
+model.fit.table <- as.data.frame(aic.c) %>% 
+  tibble::rownames_to_column("model") %>%
+  mutate(BIC = bic$BIC, 
+         r2 = c(r.squaredGLMM(mmr.1)[1], r.squaredGLMM(mmr.2)[1]))
+model.fit.table %>% knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+```
+
+The model that contains **MASS_CENTERED** seems to do better than the model that incorporates variables that are associated with the time that experiments are performed.This is demonstrated by the lower AIC and BIC scores, as well as higher r-squared value.  
+
+## Polynomials 
+
+### polynomial models 
+
+Note that the linear model has already been created via model _rmr.3_ in the previous section.
+
+```{r poly-model-1}
+mmr.1.p2 <- glm(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp4)
+
+mmr.1.p3 <- glm(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 3) + MASS_CENTERED, 
+                 family=gaussian(),
+                 data = resp4)
+```
+
+#### polynomial model comparisons
+```{r poly-model-1.2, warning=FALSE, echo=FALSE}
+aic.c=AICc(mmr.1, mmr.1.p2, mmr.1.p3, k=2)
+bic=BIC(mmr.1, mmr.1.p2, mmr.1.p3)
+
+model.fit.table <- as.data.frame(aic.c) %>% 
+  tibble::rownames_to_column("model") %>%
+  mutate(BIC = bic$BIC, 
+         r2 = c(r.squaredLR(mmr.1)[1], r.squaredLR(mmr.1.p2)[1], r.squaredLR(mmr.1.p3)[1]))
+model.fit.table %>% knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+```
+
+From our model comparison we can see the there is no additional benefit to the model by including temperature as a 2^nd^ or 3^rd^ order polynomial. However, the linear and quadratic model both perform well. 
+
+## Random factors 
+
+Fish were repeatedly sampled over four different temperatures, therefore repeated sampling needs to be accounted for. To do this random factors will be included within the model. There are a number of options that can be used for random factors including 1) accounting for repeated sampling of individuals, 2) accounting for repeated sampling of individuals nested within population, 3) account for repeated sampling of individuals and populations without nesting. All three models will be run a compaired. 
+
+### random factor models
+
+```{r random-factors-1, warning=FALSE}
+mmr.1a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE) 
+
+mmr.1b <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|POPULATION/FISH_ID), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE)
+
+mmr.1c <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * TEMPERATURE + MASS_CENTERED + (1|FISH_ID) + (REGION|POPULATION), 
+                  family=gaussian(),
+                  data = resp4,
+                  REML = TRUE) # Convergence problem
+
+```
+
+#### random factor model comparisons 
+
+```{r random-factors-1.2, warning=FALSE, echo=FALSE}
+aic.c=AICc(mmr.1a, mmr.1b, mmr.1c, k=2)
+bic=BIC(mmr.1a, mmr.1b, mmr.1c)
+
+model.fit.table <- as.data.frame(aic.c) %>% 
+  tibble::rownames_to_column("model") %>%
+  mutate(BIC = bic$BIC, 
+         r2m = c(r.squaredGLMM(mmr.1a)[1], r.squaredGLMM(mmr.1b)[1], r.squaredGLMM(mmr.1c)[1]), 
+         r2c = c(r.squaredGLMM(mmr.1a)[2], r.squaredGLMM(mmr.1b)[2], r.squaredGLMM(mmr.1c)[2]))
+model.fit.table %>% knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+
+```
+
+Model _rmr.3a_ appears to be the best model, however, there seems to be little difference in how the models change depending on how the random factors are arranged.
+
+# Model validation {.tabset .tabset-faded}
+
+## performance {.tabset .tabset-faded}
+
+### rmr.3a (linear)
+```{r model-valid-1, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
+mmr.1a %>% performance::check_model()
+```
+
+The _mmr.3a_ model performs well, however, in the model validation performed by the **performance** model it looks like there are two variables that are highly correlated. If we expand the figure we can see that the highly correlated variables are REGION and REGION:TEMPERATURE. Perhaps this is unsurprising  but lets see what happens when we run the quadratic (2^nd^ polynomial) model to see if this helps deal with the high correlation between these two variables, as it performed very similarly to _mmr.3a_, and even had a higher r2 value. 
+
+### mmr.1.p2a (quadratic)
+
+First we need to update the model by adding in the missing random factor
+```{r model-valid-1.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE}
+mmr.1.p2a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|FISH_ID), 
+                 family=gaussian(),
+                 data = resp4, 
+                 REML = TRUE) 
+```
+
+```{r model-valid-1.2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, echo=FALSE}
+mmr.1.p2a %>% performance::check_model()
+```
+
+## DHARMa residuals {.tabset .tabset-faded}
+
+### mmr.1a (linear)
+```{r model-valid-2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
+mmr.1a %>% simulateResiduals(plot=TRUE)
+mmr.1a %>% DHARMa::testResiduals(plot=TRUE)
+```
+
+### mmr.1.p2 (quadratic)
+
+First we need to update the model by adding in the missing random factor
+```{r model-valid-2.2a, fig.width=8, fig.height=8, message=FALSE, warning=FALSE}
+mmr.1.p2a <- glmmTMB(MAX_MgO2.hr_RESPR ~ 1+ REGION * poly(TEMPERATURE, 2) + MASS_CENTERED + (1|FISH_ID), 
+                 family=gaussian(),
+                 data = resp4, 
+                 REML = TRUE) 
+```
+
+```{r model-valid-2.2, fig.width=8, fig.height=8, message=FALSE, warning=FALSE, results='markdown'}
+mmr.1.p2a %>% simulateResiduals(plot=TRUE) 
+mmr.1.p2a %>% DHARMa::testResiduals(plot=TRUE)
+```
+
+## {-}
+
+# {-}
+
+It looks like the model that treats temperature as a second order polynomial does a better job at avoiding high levels of collinearity within the model. The quadratic model will be used moving forward because it: 
+
+* The **quadratic model** performs just as well as the linear model based on the model validation scores (i.e., AIC, BIC, and r2) 
+* The **quadratic model** does a **better** job at dealing with collinearity that appeared in the model 
+
+# Partial plots {.tabset .tabset-faded}
+
+## ggemmeans 
+
+```{r partial-plots-1, message=FALSE, echo=FALSE, fig.width=8, fig.height=6}
+mmr.1.p2a %>% ggemmeans(~TEMPERATURE|REGION) %>% plot(add.data=TRUE, jitter=c(0.05,0))
+```
+
+## plot_model 
+
+```{r partial-plots-2, echo=FALSE, fig.width=8, fig.height=6}
+mmr.1.p2a %>% plot_model(type='std', vline.color = "grey12", show.values=TRUE, sort.est = TRUE, transform = NULL, value.offset = 0.3)
+```
+
+# {-} 
+
+# Model investigation {.tabset .tabset-faded}
+
+## summary 
+```{r model-inv-1, echo=FALSE}
+as.data.frame(summary(mmr.1.p2a)$coefficients[1]) %>% 
+  dplyr::rename( 
+    Estimate = cond.Estimate,
+    StdError = cond.Std..Error,
+    Zvalue = cond.z.value,
+    Pvalue = cond.Pr...z..
+    ) %>%
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+```
+
+## Anova 
+```{r model-inv-2, echo=FALSE}
+mmr.1.p2a %>% Anova() %>% 
+  as.data.frame() %>%
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+``` 
+
+## confint 
+```{r model-inv-3, echo=FALSE}
+mmr.1.p2a %>% confint() %>% 
+  as.data.frame() %>%
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+``` 
+
+## r-squared
+```{r model-inv-4, echo=FALSE}
+mmr.1.p2a %>% performance::r2_nakagawa() %>% 
+  as.data.frame() %>%
+  knitr::kable(format = "html")  %>%
+  kable_paper(full_width = TRUE)
+```
+
+# {-} 
+
+# Pairwise comparisons {.tabset .tabset-faded} 
+
+## emtrends [latitudes]
+
+
+```{r pairwise-1}
+mmr.1.p2a %>% emtrends(var = "TEMPERATURE", type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+```
+SCROLL TO THE RIGHT -->
+
+The numbers in the left most column in the table just mention that the slopes are assuming mean **MASS_CENTERED** values when looking at differences between latitudinal slopes.
+
+## emmeans [latitudes]
+```{r pairwise-2}
+mmr.1.p2a %>% emmeans(pairwise ~ TEMPERATURE*REGION, type = "response") %>% pairs(by = "TEMPERATURE") %>% summary(by = NULL, adjust = "tukey", infer=TRUE)
+```
+
+## temperature 
+```{r pairwise-3}
+mmr.1.p2a %>% emmeans(~ TEMPERATURE*REGION, type = "response")  %>% summary(infer=TRUE)
+```
+
+
+## Means - f(temperature)
+```{r pairwise-4}
+mmr.1.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID)) %>% 
+  emmeans(~REGION*TEMPERATURE, type = "response") %>% summary(infer=TRUE)
+```
+
+## Abs. diff - f(temperature)
+```{r pairwise-5}
+mmr.1.p2a %>% update(.~1+ REGION * as.factor(TEMPERATURE) + MASS_CENTERED + RESTING_RUNTIME_SECONDS + (1|FISH_ID)) %>% 
+  emmeans(~REGION*TEMPERATURE, type = "response") %>% pairs(by ="REGION") %>% summary(infer=TRUE)
+```
+# {-}
+
+# Summary figure 
+
+```{r sum-fig, fig.width=8, fig.height=6, echo=FALSE}
+mmr.emm <- emmeans(mmr.1.p2a, ~ TEMPERATURE*REGION, 
+                  at = list(TEMPERATURE = seq(from=27, to = 31.5, by=.1)))
+mmr.emm.df=as.data.frame(mmr.emm)
+
+mmr.obs <-  resp4 %>% 
+  mutate(Pred=predict(mmr.1.p2a, re.form=NA),
+         Resid = residuals(mmr.1.p2a, type='response'),
+         Fit = Pred + Resid)
+
+mmr.g2 <- ggplot(mmr.emm.df, aes(y=emmean, x=TEMPERATURE, color=REGION))+
+  geom_jitter(data=mmr.obs, aes(y=Fit, color=REGION), width=0.05, alpha = 0.3) + 
+  stat_smooth(method = "lm", 
+              formula =y ~ poly(x, 2, raw=TRUE)) + 
+  geom_ribbon(aes(x=TEMPERATURE, ymin= lower.CL, ymax= upper.CL, fill = REGION), 
+              alpha = 0.2, color=NA) +
+  scale_x_continuous(limits = c(26.9, 31.6), breaks = seq(27, 31.5, by = 1.5))+ 
+  scale_y_continuous(limits = c(6,27), breaks = seq(6, 27, by = 2)) +
+  theme_classic() + ylab("MAXIMUM METABOLIC RATE (MMR: MgO2/hr)")+ xlab("")+
+  scale_color_manual(values=c("#B2182B", "#4393C3")) + 
+  scale_fill_manual(values=c("#B2182B", "#4393C3")) + 
+  theme(legend.position = 'none')+
+  annotate("text", x=31, y= 27, label="P =0.0010", fontface="italic", size=5); mmr.g2
+```
+
+# Conclusion 
+
+* In conclusion while maximum oxygen consumption is **significantly** positively correlated with temperature and fish from low latitudes have **significantly** higher maximum consumption at elevated temperatures compared to fish from high latitudes.
