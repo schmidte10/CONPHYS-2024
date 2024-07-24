@@ -9,6 +9,8 @@ _How species respond to climate change will depend on the collective response of
 
 The most important document in the repository is titled 'DataAnalysisSummary' and can be found in the data_analysis folder. The 'DataAnalysisSummary' files are the most up to date and contain a thorough step-by-step walkthrough of the analysis that was completed for this manuscript, including data manipulation, models, model validations, results, and a summary figure, for all traits (aerobic physiology, immunocompetence, hematocrit, and enzyme activity). 'DataAnalysisSummary' can be found in three forms including, .html, .Rmd, and .md files, with all figures produced within the files also being avaliable in the 'DataAnalysisSummary_files/figure-html' folder. 
 
+Data imported into R scripts were imported from the 'import_files' folder.
+
 Within other folders including 'respirometry', 'immunocompetence', 'hematocrit-hemoglobin' and 'enzymes' you will find basic R scripts that were used to create the Rmarkdown files. These R scripts are unpolished versions of what can be found in the .Rmd files that are in the data_analysis folder. However, these scripts may not have included final updates and there are not recommended if trying to re-analysis the data within this publication. The files in the data_analysis folder are the most up to date. 
 
 The map folder contains data and various versions of maps that were created for this project. An R script (but no Rmarkdown file) is avaliable for the creation of the map. If you would like an Rmarkdown version of the map, please get in contact with me and I can try to quickly peice one together. 
