@@ -1,6 +1,6 @@
 # CONPHYS-2024
 
-This repository contains documents pertaining to the data analysis of Chapter1_LocalAdaptation.  
+This repository contains documents pertaining to the data analysis of CONPHYS-2024 - update with doi after publication.  
 
 Below is the abstract for this manuscript: 
 
