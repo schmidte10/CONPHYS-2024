@@ -1,4 +1,4 @@
-# CONPHYS-2024
+# Regional thermal variation in a coral reef fish
 
 This repository contains documents pertaining to the data analysis of the journal article [Regional thermal variation in a coral reef fish](https://doi.org/10.1093/conphys/coae058).  
 
